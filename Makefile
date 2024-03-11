@@ -1,6 +1,4 @@
 CXX			:= g++
-#CXXFLAGS	:= -O3 -g -ffast-math -Wall -Werror -Wpedantic -std=c++20
-CXXFLAGS	:= -O0 -g -ffast-math -Wall -Werror -Wpedantic -std=c++20
 LDFLAGS		:= -fopenmp
 INCLUDE 	:= include
 TEST		:= test
@@ -9,6 +7,13 @@ BUILD		:= build
 SRCFILES	:= $(shell find $(TEST) -iname *.cpp -print)
 OBJFILES	:= $(patsubst $(TEST)/%.cpp, $(BUILD)/%.o, $(SRCFILES))
 DEPFILES	:= $(patsubst $(TEST)/%.cpp, $(BUILD)/%.d, $(SRCFILES))
+BUILD_TYPE  := Debug
+
+ifeq ($(BUILD_TYPE), Debug)
+	CXXFLAGS	:= -O0 -g -ffast-math -Wall -Werror -Wpedantic -std=c++20
+else
+	CXXFLAGS	:= -O3 -g -ffast-math -Wall -Werror -Wpedantic -std=c++20
+endif
 
 # Executable
 $(BIN)/test: $(OBJFILES)
