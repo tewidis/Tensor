@@ -81,21 +81,33 @@ void cumsum_test()
     assert(gt::all(gt::cumsum(test, 2) == correct2) && "Failed cumsum dimension 2 test");
 }
 
-#if 0
 void diff_test()
 {
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::diff(test, 0);
-    gt::Tensor<float> correct({1, 3, 4});
-    correct = {1, 1, 1,
-               1, 1, 1,
-               1, 1, 1,
-               1, 1, 1};
-    assert(gt::all(actual == correct) && "Failed diff test");
+    gt::Tensor<float> correct0({1, 3, 4});
+    correct0 = {1, 1, 1,
+                1, 1, 1,
+                1, 1, 1,
+                1, 1, 1};
+    assert(gt::all(gt::diff(test, 0) == correct0) && "Failed diff dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 2, 4});
+    correct0 = {2, 2, 2, 2,
+                2, 2, 2, 2,
+                2, 2, 2, 2,
+                2, 2, 2, 2};
+    assert(gt::all(gt::diff(test, 1) == correct1) && "Failed diff dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 3});
+    correct0 = {6, 6, 6, 6, 6, 6,
+                6, 6, 6, 6, 6, 6,
+                6, 6, 6, 6, 6, 6};
+    assert(gt::all(gt::diff(test, 2) == correct2) && "Failed diff dimension 2 test");
 }
 
+#if 0
 void prod_test()
 {
     gt::Tensor<float> test({2, 3, 4});

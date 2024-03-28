@@ -165,20 +165,27 @@ namespace gt
         return output;
     }
 
-#if 0
     template<typename T>
-    auto diff(const T& input, size_t dim)
+    Tensor<T> diff(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
-        shape[dim] -= 1;
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                size_t offset = (index / input.stride(dim)) * input.stride(dim+1) + index % input.stride(dim);
-                return input[offset + input.stride(dim)] - input[offset];
-            }, shape
-        };
+        if (dim < shape.size()) {
+            shape[dim] -= 1;
+        }
+
+        Tensor<T> output(shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < input.shape(dim); j++) {
+                output[i] += input[offset + (j+1) * input.stride(dim)] - 
+                    input[offset + j * input.stride(dim)];
+            }
+        }
+
+        return output;
     }
 
+#if 0
     template<typename T>
     auto prod(const T& input, size_t dim)
     {
