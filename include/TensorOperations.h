@@ -114,40 +114,58 @@ namespace gt
         return output;
     }
 
-#if 0
+    //size_t calculate_offset(size_t index, const std::vector<size_t>& shape, const std::vector<size_t>& stride)
     template<typename T>
-    auto sum(const T& input, size_t dim)
+    size_t calculate_offset(const gt::Tensor<T>& input, size_t index, size_t dim)
     {
+        assert((dim < input.shape().size()) && "Error in calculate offset: Dimension exceeds dimensions of input");
         std::vector<size_t> shape = input.shape();
         shape[dim] = 1;
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                float output = 0;
-                size_t offset = (index / input.stride(dim)) * input.stride(dim+1) + index % input.stride(dim);
-                for (size_t i = 0; i < input.shape(dim); i++) {
-                    output += input[offset + i * input.stride(dim)];
-                }
-                return output;
-            }, shape
-        };
+        std::vector<size_t> stride = calculate_stride(shape);
+
+        size_t offset = 0;
+        for (size_t i = 0; i < shape.size(); i++) {
+            offset += input.stride(i) * ((index / stride[i]) % shape[i]);
+        }
+
+        return offset;
     }
 
     template<typename T>
-    auto cumsum(const T& input, size_t dim)
+    Tensor<T> sum(const Tensor<T>& input, size_t dim)
     {
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                float output = 0;
-                size_t offset = (index / input.stride(dim+1)) * input.stride(dim+1) + index % input.stride(dim);
-                while (offset <= index) {
-                    output += input[offset];
-                    offset += input.stride(dim);
-                }
-                return output;
-            }, input.shape()
-        };
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+
+        Tensor<T> output(shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < input.shape(dim); j++) {
+                output[i] += input[offset + j * input.stride(dim)];
+            }
+        }
+
+        return output;
     }
 
+    template<typename T>
+    Tensor<T> cumsum(const Tensor<T>& input, size_t dim)
+    {
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            T running_total = 0;
+            for (size_t j = 0; j < input.shape(dim); j++) {
+                running_total += input[offset + j * input.stride(dim)];
+                output[i + j * input.stride(dim)] = running_total;
+            }
+        }
+        return output;
+    }
+
+#if 0
     template<typename T>
     auto diff(const T& input, size_t dim)
     {

@@ -37,19 +37,30 @@ void logspace_test()
     assert(gt::all(actual == correct) && "Failed logspace test");
 }
 
-#if 0
 void sum_test()
 {
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::sum(test, 0);
-    gt::Tensor<float> correct({1, 3, 4});
-    correct = {1, 5, 9,
+    gt::Tensor<float> correct0({1, 3, 4});
+    correct0 = {1, 5, 9,
                13, 17, 21,
                25, 29, 33,
                37, 41, 45};
-    assert(gt::all(actual == correct) && "Failed sum test");
+    assert(gt::all(gt::sum(test, 0) == correct0) && "Failed sum dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 1, 4});
+    correct1 = {6, 9,
+                24, 27,
+                42, 45,
+                60, 63};
+    assert(gt::all(gt::sum(test, 1) == correct1) && "Failed sum dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 1});
+    correct2 = {36, 40,
+                44, 48,
+                52, 56};
+    assert(gt::all(gt::sum(test, 2) == correct2) && "Failed sum dimension 2 test");
 }
 
 void cumsum_test()
@@ -57,12 +68,20 @@ void cumsum_test()
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::cumsum(test, 0);
-    gt::Tensor<float> correct({2, 3, 4});
-    correct = {0, 1, 2, 5, 4, 9, 6, 13, 8, 17, 10, 21, 12, 25, 14, 29, 16, 33, 18, 37, 20, 41, 22, 45};
-    assert(gt::all(actual == correct) && "Failed cumsum test");
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 1, 2, 5, 4, 9, 6, 13, 8, 17, 10, 21, 12, 25, 14, 29, 16, 33, 18, 37, 20, 41, 22, 45};
+    assert(gt::all(gt::cumsum(test, 0) == correct0) && "Failed cumsum dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 2, 4, 6, 9, 6, 7, 14, 16, 24, 27, 12, 13, 26, 28, 42, 45, 18, 19, 38, 40, 60, 63};
+    assert(gt::all(gt::cumsum(test, 1) == correct1) && "Failed cumsum dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 21, 24, 27, 30, 33, 36, 40, 44, 48, 52, 56};
+    assert(gt::all(gt::cumsum(test, 2) == correct2) && "Failed cumsum dimension 2 test");
 }
 
+#if 0
 void diff_test()
 {
     gt::Tensor<float> test({2, 3, 4});
@@ -274,7 +293,7 @@ int main()
     access_test();
     linspace_test();
     logspace_test();
-    //sum_test();
+    sum_test();
     //cumsum_test();
     //diff_test();
     //prod_test();

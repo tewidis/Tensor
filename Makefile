@@ -21,7 +21,7 @@ $(BIN)/test: $(OBJFILES)
 	$(CXX) $(LDFLAGS) $^ -o $@
 
 # Object Files
-$(BUILD)/%.o: $(TEST)/%.cpp
+$(BUILD)/%.o: $(TEST)/%.cpp $(INCLUDE)/TensorOperations.h $(INCLUDE)/Tensor.h
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c $< -o $@ -I$(INCLUDE)
 
