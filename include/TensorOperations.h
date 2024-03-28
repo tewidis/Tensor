@@ -157,11 +157,12 @@ namespace gt
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
             size_t offset = calculate_offset(input, i, dim);
             T running_total = 0;
-            for (size_t j = 0; j < input.shape(dim); j++) {
+            for (size_t j = 0; j < output.shape(dim); j++) {
                 running_total += input[offset + j * input.stride(dim)];
-                output[i + j * input.stride(dim)] = running_total;
+                output[offset + j * input.stride(dim)] = running_total;
             }
         }
+
         return output;
     }
 
@@ -176,49 +177,48 @@ namespace gt
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
             size_t offset = calculate_offset(input, i, dim);
+            output[i] = input[offset + input.stride(dim)] - input[offset];
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> prod(const Tensor<T>& input, size_t dim)
+    {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+
+        Tensor<T> output(shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            output[i] = 1;
             for (size_t j = 0; j < input.shape(dim); j++) {
-                output[i] += input[offset + (j+1) * input.stride(dim)] - 
-                    input[offset + j * input.stride(dim)];
+                output[i] *= input[offset + j * input.stride(dim)];
             }
         }
 
         return output;
     }
 
+    template<typename T>
+    Tensor<T> cumprod(const Tensor<T>& input, size_t dim)
+    {
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            T running_total = 1;
+            for (size_t j = 0; j < output.shape(dim); j++) {
+                running_total *= input[offset + j * input.stride(dim)];
+                output[offset + j * input.stride(dim)] = running_total;
+            }
+        }
+
+        return output;
+    }
 #if 0
-    template<typename T>
-    auto prod(const T& input, size_t dim)
-    {
-        std::vector<size_t> shape = input.shape();
-        shape[dim] = 1;
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                float output = 1;
-                size_t offset = (index / input.stride(dim)) * input.stride(dim+1) + index % input.stride(dim);
-                for (size_t i = 0; i < input.shape(dim); i++) {
-                    output *= input[offset + i * input.stride(dim)];
-                }
-                return output;
-            }, shape
-        };
-    }
-
-    template<typename T>
-    auto cumprod(const T& input, size_t dim)
-    {
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                float output = 1;
-                size_t offset = (index / input.stride(dim+1)) * input.stride(dim+1) + index % input.stride(dim);
-                while (offset <= index) {
-                    output *= input[offset];
-                    offset += input.stride(dim);
-                }
-                return output;
-            }, input.shape()
-        };
-    }
-
     template<typename T>
     auto trapz(const T& input, size_t dim)
     {

@@ -94,29 +94,35 @@ void diff_test()
     assert(gt::all(gt::diff(test, 0) == correct0) && "Failed diff dimension 0 test");
 
     gt::Tensor<float> correct1({2, 2, 4});
-    correct0 = {2, 2, 2, 2,
+    correct1 = {2, 2, 2, 2,
                 2, 2, 2, 2,
                 2, 2, 2, 2,
                 2, 2, 2, 2};
     assert(gt::all(gt::diff(test, 1) == correct1) && "Failed diff dimension 1 test");
 
     gt::Tensor<float> correct2({2, 3, 3});
-    correct0 = {6, 6, 6, 6, 6, 6,
+    correct2 = {6, 6, 6, 6, 6, 6,
                 6, 6, 6, 6, 6, 6,
                 6, 6, 6, 6, 6, 6};
     assert(gt::all(gt::diff(test, 2) == correct2) && "Failed diff dimension 2 test");
 }
 
-#if 0
 void prod_test()
 {
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::prod(test, 0);
-    gt::Tensor<float> correct({1, 3, 4});
-    correct = {0, 6, 20, 42, 72, 110, 156, 210, 272, 342, 420, 506};
-    assert(gt::all(actual == correct) && "Failed prod test");
+    gt::Tensor<float> correct0({1, 3, 4});
+    correct0 = {0, 6, 20, 42, 72, 110, 156, 210, 272, 342, 420, 506};
+    assert(gt::all(gt::prod(test, 0) == correct0) && "Failed prod dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 1, 4});
+    correct1 = {0, 15, 480, 693, 2688, 3315, 7920, 9177};
+    assert(gt::all(gt::prod(test, 1) == correct1) && "Failed prod dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 1});
+    correct2 = {0, 1729, 4480, 8505, 14080, 21505};
+    assert(gt::all(gt::prod(test, 2) == correct2) && "Failed prod dimension 2 test");
 }
 
 void cumprod_test()
@@ -124,12 +130,29 @@ void cumprod_test()
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::cumprod(test, 0);
-    gt::Tensor<float> correct({2, 3, 4});
-    correct = {0, 0, 2, 6, 4, 20, 6, 42, 8, 72, 10, 110, 12, 156, 14, 210, 16, 272, 18, 342, 20, 420, 22, 506};
-    assert(gt::all(actual == correct) && "Failed cumprod test");
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 0, 2, 6, 4, 20, 
+                6, 42, 8, 72, 10, 110, 
+                12, 156, 14, 210, 16, 272, 
+                18, 342, 20, 420, 22, 506};
+    assert(gt::all(gt::cumprod(test, 0) == correct0) && "Failed cumprod dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 0, 3, 0, 15,
+                6, 7, 48, 63, 480, 693,
+                12, 13, 168, 195, 2688, 3315,
+                18, 19, 360, 399, 7920, 9177};
+    assert(gt::all(gt::cumprod(test, 1) == correct1) && "Failed cumprod dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5,
+                0, 7, 16, 27, 40, 55,
+                0, 91, 224, 405, 640, 935,
+                0, 1729, 4480, 8505, 14080, 21505};
+    assert(gt::all(gt::cumprod(test, 2) == correct2) && "Failed cumprod dimension 2 test");
 }
 
+#if 0
 void trapz_test()
 {
     gt::Tensor<float> test({2, 3, 4});
@@ -306,10 +329,10 @@ int main()
     linspace_test();
     logspace_test();
     sum_test();
-    //cumsum_test();
-    //diff_test();
-    //prod_test();
-    //cumprod_test();
+    cumsum_test();
+    diff_test();
+    prod_test();
+    cumprod_test();
     //trapz_test();
     //cumtrapz_test();
     //max_test();
