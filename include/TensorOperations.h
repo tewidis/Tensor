@@ -218,41 +218,46 @@ namespace gt
 
         return output;
     }
-#if 0
+
     template<typename T>
-    auto trapz(const T& input, size_t dim)
+    Tensor<T> trapz(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
-        shape[dim] = 1;
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                float output = 0;
-                size_t offset = (index / input.stride(dim)) * input.stride(dim+1) + index % input.stride(dim);
-                for (size_t i = 0; i < input.shape(dim) - 1; i++) {
-                    output += (input[offset + (i + 1) * input.stride(dim)] +
-                        input[offset + i * input.stride(dim)]) / 2.0f;
-                }
-                return output;
-            }, shape
-        };
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+
+        Tensor<T> output(shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            for (size_t j = 1; j < input.shape(dim); j++) {
+                output[i] += (input[offset + j * input.stride(dim)] +
+                    input[offset + (j - 1) * input.stride(dim)]) / 2.0f;
+            }
+        }
+
+        return output;
     }
 
     template<typename T>
-    auto cumtrapz(const T& input, size_t dim)
+    Tensor<T> cumtrapz(const Tensor<T>& input, size_t dim)
     {
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                float output = 0;
-                size_t offset = (index / input.stride(dim+1)) * input.stride(dim+1) + index % input.stride(dim);
-                while (offset < index) {
-                    output += (input[offset] + input[offset + input.stride(dim)]) / 2.0f;
-                    offset += input.stride(dim);
-                }
-                return output;
-            }, input.shape()
-        };
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            output[offset] = 0;
+            for (size_t j = 1; j < output.shape(dim); j++) {
+                output[offset + j * input.stride(dim)] = 
+                    output[offset + (j - 1) * input.stride(dim)] +
+                    (input[offset + j * input.stride(dim)] +
+                    input[offset + (j - 1) * input.stride(dim)]) / 2.0f;
+            }
+        }
+
+        return output;
     }
 
+#if 0
     template<typename T>
     auto max(const T& input, size_t dim)
     {
