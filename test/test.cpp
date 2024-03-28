@@ -188,16 +188,22 @@ void cumtrapz_test()
     assert(gt::all(gt::cumtrapz(test, 2) == correct2) && "Failed cumtrapz dimension 2 test");
 }
 
-#if 0
 void max_test()
 {
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::max(test, 0);
-    gt::Tensor<float> correct({1, 3, 4});
-    correct = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23};
-    assert(gt::all(actual == correct) && "Failed max test");
+    gt::Tensor<float> correct0({1, 3, 4});
+    correct0 = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23};
+    assert(gt::all(gt::max(test, 0) == correct0) && "Failed max dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 1, 4});
+    correct1 = {4, 5, 10, 11, 16, 17, 22, 23};
+    assert(gt::all(gt::max(test, 1) == correct1) && "Failed max dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 1});
+    correct2 = {18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::max(test, 2) == correct2) && "Failed max dimension 2 test");
 }
 
 void cummax_test()
@@ -205,12 +211,29 @@ void cummax_test()
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::cummax(test, 0);
-    gt::Tensor<float> correct({2, 3, 4});
-    correct = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
-    assert(gt::all(actual == correct) && "Failed cummax test");
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 1, 2, 3, 4, 5, 
+                6, 7, 8, 9, 10, 11, 
+                12, 13, 14, 15, 16, 17, 
+                18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::cummax(test, 0) == correct0) && "Failed cummax dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 2, 3, 4, 5, 
+                6, 7, 8, 9, 10, 11, 
+                12, 13, 14, 15, 16, 17, 
+                18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::cummax(test, 1) == correct1) && "Failed cummax dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5, 
+                6, 7, 8, 9, 10, 11, 
+                12, 13, 14, 15, 16, 17, 
+                18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::cummax(test, 2) == correct2) && "Failed cummax dimension 2 test");
 }
 
+#if 0
 void min_test()
 {
     gt::Tensor<float> test({2, 3, 4});
@@ -349,8 +372,8 @@ int main()
     cumprod_test();
     trapz_test();
     cumtrapz_test();
-    //max_test();
-    //cummax_test();
+    max_test();
+    cummax_test();
     //min_test();
     //cummin_test();
     //mean_test();
