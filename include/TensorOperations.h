@@ -268,6 +268,7 @@ namespace gt
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
             size_t offset = calculate_offset(input, i, dim);
+            output[i] = input[offset];
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] = std::max(output[i], input[offset + j * input.stride(dim)]);
             }
@@ -293,40 +294,44 @@ namespace gt
         return output;
     }
 
-#if 0
     template<typename T>
-    auto min(const T& input, size_t dim)
+    Tensor<T> min(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
-        shape[dim] = 1;
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                size_t offset = (index / input.stride(dim)) * input.stride(dim+1) + index % input.stride(dim);
-                float output = input[offset];
-                for (size_t i = 0; i < input.shape(dim); i++) {
-                    output = std::min(output, input[offset + i * input.stride(dim)]);
-                }
-                return output;
-            }, shape
-        };
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+
+        Tensor<T> output(shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            output[i] = input[offset];
+            for (size_t j = 0; j < input.shape(dim); j++) {
+                output[i] = std::min(output[i], input[offset + j * input.stride(dim)]);
+            }
+        }
+
+        return output;
     }
 
     template<typename T>
-    auto cummin(const T& input, size_t dim)
+    Tensor<T> cummin(const Tensor<T>& input, size_t dim)
     {
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                size_t offset = (index / input.stride(dim+1)) * input.stride(dim+1) + index % input.stride(dim);
-                float output = input[offset];
-                while (offset <= index) {
-                    output = std::min(output, input[offset]);
-                    offset += input.stride(dim);
-                }
-                return output;
-            }, input.shape()
-        };
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            output[offset] = input[offset];
+            for (size_t j = 1; j < output.shape(dim); j++) {
+                output[offset + j * input.stride(dim)] = std::min(
+                    output[offset + (j - 1) * input.stride(dim)],
+                    input[offset + j * input.stride(dim)]);
+            }
+        }
+
+        return output;
     }
 
+#if 0
     template<typename T>
     auto mean(const T& input, size_t dim)
     {

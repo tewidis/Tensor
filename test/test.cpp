@@ -233,16 +233,22 @@ void cummax_test()
     assert(gt::all(gt::cummax(test, 2) == correct2) && "Failed cummax dimension 2 test");
 }
 
-#if 0
 void min_test()
 {
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::min(test, 0);
-    gt::Tensor<float> correct({1, 3, 4});
-    correct = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22};
-    assert(gt::all(actual == correct) && "Failed min test");
+    gt::Tensor<float> correct0({1, 3, 4});
+    correct0 = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22};
+    assert(gt::all(gt::min(test, 0) == correct0) && "Failed min dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 1, 4});
+    correct1 = {0, 1, 6, 7, 12, 13, 18, 19};
+    assert(gt::all(gt::min(test, 1) == correct1) && "Failed min dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 1});
+    correct2 = {0, 1, 2, 3, 4, 5};
+    assert(gt::all(gt::min(test, 2) == correct2) && "Failed min dimension 2 test");
 }
 
 void cummin_test()
@@ -250,12 +256,20 @@ void cummin_test()
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::cummin(test, 0);
-    gt::Tensor<float> correct({2, 3, 4});
-    correct = {0, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, 18, 18, 20, 20, 22, 22};
-    assert(gt::all(actual == correct) && "Failed cummin test");
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, 18, 18, 20, 20, 22, 22};
+    assert(gt::all(gt::cummin(test, 0) == correct0) && "Failed cummin dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 0, 1, 0, 1, 6, 7, 6, 7, 6, 7, 12, 13, 12, 13, 12, 13, 18, 19, 18, 19, 18, 19};
+    assert(gt::all(gt::cummin(test, 1) == correct1) && "Failed cummin dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5};
+    assert(gt::all(gt::cummin(test, 2) == correct2) && "Failed cummin dimension 2 test");
 }
 
+#if 0
 void mean_test()
 {
     gt::Tensor<float> test({2, 3, 4});
@@ -374,8 +388,8 @@ int main()
     cumtrapz_test();
     max_test();
     cummax_test();
-    //min_test();
-    //cummin_test();
+    min_test();
+    cummin_test();
     //mean_test();
     //var_test();
     //stddev_test();
