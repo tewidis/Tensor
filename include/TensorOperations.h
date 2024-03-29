@@ -114,7 +114,6 @@ namespace gt
         return output;
     }
 
-    //size_t calculate_offset(size_t index, const std::vector<size_t>& shape, const std::vector<size_t>& stride)
     template<typename T>
     size_t calculate_offset(const gt::Tensor<T>& input, size_t index, size_t dim)
     {
@@ -331,6 +330,86 @@ namespace gt
         return output;
     }
 
+    template<typename T>
+    Tensor<T> reshape(const Tensor<T>& input, const std::vector<size_t>& shape)
+    {
+        Tensor<T> output(shape);
+        std::copy(input.begin(), input.end(), output.begin());
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> repmat(const Tensor<T>& input, const std::vector<size_t>& reps)
+    {
+        size_t ndims = std::max(reps.size(), input.shape().size());
+        std::vector<size_t> shape(reps.size());
+        for (size_t i = 0; i < ndims; i++) {
+            if (i < reps.size()) {
+                shape[i] = input.shape(i) * reps[i];
+            } else {
+                shape[i] = input.shape(i);
+            }
+        }
+
+        //TODO: Fix this, it's close but not quite right
+        Tensor<T> output(shape);
+        for (size_t dim = 0; dim < shape.size(); dim++) {
+            for (size_t i = 0; i < shape[dim]; i++) {
+                size_t index = input.stride(dim) * ((i / output.stride(dim)) % input.shape(dim));
+                output[i] = input[index];
+            }
+        }
+
+        return output;
+    }
+
+    size_t calculate_permute_index(const std::vector<size_t>& shape,
+        const std::vector<size_t>& stride, const std::vector<size_t>& step,
+        size_t index)
+    {
+        size_t output = 0;
+        for (size_t i = 0; i < shape.size(); i++) {
+            output += step[i] * ((index / stride[i]) % shape[i]);
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> permute(const Tensor<T>& input, const std::vector<size_t>& order)
+    {
+        assert((input.shape().size() == order.size()) &&
+            "Error in permute: Size of order does not dimensionality of Tensor");
+
+        std::vector<size_t> permuted_shape(order.size());
+        std::vector<size_t> permuted_stride(order.size());
+        for (size_t i = 0; i < order.size(); i++) {
+            permuted_shape[i] = input.shape(order[i]);
+            permuted_stride[i] = input.stride(order[i]);
+        }
+
+        Tensor<T> output(permuted_shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            output[i] = input[calculate_permute_index(permuted_shape,
+                output.stride(), permuted_stride, i)];
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> ipermute(const Tensor<T>& input, const std::vector<size_t>& order)
+    {
+        assert((input.shape().size() == order.size()) &&
+            "Error in ipermute: Size of order does not dimensionality of Tensor");
+
+        std::vector<size_t> new_order(order.size());
+        for (size_t i = 0; i < new_order.size(); i++) {
+            new_order[order[i]] = i;
+        }
+
+        return permute(input, new_order);
+    }
 #if 0
     template<typename T>
     auto mean(const T& input, size_t dim)
@@ -361,59 +440,6 @@ namespace gt
     auto stddev(const T& input, size_t dim)
     {
         return sqrt(var(input, dim));
-    }
-
-    template<typename T>
-    auto reshape(const T& input, const std::initializer_list<size_t>& shape)
-    {
-        return UnaryExpression{input, [] (const auto& input)
-            {
-                return input;
-            }, shape
-        };
-    }
-
-    template<typename T>
-    auto repmat(const T& input, const std::vector<size_t>& reps)
-    {
-        std::vector<size_t> shape(reps.size());
-        for (size_t i = 0; i < reps.size(); i++) {
-            shape[i] = input.shape(i) * reps[i];
-        }
-        std::vector<size_t> stride = calculate_stride(shape);
-
-        return UnaryIndexExpression{input, [shape, stride] (const auto& input, size_t index)
-            {
-                size_t output = 0;
-                for (size_t dim = 0; dim < input.shape().size(); dim++) {
-                    output += ((index / stride[dim]) % shape[dim]) % input.shape(dim) * input.stride(dim);
-                }
-                return input[output];
-            }, shape
-        };
-    }
-
-    template<typename T>
-    auto permute(const T& input, const std::vector<size_t>& order)
-    {
-        assert((input.shape().size() == order.size()) && "Error in permute: Size of order does not dimensionality of Tensor");
-        std::vector<size_t> permuted_shape(order.size());
-        std::vector<size_t> permuted_stride(order.size());
-        for (size_t i = 0; i < order.size(); i++) {
-            permuted_shape[i] = input.shape(order[i]);
-            permuted_stride[i] = input.stride(order[i]);
-        }
-        std::vector<size_t> new_stride = calculate_stride(permuted_shape);
-
-        return UnaryIndexExpression{input, [permuted_shape, permuted_stride, new_stride] (const auto& input, size_t index)
-            {
-                size_t output = 0;
-                for (size_t dim = 0; dim < permuted_shape.size(); dim++) {
-                    output += ((index / new_stride[dim]) % permuted_shape[dim]) * permuted_stride[dim];
-                }
-                return input[output];
-            }, permuted_shape
-        };
     }
 
     template<typename LHS, typename RHS>

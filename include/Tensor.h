@@ -71,11 +71,19 @@ namespace gt {
         }
 
         /* Iterators */
-        auto begin() {
+        std::vector<T>::iterator begin() {
             return this->data.begin();
         }
 
-        auto end() {
+        std::vector<T>::iterator end() {
+            return this->data.end();
+        }
+
+        std::vector<T>::const_iterator begin() const {
+            return this->data.begin();
+        }
+
+        std::vector<T>::const_iterator end() const {
             return this->data.end();
         }
 
