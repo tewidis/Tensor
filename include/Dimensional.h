@@ -39,10 +39,10 @@ class Dimensional {
         }
 
         size_t shape(size_t dim) const {
-            if (dim > this->_shape.size()) {
-                return 1;
-            } else {
+            if (dim < this->_shape.size()) {
                 return this->_shape[dim];
+            } else {
+                return 1;
             }
         }
 

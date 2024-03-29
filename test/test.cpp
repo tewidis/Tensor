@@ -23,10 +23,13 @@ void access_test()
 
 void linspace_test()
 {
-    gt::Tensor<float> actual = gt::linspace(-5.0f, 5.0f, 11);
-    gt::Tensor<float> correct({11});
-    correct = {-5.0f, -4.0f, -3.0f, -2.0f, -1.0f, 0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
-    assert(gt::all(actual == correct) && "Failed linspace test");
+    gt::Tensor<float> actual = gt::linspace(-1.0f, 1.0f, 21);
+
+    gt::Tensor<float> correct({21});
+    correct = {-1.0f, -0.9f, -0.8f, -0.7f, -0.6f, -0.5f, -0.4f, -0.3f, -0.2f,
+        -0.1f, 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+
+    assert(!gt::any(gt::abs(actual - correct) > 1e-4f)  && "Failed linspace test");
 }
 
 void logspace_test()
@@ -321,6 +324,28 @@ void permute_test()
     assert(gt::all(gt::permute(test, {2, 1, 0}) == correct210) && "Failed permute {2, 1, 0} test");
 }
 
+void mod_test()
+{
+    gt::Tensor<float> actual = gt::mod(gt::linspace(-1.0f, 1.0f, 21), 2.0f);
+
+    gt::Tensor<float> correct({21});
+    correct = {1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f,
+        1.9f, 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+
+    assert(!gt::any(gt::abs(actual - correct) > 1e-4f)  && "Failed mod test");
+}
+
+void rem_test()
+{
+    gt::Tensor<float> actual = gt::rem(gt::linspace(-1.0f, 1.0f, 21), 2.0f);
+
+    gt::Tensor<float> correct({21});
+    correct = {-1.0f, -0.9f, -0.8f, -0.7f, -0.6f, -0.5f, -0.4f, -0.3f, -0.2f,
+        -0.1f, 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+
+    assert(!gt::any(gt::abs(actual - correct) > 1e-4f)  && "Failed rem test");
+}
+
 #if 0
 void mean_test()
 {
@@ -428,4 +453,6 @@ int main()
     permute_test();
     //cat_test();
     //matmul_test();
+    mod_test();
+    rem_test();
 }

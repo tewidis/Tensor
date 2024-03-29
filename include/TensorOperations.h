@@ -6,31 +6,13 @@
 
 namespace gt
 {
-    template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> linspace(T min, T max, size_t N)
-    {
-        Tensor<T> output({N});
-        for (size_t i = 0; i < output.size(); i++) {
-            output[i] = min + (max - min + 1) / N * i;
-        }
-
-        return output;
-    }
-
-    template<typename T>
-    Tensor<T> logspace(T min, T max, size_t N)
-    {
-        return pow(10.0f, linspace(min, max, N));
-    }
-
     #define UNARY_EXPRESSION(op) \
     template<typename T> \
     Tensor<T> op(const Tensor<T>& input) \
     { \
         Tensor<T> output(input.shape()); \
-        for (size_t i = 0; i < output.size(); i++) { \
-            output[i] = op(input[i]); \
-        } \
+        std::transform(input.begin(), input.end(), output.begin(), \
+            [] (T value) { return std::op(value); }); \
         return output; \
     }
 
@@ -43,6 +25,15 @@ namespace gt
         Tensor<LHS> output(lhs.shape()); \
         for (size_t i = 0; i < output.size(); i++) { \
             output[i] = lhs[i] op rhs[i]; \
+        } \
+        return output; \
+    } \
+    template<typename LHS> \
+    Tensor<LHS> operator op(const Tensor<LHS>& lhs, LHS rhs) \
+    { \
+        Tensor<LHS> output(lhs.shape()); \
+        for (size_t i = 0; i < output.size(); i++) { \
+            output[i] = lhs[i] op rhs; \
         } \
         return output; \
     }
@@ -62,6 +53,7 @@ namespace gt
     UNARY_EXPRESSION(exp);
     UNARY_EXPRESSION(floor);
     UNARY_EXPRESSION(ceil);
+    UNARY_EXPRESSION(abs);
 
     BINARY_EXPRESSION(+);
     BINARY_EXPRESSION(-);
@@ -87,11 +79,83 @@ namespace gt
     template<typename T>
     bool any(const Tensor<T>& input)
     {
-        bool all = false;
+        bool any = false;
         for (size_t i = 0; i < input.size(); i++) {
-            all |= (input[i] != 0);
+            any |= (input[i] != 0);
         }
-        return all;
+        return any;
+    }
+
+    /* rounds towards 0 */
+    template<typename T> requires std::is_arithmetic_v<T>
+    T fix(T input)
+    {
+        return (input < 0) ? std::ceil(input) : std::floor(input);
+    }
+
+    template<typename T>
+    Tensor<T> fix(const Tensor<T>& input)
+    {
+        Tensor<T> output(input.shape());
+        std::transform(input.begin(), input.end(), output.begin(),
+            [] (T value) { return fix(value); });
+
+        return output;
+    }
+
+    /* remainder as computed by MATLAB */
+    template<typename T> requires std::is_arithmetic_v<T>
+    T rem(T lhs, T rhs)
+    {
+        return lhs - fix(lhs / rhs) * rhs;
+    }
+
+    template<typename T>
+    Tensor<T> rem(const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<T> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return rem(value, rhs); });
+
+        return output;
+    }
+
+    /* modulus as computed by MATLAB */
+    template<typename T> requires std::is_arithmetic_v<T>
+    T mod(T lhs, T rhs)
+    {
+        return lhs - std::floor(lhs / rhs) * rhs;
+    }
+
+    template<typename T>
+    Tensor<T> mod(const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<T> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return mod(value, rhs); });
+
+        return output;
+    }
+
+    /* produces N linearly spaced points between min and max */
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> linspace(T min, T max, size_t N)
+    {
+        assert((N > 0) && "Error in linspace: N must be greater than 0");
+        Tensor<T> output({N});
+        for (size_t i = 0; i < output.size(); i++) {
+            output[i] = min + (max - min) / (N - 1) * i;
+        }
+
+        return output;
+    }
+
+    /* produces N logarithmically spaced points between min and max */
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> logspace(T min, T max, size_t N)
+    {
+        assert((N > 0) && "Error in logspace: N must be greater than 0");
+        return pow(10.0f, linspace(min, max, N));
     }
 
     template<typename T>
