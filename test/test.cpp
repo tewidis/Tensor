@@ -7,10 +7,10 @@
 /* Tests that the () operator overload is indexing correctly */
 void access_test()
 {
-    gt::Tensor<float> test({2, 3, 4});
+    gt::Tensor<size_t> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    float compare = 0;
+    size_t compare = 0;
     for (size_t k = 0; k < test.shape(2); k++) {
         for (size_t j = 0; j < test.shape(1); j++) {
             for (size_t i = 0; i < test.shape(0); i++) {
@@ -372,16 +372,14 @@ void rem_test()
     assert(!gt::any(gt::abs(actual - correct) > 1e-4f)  && "Failed rem test");
 }
 
-#if 0
 void mean_test()
 {
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::mean(test, 0);
     gt::Tensor<float> correct({1, 3, 4});
     correct = {0.5, 2.5, 4.5, 6.5, 8.5, 10.5, 12.5, 14.5, 16.5, 18.5, 20.5, 22.5};
-    assert(gt::all(actual == correct) && "Failed mean test");
+    assert(gt::all(gt::mean(test, 0) == correct) && "Failed mean test");
 }
 
 void var_test()
@@ -389,10 +387,9 @@ void var_test()
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::var(test, 0);
     gt::Tensor<float> correct({1, 3, 4});
     correct = {0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
-    assert(gt::all(actual == correct) && "Failed var test");
+    assert(gt::all(gt::var(test, 0) == correct) && "Failed var test");
 }
 
 void stddev_test()
@@ -400,12 +397,12 @@ void stddev_test()
     gt::Tensor<float> test({2, 3, 4});
     std::iota(test.begin(), test.end(), 0);
 
-    gt::Tensor<float> actual = gt::stddev(test, 0);
     gt::Tensor<float> correct({1, 3, 4});
     correct = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-    assert(gt::all(actual == correct) && "Failed stddev test");
+    assert(gt::all(gt::stddev(test, 0) == correct) && "Failed stddev test");
 }
 
+#if 0
 void cat_test()
 {
     gt::Tensor<float> test({2, 3, 4});
@@ -445,9 +442,9 @@ int main()
     cummax_test();
     min_test();
     cummin_test();
-    //mean_test();
-    //var_test();
-    //stddev_test();
+    mean_test();
+    var_test();
+    stddev_test();
     reshape_test();
     repmat_test();
     permute_test();

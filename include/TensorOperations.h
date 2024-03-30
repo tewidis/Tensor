@@ -28,8 +28,8 @@ namespace gt
         } \
         return output; \
     } \
-    template<typename LHS> \
-    Tensor<LHS> operator op(const Tensor<LHS>& lhs, LHS rhs) \
+    template<typename LHS, typename RHS> requires std::is_arithmetic_v<RHS>\
+    Tensor<LHS> operator op(const Tensor<LHS>& lhs, RHS rhs) \
     { \
         Tensor<LHS> output(lhs.shape()); \
         for (size_t i = 0; i < output.size(); i++) { \
@@ -474,25 +474,28 @@ namespace gt
 
         return permute(input, new_order);
     }
-#if 0
+
     template<typename T>
-    auto mean(const T& input, size_t dim)
+    Tensor<T> mean(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
-        shape[dim] = 1;
-        return UnaryIndexExpression{input, [dim] (const auto& input, size_t index)
-            {
-                float output = 0;
-                for (size_t i = 0; i < input.shape(dim); i++) {
-                    output += input[index * input.shape(dim) + i * input.stride(dim)];
-                }
-                return output / input.shape(dim);
-            }, shape
-        };
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+
+        Tensor<T> output(shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < input.shape(dim); j++) {
+                output[i] += input[offset + j * input.stride(dim)] / input.shape(dim);
+            }
+        }
+
+        return output;
     }
 
     template<typename T>
-    auto var(const T& input, size_t dim)
+    Tensor<T> var(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> reps(input.shape().size());
         std::fill(reps.begin(), reps.end(), 1);
@@ -501,11 +504,12 @@ namespace gt
     }
 
     template<typename T>
-    auto stddev(const T& input, size_t dim)
+    Tensor<T> stddev(const Tensor<T>& input, size_t dim)
     {
         return sqrt(var(input, dim));
     }
 
+#if 0
     template<typename LHS, typename RHS>
     auto cat(size_t dim, const LHS& lhs, const RHS& rhs)
     {
