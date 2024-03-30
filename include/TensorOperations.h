@@ -415,13 +415,13 @@ namespace gt
             }
         }
 
-        //TODO: Fix this, it's close but not quite right
         Tensor<T> output(shape);
-        for (size_t dim = 0; dim < shape.size(); dim++) {
-            for (size_t i = 0; i < shape[dim]; i++) {
-                size_t index = input.stride(dim) * ((i / output.stride(dim)) % input.shape(dim));
-                output[i] = input[index];
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t index = 0;
+            for (size_t j = 0; j < shape.size(); j++) {
+                index += input.stride(j) * ((i / output.stride(j)) % input.shape(j));
             }
+            output[i] = input[index];
         }
 
         return output;
