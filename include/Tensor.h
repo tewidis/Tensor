@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iomanip>
+
 #include "Dimensional.h"
 
 namespace gt {
@@ -66,7 +68,7 @@ namespace gt {
                 for (size_t j = 0; j < input.shape(0); j++) {
                     for (size_t k = 0; k < input.shape(1); k++) {
                         size_t index = i * input.stride(2) + k * input.stride(1) + j;
-                        output << "\t" << input[index] << " ";
+                        output << "\t" << std::fixed << std::setprecision(4) << input[index] << " ";
                     }
                     output << std::endl;
                 }
