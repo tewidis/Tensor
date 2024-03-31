@@ -21,6 +21,28 @@ void access_test()
     }
 }
 
+void mod_test()
+{
+    gt::Tensor<float> actual = gt::mod(gt::linspace(-1.0f, 1.0f, 21), 2.0f);
+
+    gt::Tensor<float> correct({21});
+    correct = {1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f,
+        1.9f, 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+
+    assert(!gt::any(gt::abs(actual - correct) > 1e-4f)  && "Failed mod test");
+}
+
+void rem_test()
+{
+    gt::Tensor<float> actual = gt::rem(gt::linspace(-1.0f, 1.0f, 21), 2.0f);
+
+    gt::Tensor<float> correct({21});
+    correct = {-1.0f, -0.9f, -0.8f, -0.7f, -0.6f, -0.5f, -0.4f, -0.3f, -0.2f,
+        -0.1f, 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+
+    assert(!gt::any(gt::abs(actual - correct) > 1e-4f)  && "Failed rem test");
+}
+
 void linspace_test()
 {
     gt::Tensor<float> actual = gt::linspace(-1.0f, 1.0f, 21);
@@ -350,28 +372,6 @@ void repmat_test()
     assert(gt::all(actual == correct) && "Failed repmat test");
 }
 
-void mod_test()
-{
-    gt::Tensor<float> actual = gt::mod(gt::linspace(-1.0f, 1.0f, 21), 2.0f);
-
-    gt::Tensor<float> correct({21});
-    correct = {1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f,
-        1.9f, 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
-
-    assert(!gt::any(gt::abs(actual - correct) > 1e-4f)  && "Failed mod test");
-}
-
-void rem_test()
-{
-    gt::Tensor<float> actual = gt::rem(gt::linspace(-1.0f, 1.0f, 21), 2.0f);
-
-    gt::Tensor<float> correct({21});
-    correct = {-1.0f, -0.9f, -0.8f, -0.7f, -0.6f, -0.5f, -0.4f, -0.3f, -0.2f,
-        -0.1f, 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
-
-    assert(!gt::any(gt::abs(actual - correct) > 1e-4f)  && "Failed rem test");
-}
-
 void mean_test()
 {
     gt::Tensor<float> test({2, 3, 4});
@@ -402,6 +402,61 @@ void stddev_test()
     assert(gt::all(gt::stddev(test, 0) == correct) && "Failed stddev test");
 }
 
+void circshift_test()
+{
+    gt::Tensor<float> test({2, 3, 4});
+    std::iota(test.begin(), test.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {1, 0, 3, 2, 5, 4,
+                7, 6, 9, 8, 11, 10,
+                13, 12, 15, 14, 17, 16,
+                19, 18, 21, 20, 23, 22};
+    assert(gt::all(gt::circshift(test, 1, 0) == correct0) && "Failed circshift dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {2, 3, 4, 5, 0, 1,
+                8, 9, 10, 11, 6, 7,
+                14, 15, 16, 17, 12, 13,
+                20, 21, 22, 23, 18, 19};
+    assert(gt::all(gt::circshift(test, 2, 1) == correct1) && "Failed circshift dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {6, 7, 8, 9, 10, 11,
+                12, 13, 14, 15, 16, 17,
+                18, 19, 20, 21, 22, 23,
+                0, 1, 2, 3, 4, 5};
+    assert(gt::all(gt::circshift(test, 3, 2) == correct2) && "Failed circshift dimension 2 test");
+}
+
+void flip_test()
+{
+    gt::Tensor<float> test({2, 3, 4});
+    std::iota(test.begin(), test.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {1, 0, 3, 2, 5, 4,
+                7, 6, 9, 8, 11, 10,
+                13, 12, 15, 14, 17, 16,
+                19, 18, 21, 20, 23, 22};
+    assert(gt::all(gt::flip(test, 0) == correct0) && "Failed flip dimension 0 test");
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {4, 5, 2, 3, 0, 1,
+                10, 11, 8, 9, 6, 7,
+                16, 17, 14, 15, 12, 13,
+                22, 23, 20, 21, 18, 19};
+    assert(gt::all(gt::flip(test, 1) == correct1) && "Failed flip dimension 1 test");
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {18, 19, 20, 21, 22, 23,
+                12, 13, 14, 15, 16, 17,
+                6, 7, 8, 9, 10, 11,
+                0, 1, 2, 3, 4, 5};
+    assert(gt::all(gt::flip(test, 2) == correct2) && "Failed flip dimension 2 test");
+}
+
+
 #if 0
 void cat_test()
 {
@@ -429,6 +484,8 @@ void matmul_test()
 int main()
 {
     access_test();
+    mod_test();
+    rem_test();
     linspace_test();
     logspace_test();
     sum_test();
@@ -448,8 +505,8 @@ int main()
     reshape_test();
     repmat_test();
     permute_test();
+    circshift_test();
+    flip_test();
     //cat_test();
     //matmul_test();
-    mod_test();
-    rem_test();
 }

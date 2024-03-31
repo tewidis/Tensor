@@ -104,35 +104,39 @@ namespace gt
     }
 
     /* remainder as computed by MATLAB */
-    template<typename T> requires std::is_arithmetic_v<T>
-    T rem(T lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    T1 rem(T1 lhs, T2 rhs)
     {
         return lhs - fix(lhs / rhs) * rhs;
     }
 
-    template<typename T>
-    Tensor<T> rem(const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T1> rem(const Tensor<T2>& lhs, T1 rhs)
     {
-        Tensor<T> output(lhs.shape());
+        Tensor<T1> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return rem(value, rhs); });
+            [rhs] (T1 value) { return rem(value, rhs); });
 
         return output;
     }
 
     /* modulus as computed by MATLAB */
-    template<typename T> requires std::is_arithmetic_v<T>
-    T mod(T lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    T1 mod(T1 lhs, T2 rhs)
     {
         return lhs - std::floor(lhs / rhs) * rhs;
     }
 
-    template<typename T>
-    Tensor<T> mod(const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T1> mod(const Tensor<T1>& lhs, T2 rhs)
     {
-        Tensor<T> output(lhs.shape());
+        Tensor<T1> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return mod(value, rhs); });
+            [rhs] (T1 value) { return mod(value, rhs); });
 
         return output;
     }
@@ -507,6 +511,39 @@ namespace gt
     Tensor<T> stddev(const Tensor<T>& input, size_t dim)
     {
         return sqrt(var(input, dim));
+    }
+
+    template<typename T>
+    Tensor<T> circshift(const Tensor<T>& input, int64_t nshift, size_t dim = 0)
+    {
+        nshift = input.shape(dim) - rem(nshift, input.shape(dim));
+
+        Tensor<T> output(input.shape());
+        size_t modulo = input.shape(dim) * input.stride(dim);
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t index = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < output.shape(dim); j++) {
+                output[index + j * output.stride(dim)] =
+                    input[index + (j + nshift) * output.stride(dim) % modulo];
+            }
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> flip(const Tensor<T>& input, size_t dim = 0)
+    {
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t index = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < output.shape(dim); j++) {
+                output[index + j * output.stride(dim)] =
+                    input[index + (input.shape(dim) - j - 1) * input.stride(dim)];
+            }
+        }
+
+        return output;
     }
 
 #if 0
