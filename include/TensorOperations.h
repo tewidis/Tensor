@@ -504,7 +504,8 @@ namespace gt
         std::vector<size_t> reps(input.shape().size());
         std::fill(reps.begin(), reps.end(), 1);
         reps[dim] = input.shape(dim);
-        return sum(pow(input - repmat(mean(input, dim), reps), 2), dim) / input.shape(dim);
+        size_t denom = std::max(static_cast<size_t>(1), input.shape(dim) - 1);
+        return sum(pow(abs(input - repmat(mean(input, dim), reps)), 2), dim) / denom;
     }
 
     template<typename T>
