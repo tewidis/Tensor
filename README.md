@@ -52,20 +52,12 @@ tensor = permute(tensor, {2, 0, 1});
 ## TODO
 
 * median
-* flip
-* hypot
 * cart2sph
 * sph2cart
 * interp
-* circshift
 * conv
-* ipermute
-* squeeze
 * filter
 * where
-* mod
-* fix
-* rem
 
 ## Licensing
 

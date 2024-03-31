@@ -54,6 +54,7 @@ namespace gt
     UNARY_EXPRESSION(floor);
     UNARY_EXPRESSION(ceil);
     UNARY_EXPRESSION(abs);
+    UNARY_EXPRESSION(hypot);
 
     BINARY_EXPRESSION(+);
     BINARY_EXPRESSION(-);
@@ -407,6 +408,19 @@ namespace gt
     }
 
     template<typename T>
+    Tensor<T> squeeze(const Tensor<T>& input)
+    {
+        std::vector<size_t> shape;
+        for (size_t dim : input.shape()) {
+            if (dim != 0) {
+                shape.push_back(dim);
+            }
+        }
+
+        return reshape(input, shape);
+    }
+
+    template<typename T>
     Tensor<T> repmat(const Tensor<T>& input, const std::vector<size_t>& reps)
     {
         size_t ndims = std::max(reps.size(), input.shape().size());
@@ -504,7 +518,7 @@ namespace gt
         std::vector<size_t> reps(input.shape().size());
         std::fill(reps.begin(), reps.end(), 1);
         reps[dim] = input.shape(dim);
-        size_t denom = std::max(static_cast<size_t>(1), input.shape(dim) - 1);
+        size_t denom = std::max(std::size_t{1}, input.shape(dim) - 1);
         return sum(pow(abs(input - repmat(mean(input, dim), reps)), 2), dim) / denom;
     }
 

@@ -291,83 +291,6 @@ void cummin_test()
     assert(gt::all(gt::cummin(test, 2) == correct2));
 }
 
-void reshape_test()
-{
-    gt::Tensor<float> test({2, 3, 4});
-    std::iota(test.begin(), test.end(), 0);
-
-    gt::Tensor<float> correct({1, 24});
-    std::iota(correct.begin(), correct.end(), 0);
-    assert(gt::all(gt::reshape(test, {1, 24}) == correct));
-}
-
-void permute_test()
-{
-    gt::Tensor<float> test({2, 3, 4});
-    std::iota(test.begin(), test.end(), 0);
-
-    gt::Tensor<float> correct012({2, 3, 4});
-    correct012 = {0, 1, 2, 3, 4, 5,
-                  6, 7, 8, 9, 10, 11,
-                  12, 13, 14, 15, 16, 17,
-                  18, 19, 20, 21, 22, 23};
-    assert(gt::all(gt::permute(test, {0, 1, 2}) == correct012));
-
-    gt::Tensor<float> correct021({2, 4, 3});
-    correct021 = {0, 1, 6, 7, 12, 13, 18, 19,
-                  2, 3, 8, 9, 14, 15, 20, 21,
-                  4, 5, 10, 11, 16, 17, 22, 23};
-    assert(gt::all(gt::permute(test, {0, 2, 1}) == correct021));
-
-    gt::Tensor<float> correct102({3, 2, 4});
-    correct102 = {0, 2, 4, 1, 3, 5,
-                  6, 8, 10, 7, 9, 11, 
-                  12, 14, 16, 13, 15, 17, 
-                  18, 20, 22, 19, 21, 23};
-    assert(gt::all(gt::permute(test, {1, 0, 2}) == correct102));
-
-    gt::Tensor<float> correct120({3, 4, 2});
-    correct120 = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22,
-                  1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23};
-    assert(gt::all(gt::permute(test, {1, 2, 0}) == correct120));
-
-    gt::Tensor<float> correct201({4, 2, 3});
-    correct201 = {0, 6, 12, 18, 1, 7, 13, 19,
-                  2, 8, 14, 20, 3, 9, 15, 21,
-                  4, 10, 16, 22, 5, 11, 17, 23};
-    assert(gt::all(gt::permute(test, {2, 0, 1}) == correct201));
-
-    gt::Tensor<float> correct210({3, 4, 2});
-    correct210 = {0, 6, 12, 18, 2, 8, 14, 20, 4, 10, 16, 22,
-                  1, 7, 13, 19, 3, 9, 15, 21, 5, 11, 17, 23};
-    assert(gt::all(gt::permute(test, {2, 1, 0}) == correct210));
-}
-
-void repmat_test()
-{
-    gt::Tensor<float> test({2, 3, 4});
-    std::iota(test.begin(), test.end(), 0);
-
-    gt::Tensor<float> correct({4, 6, 8});
-    correct = {0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 
-               0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 
-               6, 7, 6, 7, 8, 9, 8, 9, 10, 11, 10, 11, 
-               6, 7, 6, 7, 8, 9, 8, 9, 10, 11, 10, 11, 
-               12, 13, 12, 13, 14, 15, 14, 15, 16, 17, 16, 17, 
-               12, 13, 12, 13, 14, 15, 14, 15, 16, 17, 16, 17, 
-               18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23, 
-               18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23,
-               0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 
-               0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 
-               6, 7, 6, 7, 8, 9, 8, 9, 10, 11, 10, 11, 
-               6, 7, 6, 7, 8, 9, 8, 9, 10, 11, 10, 11, 
-               12, 13, 12, 13, 14, 15, 14, 15, 16, 17, 16, 17, 
-               12, 13, 12, 13, 14, 15, 14, 15, 16, 17, 16, 17, 
-               18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23, 
-               18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23};
-    assert(gt::all(gt::repmat(test, {2, 2, 2})  == correct));
-}
-
 void mean_test()
 {
     gt::Tensor<float> test({2, 3, 4});
@@ -423,6 +346,104 @@ void stddev_test()
     gt::Tensor<float> correct2({2, 3, 1});
     correct2 = {7.7460, 7.7460, 7.7460,  7.7460,  7.7460,  7.7460};
     assert(!gt::any(gt::abs(gt::stddev(test, 2) - correct2) > 1e-4f));
+}
+
+void reshape_test()
+{
+    gt::Tensor<float> test({2, 3, 4});
+    std::iota(test.begin(), test.end(), 0);
+
+    gt::Tensor<float> correct({1, 24});
+    std::iota(correct.begin(), correct.end(), 0);
+    assert(gt::all(gt::reshape(test, {1, 24}) == correct));
+}
+
+void squeeze_test()
+{
+    gt::Tensor<float> test({1, 2, 3, 4});
+    std::iota(test.begin(), test.end(), 0);
+
+    assert(gt::all(gt::squeeze(test) == test));
+}
+
+void permute_test()
+{
+    gt::Tensor<float> test({2, 3, 4});
+    std::iota(test.begin(), test.end(), 0);
+
+    gt::Tensor<float> correct012({2, 3, 4});
+    correct012 = {0, 1, 2, 3, 4, 5,
+                  6, 7, 8, 9, 10, 11,
+                  12, 13, 14, 15, 16, 17,
+                  18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::permute(test, {0, 1, 2}) == correct012));
+
+    gt::Tensor<float> correct021({2, 4, 3});
+    correct021 = {0, 1, 6, 7, 12, 13, 18, 19,
+                  2, 3, 8, 9, 14, 15, 20, 21,
+                  4, 5, 10, 11, 16, 17, 22, 23};
+    assert(gt::all(gt::permute(test, {0, 2, 1}) == correct021));
+
+    gt::Tensor<float> correct102({3, 2, 4});
+    correct102 = {0, 2, 4, 1, 3, 5,
+                  6, 8, 10, 7, 9, 11, 
+                  12, 14, 16, 13, 15, 17, 
+                  18, 20, 22, 19, 21, 23};
+    assert(gt::all(gt::permute(test, {1, 0, 2}) == correct102));
+
+    gt::Tensor<float> correct120({3, 4, 2});
+    correct120 = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22,
+                  1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23};
+    assert(gt::all(gt::permute(test, {1, 2, 0}) == correct120));
+
+    gt::Tensor<float> correct201({4, 2, 3});
+    correct201 = {0, 6, 12, 18, 1, 7, 13, 19,
+                  2, 8, 14, 20, 3, 9, 15, 21,
+                  4, 10, 16, 22, 5, 11, 17, 23};
+    assert(gt::all(gt::permute(test, {2, 0, 1}) == correct201));
+
+    gt::Tensor<float> correct210({3, 4, 2});
+    correct210 = {0, 6, 12, 18, 2, 8, 14, 20, 4, 10, 16, 22,
+                  1, 7, 13, 19, 3, 9, 15, 21, 5, 11, 17, 23};
+    assert(gt::all(gt::permute(test, {2, 1, 0}) == correct210));
+}
+
+void ipermute_test()
+{
+    gt::Tensor<float> test({2, 3, 4});
+    std::iota(test.begin(), test.end(), 0);
+
+    assert(gt::all(gt::ipermute(gt::permute(test, {0, 1, 2}), {0, 1, 2}) == test));
+    assert(gt::all(gt::ipermute(gt::permute(test, {0, 2, 1}), {0, 2, 1}) == test));
+    assert(gt::all(gt::ipermute(gt::permute(test, {1, 0, 2}), {1, 0, 2}) == test));
+    assert(gt::all(gt::ipermute(gt::permute(test, {1, 2, 0}), {1, 2, 0}) == test));
+    assert(gt::all(gt::ipermute(gt::permute(test, {2, 0, 1}), {2, 0, 1}) == test));
+    assert(gt::all(gt::ipermute(gt::permute(test, {2, 1, 0}), {2, 1, 0}) == test));
+}
+
+void repmat_test()
+{
+    gt::Tensor<float> test({2, 3, 4});
+    std::iota(test.begin(), test.end(), 0);
+
+    gt::Tensor<float> correct({4, 6, 8});
+    correct = {0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 
+               0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 
+               6, 7, 6, 7, 8, 9, 8, 9, 10, 11, 10, 11, 
+               6, 7, 6, 7, 8, 9, 8, 9, 10, 11, 10, 11, 
+               12, 13, 12, 13, 14, 15, 14, 15, 16, 17, 16, 17, 
+               12, 13, 12, 13, 14, 15, 14, 15, 16, 17, 16, 17, 
+               18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23, 
+               18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23,
+               0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 
+               0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 
+               6, 7, 6, 7, 8, 9, 8, 9, 10, 11, 10, 11, 
+               6, 7, 6, 7, 8, 9, 8, 9, 10, 11, 10, 11, 
+               12, 13, 12, 13, 14, 15, 14, 15, 16, 17, 16, 17, 
+               12, 13, 12, 13, 14, 15, 14, 15, 16, 17, 16, 17, 
+               18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23, 
+               18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23};
+    assert(gt::all(gt::repmat(test, {2, 2, 2})  == correct));
 }
 
 void circshift_test()
@@ -526,8 +547,10 @@ int main()
     var_test();
     stddev_test();
     reshape_test();
-    repmat_test();
+    squeeze_test();
     permute_test();
+    ipermute_test();
+    repmat_test();
     circshift_test();
     flip_test();
     //cat_test();
