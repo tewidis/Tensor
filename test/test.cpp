@@ -528,6 +528,34 @@ void sph2cart_test()
     assert(!gt::any(gt::abs(gt::sph2cart(input) - correct) > 1e-4f));
 }
 
+void cart2pol_test()
+{
+    gt::Tensor<float> input({8, 3});
+    input = {0, 0, 0, 0, 1, 1, 1, 1,
+             0, 0, 1, 1, 0, 0, 1, 1,
+             0, 1, 0, 1, 0, 1, 0, 1};
+
+    gt::Tensor<float> correct({8, 3});
+    correct = {0, 0, 1.5708, 1.5708, 0, 0, 0.7854, 0.7854,
+               0, 0, 1, 1, 1, 1, 1.4142, 1.4142,
+               0, 1, 0, 1, 0, 1, 0, 1};
+    assert(!gt::any(gt::abs(gt::cart2pol(input) - correct) > 1e-4f));
+}
+
+void pol2cart_test()
+{
+    gt::Tensor<float> input({8, 3});
+    input = {0, 0, 1.5708, 1.5708, 0, 0, 0.7854, 0.7854,
+             0, 0, 1, 1, 1, 1, 1.4142, 1.4142,
+             0, 1, 0, 1, 0, 1, 0, 1};
+
+    gt::Tensor<float> correct({8, 3});
+    correct = {0, 0, 0, 0, 1, 1, 1, 1,
+               0, 0, 1, 1, 0, 0, 1, 1,
+               0, 1, 0, 1, 0, 1, 0, 1};
+    assert(!gt::any(gt::abs(gt::pol2cart(input) - correct) > 1e-4f));
+}
+
 #if 0
 void cat_test()
 {
@@ -582,6 +610,8 @@ int main()
     flip_test();
     cart2sph_test();
     sph2cart_test();
+    cart2pol_test();
+    pol2cart_test();
     //cat_test();
     //matmul_test();
 }

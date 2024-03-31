@@ -605,6 +605,48 @@ namespace gt
         return output;
     }
 
+    /* input is an Nx3 Tensor where the zeroth dimension is the x-coordinate,
+     * the first dimension is the y-coordinate, and the second dimension is the
+     * z-coordinate
+     * output is an Nx3 Tensor where the zeroth dimension is the theta,
+     * the first dimension is the radius, and the second dimension is the
+     * height */
+    template<typename T>
+    Tensor<T> cart2pol(const Tensor<T>& input)
+    {
+        assert(input.shape().size() == 2 && input.shape(1) == 3);
+
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < input.shape(0); i++) {
+            output(i,0) = std::atan2(input(i,1), input(i,0));
+            output(i,1) = std::hypot(input(i,0), input(i,1));
+            output(i,2) = input(i,2);
+        }
+
+        return output;
+    }
+
+    /* input is an Nx3 Tensor where the zeroth dimension is the theta,
+     * the first dimension is the radius, and the second dimension is the
+     * height
+     * output is an Nx3 Tensor where the zeroth dimension is the x-coordinate,
+     * the first dimension is the y-coordinate, and the second dimension is the
+     * z-coordinate */
+    template<typename T>
+    Tensor<T> pol2cart(const Tensor<T>& input)
+    {
+        assert(input.shape().size() == 2 && input.shape(1) == 3);
+
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < input.shape(0); i++) {
+            output(i,0) = input(i,1) * std::cos(input(i,0));
+            output(i,1) = input(i,1) * std::sin(input(i,0));
+            output(i,2) = input(i,2);
+        }
+
+        return output;
+    }
+
 #if 0
     template<typename LHS, typename RHS>
     auto cat(size_t dim, const LHS& lhs, const RHS& rhs)

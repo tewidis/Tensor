@@ -52,8 +52,6 @@ tensor = permute(tensor, {2, 0, 1});
 ## TODO
 
 * median
-* cart2sph
-* sph2cart
 * interp
 * conv
 * filter
@@ -61,4 +59,4 @@ tensor = permute(tensor, {2, 0, 1});
 
 ## Licensing
 
-Tensor is licensed using MIT? GPL? Figure this out.
+This project is licensed under the terms of the GNU General Public License v3.0.
