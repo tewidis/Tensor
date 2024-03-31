@@ -561,6 +561,50 @@ namespace gt
         return output;
     }
 
+    /* input is an Nx3 Tensor where the zeroth dimension is the x-coordinate,
+     * the first dimension is the y-coordinate, and the second dimension is the
+     * z-coordinate
+     * output is an Nx3 Tensor where the zeroth dimension is the azimuth,
+     * the first dimension is the elevation, and the second dimension is the
+     * radius */
+    template<typename T>
+    Tensor<T> cart2sph(const Tensor<T>& input)
+    {
+        assert(input.shape().size() == 2 && input.shape(1) == 3);
+
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < input.shape(0); i++) {
+            T hypotxy = std::hypot(input(i,0), input(i,1));
+            output(i,0) = std::atan2(input(i,1), input(i,0));
+            output(i,1) = std::atan2(input(i,2), hypotxy);
+            output(i,2) = std::hypot(hypotxy, input(i,2));
+        }
+
+        return output;
+    }
+
+    /* input is an Nx3 Tensor where the zeroth dimension is the azimuth,
+     * the first dimension is the elevation, and the second dimension is the
+     * radius
+     * output is an Nx3 Tensor where the zeroth dimension is the x-coordinate,
+     * the first dimension is the y-coordinate, and the second dimension is the
+     * z-coordinate */
+    template<typename T>
+    Tensor<T> sph2cart(const Tensor<T>& input)
+    {
+        assert(input.shape().size() == 2 && input.shape(1) == 3);
+
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < input.shape(0); i++) {
+            T rcoselev = input(i,2) * std::cos(input(i,1));
+            output(i,0) = rcoselev * std::cos(input(i,0));
+            output(i,1) = rcoselev * std::sin(input(i,0));
+            output(i,2) = input(i,2) * std::sin(input(i,1));
+        }
+
+        return output;
+    }
+
 #if 0
     template<typename LHS, typename RHS>
     auto cat(size_t dim, const LHS& lhs, const RHS& rhs)

@@ -18,7 +18,13 @@ namespace gt {
         //Tensor(Ts... dims) : Dimensional({static_cast<size_t>(dims)...}), data(this->_size) {}
 
         template<typename... Ts>
-        T operator () (Ts... dims) const {
+        const_reference operator () (Ts... dims) const {
+            std::vector<size_t> subs = {static_cast<size_t>(dims)...};
+            return this->data[sub2ind(subs)];
+        }
+
+        template<typename... Ts>
+        reference operator () (Ts... dims) {
             std::vector<size_t> subs = {static_cast<size_t>(dims)...};
             return this->data[sub2ind(subs)];
         }
