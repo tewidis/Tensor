@@ -3,6 +3,7 @@
 
 #include "Tensor.h"
 #include "TensorOperations.h"
+#include "LinearAlgebra.h"
 
 /* Tests that the () operator overload is indexing correctly */
 void access_test()
@@ -609,6 +610,16 @@ void cat_test()
     assert(gt::all(gt::cat(2, input, input) == correct2));
 }
 
+void unique_test()
+{
+    gt::Tensor<float> input({3, 4});
+    input = {2, 3, 1, 5, 4, 3, 1, 8, 5, 4, 7, 6};
+
+    gt::Tensor<float> correct({8});
+    correct = {1, 2, 3, 4, 5, 6, 7, 8};
+    assert(gt::all(gt::unique(input) == correct));
+}
+
 void matmul_test()
 {
     gt::Tensor<float> mat1({2, 3});
@@ -620,11 +631,11 @@ void matmul_test()
 
     gt::Tensor<float> correct({2, 2});
     correct = {10, 13, 28, 40};
-    assert(gt::all(gt::matmul(mat1, mat2) == correct));
+    assert(gt::all(gt::linalg::matmul(mat1, mat2) == correct));
 
     gt::Tensor<float> correct_vec({2, 1});
     correct_vec = {10, 13};
-    assert(gt::all(gt::matmul(mat1, vec1) == correct_vec));
+    assert(gt::all(gt::linalg::matmul(mat1, vec1) == correct_vec));
 }
 
 int main()
@@ -662,5 +673,6 @@ int main()
     cart2pol_test();
     pol2cart_test();
     cat_test();
+    unique_test();
     matmul_test();
 }
