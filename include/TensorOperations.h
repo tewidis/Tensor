@@ -683,13 +683,12 @@ namespace gt
         return output;
     }
 
-#if 0
-    template<typename LHS, typename RHS>
-    auto cat(size_t dim, const LHS& lhs, const RHS& rhs)
+    template<typename T>
+    Tensor<T> cat(size_t dim, const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
         std::vector<size_t> shape(std::max(lhs.shape().size(), rhs.shape().size()));
         for (size_t i = 0; i < lhs.shape().size(); i++) {
-            if (i != dim && lhs.shape(i) != 1 && rhs.shape(i) != 1) {
+            if (i != dim) {
                 assert(lhs.shape(i) == rhs.shape(i) && "Error in cat: Non-singleton dimensions must agree");
                 shape[i] = lhs.shape(i);
             } else {
@@ -697,24 +696,38 @@ namespace gt
             }
         }
 
-        return BinaryIndexExpression{lhs, rhs, [dim] (const auto& lhs, const auto& rhs, size_t index)
-            {
-                //TODO: This works when the dimension is greater than 1, but not less than
-                if (index < lhs.size()) {
-                    return lhs[index];
+        Tensor<T> output(shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t index = 0;
+            bool use_lhs = true;
+            for (size_t dim = 0; dim < shape.size(); dim++) {
+                size_t offset = i / output.stride(dim) % output.shape(dim);
+                if (offset >= lhs.shape(dim)) {
+                    use_lhs = false;
+                    offset -= lhs.shape(dim);
+                    index += offset * rhs.stride(dim);
                 } else {
-                    return rhs[index - lhs.size()];
+                    index += offset * lhs.stride(dim);
                 }
-            }, shape
-        };
+            }
+
+            if (use_lhs) {
+                output[i] = lhs[index];
+            } else {
+                output[i] = rhs[index];
+            }
+        }
+
+        return output;
     }
 
-    template<typename... Ts>
-    auto cat(size_t dim, Ts... tensors)
+    template<typename T, typename... Ts>
+    auto cat(size_t dim, const Tensor<T>& arg, const Tensor<Ts...>& args)
     {
-
+        return cat(dim, arg, cat(dim, args));
     }
 
+#if 0
     template<typename LHS, typename RHS>
     auto matmul(const LHS& lhs, const RHS& rhs)
     {

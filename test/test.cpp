@@ -574,15 +574,34 @@ void pol2cart_test()
     assert(!gt::any(gt::abs(gt::pol2cart(input) - correct) > 1e-4f));
 }
 
-#if 0
 void cat_test()
 {
     gt::Tensor<float> input({2, 3, 4});
     std::iota(input.begin(), input.end(), 0);
 
-    gt::Tensor<float> actual = cat(2, input, input);
-    std::cout << actual << std::endl;
+    gt::Tensor<float> correct0({4, 3, 4});
+    correct0 = {0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5,
+                6, 7, 6, 7, 8, 9, 8, 9, 10, 11, 10, 11,
+                12, 13, 12, 13, 14, 15, 14, 15, 16, 17, 16, 17,
+                18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23};
+    assert(gt::all(gt::cat(0, input, input) == correct0));
+
+    gt::Tensor<float> correct1({4, 3, 4});
+    correct1 = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5,
+                6, 7, 8, 9, 10, 11, 6, 7, 8, 9, 10, 11,
+                12, 13, 14, 15, 16, 17, 12, 13, 14, 15, 16, 17,
+                18, 19, 20, 21, 22, 23, 18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::cat(1, input, input) == correct1));
+
+    gt::Tensor<float> correct2({4, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+                12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+                12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::cat(2, input, input) == correct2));
 }
+
+#if 0
 
 void matmul_test()
 {
@@ -631,6 +650,6 @@ int main()
     sph2cart_test();
     cart2pol_test();
     pol2cart_test();
-    //cat_test();
+    cat_test();
     //matmul_test();
 }
