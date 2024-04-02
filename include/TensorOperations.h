@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 
 #include "Tensor.h"
@@ -507,6 +508,41 @@ namespace gt
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] += input[offset + j * input.stride(dim)] / input.shape(dim);
             }
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    T median(Tensor<T>& input)
+    {
+        if (input.size() % 2 == 0) {
+            auto med = input.begin() + input.size() / 2;
+            std::nth_element(input.begin(), med, input.end());
+            return (input[input.size() / 2 - 1] + input[input.size() / 2]) / 2.0f;
+        } else {
+            auto med = input.begin() + input.size() / 2;
+            std::nth_element(input.begin(), med, input.end());
+            return input[input.size() / 2];
+        }
+    }
+
+    template<typename T>
+    Tensor<T> median(const Tensor<T>& input, size_t dim)
+    {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+
+        Tensor<T> output(shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            Tensor<T> temp({input.shape(dim)});
+            for (size_t j = 0; j < input.shape(dim); j++) {
+                temp[j] = input[offset + j * input.stride(dim)];
+            }
+            output[i] = median(temp);
         }
 
         return output;

@@ -309,6 +309,24 @@ void mean_test()
     assert(gt::all(gt::mean(input, 2) == correct2));
 }
 
+void median_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({1, 3, 4});
+    correct0 = {0.5, 2.5, 4.5, 6.5, 8.5, 10.5, 12.5, 14.5, 16.5, 18.5, 20.5, 22.5};
+    assert(gt::all(gt::median(input, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 1, 4});
+    correct1 = {2, 3, 8, 9, 14, 15, 20, 21};
+    assert(gt::all(gt::median(input, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 1});
+    correct2 = {9, 10, 11, 12, 13, 14};
+    assert(gt::all(gt::median(input, 2) == correct2));
+}
+
 void var_test()
 {
     gt::Tensor<float> input({2, 3, 4});
@@ -599,6 +617,7 @@ int main()
     min_test();
     cummin_test();
     mean_test();
+    median_test();
     var_test();
     stddev_test();
     reshape_test();
