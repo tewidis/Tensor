@@ -12,51 +12,53 @@ namespace gt {
         public:
         typedef T& reference;
         typedef const T& const_reference;
+        typedef T* pointer;
+        typedef const T* const_pointer;
 
-        Tensor(const std::vector<size_t>& dims) : Dimensional(dims), data(this->_size) {}
+        Tensor(const std::vector<size_t>& dims) : Dimensional(dims), data_ptr(this->_size) {}
 
         //TODO: Figure out the right way to do this with concepts
         //template<typename... Ts>// requires std::is_same_v<T1, size_t>
-        //Tensor(Ts... dims) : Dimensional({static_cast<size_t>(dims)...}), data(this->_size) {}
+        //Tensor(Ts... dims) : Dimensional({static_cast<size_t>(dims)...}), data_ptr(this->_size) {}
 
         template<typename... Ts>
         const_reference operator () (Ts... dims) const {
             std::vector<size_t> subs = {static_cast<size_t>(dims)...};
-            return this->data[sub2ind(subs)];
+            return this->data_ptr[sub2ind(subs)];
         }
 
         template<typename... Ts>
         reference operator () (Ts... dims) {
             std::vector<size_t> subs = {static_cast<size_t>(dims)...};
-            return this->data[sub2ind(subs)];
+            return this->data_ptr[sub2ind(subs)];
         }
 
         Tensor& operator = (const auto& input) {
             for (size_t i = 0; i < input.size(); i++) {
-                this->data[i] = input[i];
+                this->data_ptr[i] = input[i];
             }
             return *this;
         }
 
         reference operator [] (size_t index) {
-            return this->data[index];
+            return this->data_ptr[index];
         }
 
         const_reference operator [] (size_t index) const {
-            return this->data[index];
+            return this->data_ptr[index];
         }
 
         //template<typename T1>
         //Tensor(Tensor<T1>&& input) : Dimensional(input.shape()) {
-        //    this->data.resize(input.size());
+        //    this->data_ptr.resize(input.size());
         //    for (size_t i = 0; i < input.size(); i++) {
-        //        this->data[i] = input[i];
+        //        this->data_ptr[i] = input[i];
         //    }
         //}
 
         Tensor& operator = (std::vector<T>&& input) {
             //TODO: Make this a true move assignment operator instead of copying
-            std::copy(input.begin(), input.end(), this->data.begin());
+            std::copy(input.begin(), input.end(), this->data_ptr.begin());
             return *this;
         }
 
@@ -80,23 +82,31 @@ namespace gt {
 
         /* Iterators */
         std::vector<T>::iterator begin() {
-            return this->data.begin();
+            return this->data_ptr.begin();
         }
 
         std::vector<T>::iterator end() {
-            return this->data.end();
+            return this->data_ptr.end();
         }
 
         std::vector<T>::const_iterator begin() const {
-            return this->data.begin();
+            return this->data_ptr.begin();
         }
 
         std::vector<T>::const_iterator end() const {
-            return this->data.end();
+            return this->data_ptr.end();
+        }
+
+        pointer data() {
+            return this->data_ptr.data();
+        }
+
+        const_pointer data() const {
+            return this->data_ptr.data();
         }
 
         private:
-        std::vector<T> data;
+        std::vector<T> data_ptr;
 
         size_t sub2ind(const std::vector<size_t>& subs) const {
             size_t index = 0;

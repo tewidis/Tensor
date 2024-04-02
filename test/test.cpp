@@ -601,21 +601,23 @@ void cat_test()
     assert(gt::all(gt::cat(2, input, input) == correct2));
 }
 
-#if 0
-
 void matmul_test()
 {
-    gt::Tensor<float> lhs({2, 3});
-    std::iota(lhs.begin(), lhs.end(), 0);
-    gt::Tensor<float> rhs({3, 2});
-    std::iota(rhs.begin(), rhs.end(), 0);
+    gt::Tensor<float> mat1({2, 3});
+    std::iota(mat1.begin(), mat1.end(), 0);
+    gt::Tensor<float> mat2({3, 2});
+    std::iota(mat2.begin(), mat2.end(), 0);
+    gt::Tensor<float> vec1({3, 1});
+    std::iota(vec1.begin(), vec1.end(), 0);
 
-    gt::Tensor<float> actual = matmul(lhs, rhs);
     gt::Tensor<float> correct({2, 2});
     correct = {10, 13, 28, 40};
-    assert(gt::all(actual == correct) && "Failed matmul input");
+    assert(gt::all(gt::matmul(mat1, mat2) == correct));
+
+    gt::Tensor<float> correct_vec({2, 1});
+    correct_vec = {10, 13};
+    assert(gt::all(gt::matmul(mat1, vec1) == correct_vec));
 }
-#endif
 
 int main()
 {
@@ -651,5 +653,5 @@ int main()
     cart2pol_test();
     pol2cart_test();
     cat_test();
-    //matmul_test();
+    matmul_test();
 }
