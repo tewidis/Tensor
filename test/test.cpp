@@ -384,6 +384,14 @@ void squeeze_test()
     assert(gt::all(gt::squeeze(input) == input));
 }
 
+void flatten_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    assert(gt::all(gt::flatten(input) == input));
+}
+
 void permute_test()
 {
     gt::Tensor<float> input({2, 3, 4});
@@ -643,6 +651,7 @@ int main()
     stddev_test();
     reshape_test();
     squeeze_test();
+    flatten_test();
     permute_test();
     ipermute_test();
     repmat_test();

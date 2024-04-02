@@ -50,10 +50,17 @@ namespace gt
     UNARY_EXPRESSION(asin);
     UNARY_EXPRESSION(acos);
     UNARY_EXPRESSION(atan);
+    UNARY_EXPRESSION(asinh);
+    UNARY_EXPRESSION(acosh);
+    UNARY_EXPRESSION(atanh);
     UNARY_EXPRESSION(sqrt);
     UNARY_EXPRESSION(log);
+    UNARY_EXPRESSION(log1p);
+    UNARY_EXPRESSION(log2);
     UNARY_EXPRESSION(log10);
     UNARY_EXPRESSION(exp);
+    UNARY_EXPRESSION(expm1);
+    UNARY_EXPRESSION(exp2);
     UNARY_EXPRESSION(floor);
     UNARY_EXPRESSION(ceil);
     UNARY_EXPRESSION(abs);
@@ -421,6 +428,12 @@ namespace gt
         }
 
         return reshape(input, shape);
+    }
+
+    template<typename T>
+    Tensor<T> flatten(const Tensor<T>& input)
+    {
+        return reshape(input, {input.size()});
     }
 
     template<typename T>
