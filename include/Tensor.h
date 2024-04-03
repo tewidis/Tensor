@@ -65,12 +65,13 @@ namespace gt {
         friend std::ostream& operator << (std::ostream& output, const Tensor<T>& input) {
             size_t rest = input.size() / input.shape(0) / input.shape(1);
 
+            output << std::fixed << std::setprecision(8);
             for (size_t i = 0; i < rest; i++) {
                 output << "ans(:,:," << i << ")" << std::endl;
                 for (size_t j = 0; j < input.shape(0); j++) {
                     for (size_t k = 0; k < input.shape(1); k++) {
                         size_t index = i * input.stride(2) + k * input.stride(1) + j;
-                        output << "\t" << std::fixed << std::setprecision(4) << input[index] << " ";
+                        output << "\t" << std::setw(8) << input[index] << " ";
                     }
                     output << std::endl;
                 }

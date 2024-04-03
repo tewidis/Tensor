@@ -104,6 +104,24 @@ void cumsum_test()
     assert(gt::all(gt::cumsum(input, 2) == correct2));
 }
 
+void movsum_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 1, 2, 5, 4, 9, 6, 13, 8, 17, 10, 21, 12, 25, 14, 29, 16, 33, 18, 37, 20, 41, 22, 45};
+    assert(gt::all(gt::movsum(input, 2, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 2, 4, 6, 8, 6, 7, 14, 16, 18, 20, 12, 13, 26, 28, 30, 32, 18, 19, 38, 40, 42, 44};
+    assert(gt::all(gt::movsum(input, 2, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40};
+    assert(gt::all(gt::movsum(input, 2, 2) == correct2));
+}
+
 void diff_test()
 {
     gt::Tensor<float> input({2, 3, 4});
@@ -173,6 +191,33 @@ void cumprod_test()
                 0, 91, 224, 405, 640, 935,
                 0, 1729, 4480, 8505, 14080, 21505};
     assert(gt::all(gt::cumprod(input, 2) == correct2));
+}
+
+void movprod_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 0, 2, 6, 4, 20, 
+                6, 42, 8, 72, 10, 110, 
+                12, 156, 14, 210, 16, 272, 
+                18, 342, 20, 420, 22, 506};
+    assert(gt::all(gt::movprod(input, 2, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 0, 3, 8, 15,
+                6, 7, 48, 63, 80, 99,
+                12, 13, 168, 195, 224, 255,
+                18, 19, 360, 399, 440, 483};
+    assert(gt::all(gt::movprod(input, 2, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5,
+                0, 7, 16, 27, 40, 55,
+                72, 91, 112, 135, 160, 187,
+                216, 247, 280, 315, 352, 391};
+    assert(gt::all(gt::movprod(input, 2, 2) == correct2));
 }
 
 void trapz_test()
@@ -344,6 +389,24 @@ void mean_test()
     gt::Tensor<float> correct2({2, 3, 1});
     correct2 = {9, 10, 11, 12, 13, 14};
     assert(gt::all(gt::mean(input, 2) == correct2));
+}
+
+void movmean_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 0.5, 2, 2.5, 4, 4.5, 6, 6.5, 8, 8.5, 10, 10.5, 12, 12.5, 14, 14.5, 16, 16.5, 18, 18.5, 20, 20.5, 22, 22.5};
+    assert(gt::all(gt::movmean(input, 2, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 1, 2, 3, 4, 6, 7, 7, 8, 9, 10, 12, 13, 13, 14, 15, 16, 18, 19, 19, 20, 21, 22};
+    assert(gt::all(gt::movmean(input, 2, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+    assert(gt::all(gt::movmean(input, 2, 2) == correct2));
 }
 
 void median_test()
@@ -683,9 +746,11 @@ int main()
     logspace_test();
     sum_test();
     cumsum_test();
+    movsum_test();
     diff_test();
     prod_test();
     cumprod_test();
+    movprod_test();
     trapz_test();
     cumtrapz_test();
     max_test();
@@ -695,6 +760,7 @@ int main()
     cummin_test();
     movmin_test();
     mean_test();
+    movmean_test();
     median_test();
     var_test();
     stddev_test();

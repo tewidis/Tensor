@@ -246,6 +246,26 @@ namespace gt
     }
 
     template<typename T>
+    Tensor<T> movsum(const Tensor<T>& input, size_t B, size_t dim)
+    {
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < output.shape(dim); j++) {
+                output[offset + j * output.stride(dim)] = 0;
+                for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
+                    size_t index = offset + k * input.stride(dim);
+                    if (index < input.size()) {
+                        output[offset + j * output.stride(dim)] += input[index];
+                    }
+                }
+            }
+        }
+
+        return output;
+    }
+
+    template<typename T>
     Tensor<T> diff(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
@@ -292,6 +312,26 @@ namespace gt
             for (size_t j = 0; j < output.shape(dim); j++) {
                 running_total *= input[offset + j * input.stride(dim)];
                 output[offset + j * input.stride(dim)] = running_total;
+            }
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> movprod(const Tensor<T>& input, size_t B, size_t dim)
+    {
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < output.shape(dim); j++) {
+                output[offset + j * output.stride(dim)] = 1;
+                for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
+                    size_t index = offset + k * input.stride(dim);
+                    if (index < input.size()) {
+                        output[offset + j * output.stride(dim)] *= input[index];
+                    }
+                }
             }
         }
 
@@ -565,6 +605,29 @@ namespace gt
             size_t offset = calculate_offset(input, i, dim);
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] += input[offset + j * input.stride(dim)] / input.shape(dim);
+            }
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> movmean(const Tensor<T>& input, size_t B, size_t dim)
+    {
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < output.shape(dim); j++) {
+                output[offset + j * output.stride(dim)] = 0;
+                T denom = 0;
+                for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
+                    size_t index = offset + k * input.stride(dim);
+                    if (index < input.size()) {
+                        output[offset + j * output.stride(dim)] += input[index];
+                        denom++;
+                    }
+                }
+                output[offset + j * output.stride(dim)] /= denom;
             }
         }
 
