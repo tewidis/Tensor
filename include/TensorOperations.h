@@ -374,6 +374,27 @@ namespace gt
     }
 
     template<typename T>
+    Tensor<T> movmax(const Tensor<T>& input, size_t B, size_t dim)
+    {
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < output.shape(dim); j++) {
+                T local_max = input[offset + j * input.stride(dim)];
+                for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
+                    size_t index = offset + k * input.stride(dim);
+                    if (index < input.size()) {
+                        local_max = std::max(local_max, input[index]);
+                    }
+                }
+                output[offset + j * output.stride(dim)] = local_max;
+            }
+        }
+
+        return output;
+    }
+
+    template<typename T>
     Tensor<T> min(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
@@ -404,6 +425,27 @@ namespace gt
                 output[offset + j * input.stride(dim)] = std::min(
                     output[offset + (j - 1) * input.stride(dim)],
                     input[offset + j * input.stride(dim)]);
+            }
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> movmin(const Tensor<T>& input, size_t B, size_t dim)
+    {
+        Tensor<T> output(input.shape());
+        for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+            size_t offset = calculate_offset(input, i, dim);
+            for (size_t j = 0; j < output.shape(dim); j++) {
+                T local_min = input[offset + j * input.stride(dim)];
+                for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
+                    size_t index = offset + k * input.stride(dim);
+                    if (index < input.size()) {
+                        local_min = std::min(local_min, input[index]);
+                    }
+                }
+                output[offset + j * output.stride(dim)] = local_min;
             }
         }
 

@@ -256,6 +256,24 @@ void cummax_test()
     assert(gt::all(gt::cummax(input, 2) == correct2));
 }
 
+void movmax_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::movmax(input, 2, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::movmax(input, 2, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
+    assert(gt::all(gt::movmax(input, 2, 2) == correct2));
+}
+
 void min_test()
 {
     gt::Tensor<float> input({2, 3, 4});
@@ -290,6 +308,24 @@ void cummin_test()
     gt::Tensor<float> correct2({2, 3, 4});
     correct2 = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5};
     assert(gt::all(gt::cummin(input, 2) == correct2));
+}
+
+void movmin_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, 18, 18, 20, 20, 22, 22};
+    assert(gt::all(gt::movmin(input, 2, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 0, 1, 2, 3, 6, 7, 6, 7, 8, 9, 12, 13, 12, 13, 14, 15, 18, 19, 18, 19, 20, 21};
+    assert(gt::all(gt::movmin(input, 2, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
+    assert(gt::all(gt::movmin(input, 2, 2) == correct2));
 }
 
 void mean_test()
@@ -654,8 +690,10 @@ int main()
     cumtrapz_test();
     max_test();
     cummax_test();
+    movmax_test();
     min_test();
     cummin_test();
+    movmin_test();
     mean_test();
     median_test();
     var_test();
