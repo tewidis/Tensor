@@ -862,4 +862,121 @@ namespace gt
 
         return output;
     }
+
+    /* returns true only if input is monotonically increasing or decreasing */
+    template<typename T>
+    bool is_sorted(const Tensor<T>& input)
+    {
+        bool is_increasing = true;
+        for (size_t i = 1; i < input.size(); i++) {
+            if (input[i] <= input[i-1]) {
+                is_increasing = false;
+                break;
+            }
+        }
+
+        bool is_decreasing = true;
+        for (size_t i = 1; i < input.size(); i++) {
+            if (input[i] >= input[i-1]) {
+                is_increasing = false;
+                break;
+            }
+        }
+
+        return is_increasing || is_decreasing;
+    }
+
+    /* return the closest index in input to value using a binary search 
+     * if value is equidistant between two input values, returns the lower */
+    template<typename T>
+    size_t binary_search(const Tensor<T>& input, T value)
+    {
+        assert(is_sorted(input) && "Error in binary_search: input isn't sorted");
+
+        if (input.size() == 1) {
+            return 0;
+        }
+
+        bool is_increasing = input[1] > input[0];
+
+        size_t low = 0;
+        size_t high = input.size() - 1;
+
+        while (low < high) {
+            if (high - low <= 1) {
+                break;
+            }
+
+            size_t mid = (low + high) / 2;
+
+            if (input[mid] == value) {
+                return mid;
+            } else if (input[mid] < value) {
+                low = mid;
+            } else {
+                high = mid;
+            }
+        }
+
+        size_t index;
+        if (is_increasing) {
+            if (value <= input[low] || std::abs(input[low] - value) <= std::abs(input[high] - value)) {
+                index = low;
+            } else {
+                index = high;
+            }
+        } else {
+            if (value >= input[low] || std::abs(input[low] - value) > std::abs(input[high] - value)) {
+                index = low;
+            } else {
+                index = high;
+            }
+        }
+
+        return index;
+    }
+
+    /* 1D linear interpolation; x and xi must be sorted
+     * extrapolates for values of xi outside of x */
+    template<typename T1, typename T2>
+    Tensor<T2> interp1(const Tensor<T1>& x, const Tensor<T2>& y, const Tensor<T1>& xi)
+    {
+        assert(x.shape().size() == 1 && "Error in interp1: x is not one-dimensional");
+        assert(y.shape().size() == 1 && "Error in interp1: y is not one-dimensional");
+        assert(xi.shape().size() == 1 && "Error in interp1: xi is not one-dimensional");
+        assert(x.size() == y.size() && "Error in interp1: x and y are different sizes");
+        assert(is_sorted(x) && "Error in interp1: x is not sorted");
+        assert(is_sorted(xi) && "Error in interp1: xi is not sorted");
+
+        Tensor<T2> yi(xi.shape());
+
+        if (x.size() == 1) {
+            for (size_t i = 0; i < yi.size(); i++) {
+                yi[i] = y[0];
+            }
+            return yi;
+        }
+
+        bool is_increasing = x[1] > x[0];
+        for (size_t i = 0; i < xi.size(); i++) {
+            size_t x1 = binary_search(x, xi[i]);
+
+            size_t x2;
+            if (is_increasing) {
+                if (x1 == xi.size() - 1 || (xi[i] < x[x1] && x1 != 0)) {
+                    x1 = x1 - 1;
+                }
+                x2 = x1 + 1;
+            } else {
+                if (x1 == xi.size() - 1 || (xi[i] > x[x1] && x1 != 0)) {
+                    x1 = x1 - 1;
+                }
+                x2 = x1 + 1;
+            }
+
+            yi[i] = y[x1] + (xi[i] - x[x1]) * (y[x2] - y[x1]) / (x[x2] - x[x1]);
+        }
+
+        return yi;
+    }
 };

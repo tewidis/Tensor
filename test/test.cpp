@@ -737,6 +737,20 @@ void matmul_test()
     assert(gt::all(gt::linalg::matmul(mat1, vec1) == correct_vec));
 }
 
+void interp1_test()
+{
+    gt::Tensor<float> x({10});
+    x = {-5.6, -4.5, -3.2, -2.7, -1.1, 0.0, 1.3, 2.8, 3.1, 4.4};
+    gt::Tensor<float> y({10});
+    y = {2.3, 5.4, -4.5, -7.6, 5.1, 2.8, 7.2, 1.9, 2.0, 6.6};
+    gt::Tensor<float> xi({10});
+    xi = {-6.0, -4.5, -4.4, -3.3, -3.0, -0.5, 0.5, 2.0, 2.9, 5.0};
+
+    gt::Tensor<float> correct({10});
+    correct = {1.1727, 5.4000, 4.6385, -3.7385, -5.7400, 3.8455, 4.4923, 4.7267, 1.9333, 8.7231};
+    assert(!gt::any(gt::abs(gt::interp1(x, y, xi) - correct) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -779,4 +793,5 @@ int main()
     cat_test();
     unique_test();
     matmul_test();
+    interp1_test();
 }
