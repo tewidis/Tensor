@@ -746,9 +746,37 @@ void interp1_test()
     gt::Tensor<float> xi({10});
     xi = {-6.0, -4.5, -4.4, -3.3, -3.0, -0.5, 0.5, 2.0, 2.9, 5.0};
 
-    gt::Tensor<float> correct({10});
-    correct = {1.1727, 5.4000, 4.6385, -3.7385, -5.7400, 3.8455, 4.4923, 4.7267, 1.9333, 8.7231};
-    assert(!gt::any(gt::abs(gt::interp1(x, y, xi) - correct) > 1e-4f));
+    gt::Tensor<float> increasing_correct({10});
+    increasing_correct = {1.1727, 5.4000, 4.6385, -3.7385, -5.7400, 3.8455, 4.4923, 4.7267, 1.9333, 8.7231};
+    assert(!gt::any(gt::abs(gt::interp1(x, y, xi) - increasing_correct) > 1e-4f));
+
+    gt::Tensor<float> decreasing_correct({10});
+    decreasing_correct = {8.2727, 2.0000, 1.9923, 1.9077, 4.0200, 4.0545, 0.2154, -6.1533, -1.2000, 0.8692};
+    assert(!gt::any(gt::abs(gt::interp1(gt::flip(x), y, xi) - decreasing_correct) > 1e-4f));
+}
+
+void interp2_test()
+{
+    gt::Tensor<float> x({5});
+    x = {-2.7, -1.1, 0.0, 1.3, 2.8};
+    gt::Tensor<float> y({6});
+    y = {-1.3, 0.2, 1.8, 2.1, 3.7, 4.3};
+    gt::Tensor<float> z({5, 6});
+    z = {3.2, -3.4, 4.5, 1.8, 9.3,
+         5.1, -6.5, -2.8, -4.7, 0.2,
+         1.9, 2.0, 3.3, 4.2, -6.7,
+         5.0, -2.4, -1.7, 7.2, 8.1,
+         7.6, 8.2, 9.3, 0.6, 4.5,
+         3.2, -6.4, 4.7, 2.2, 3.9};
+    gt::Tensor<float> xi({4});
+    xi = {-1.5, -0.5, 0.5, 1.5};
+    gt::Tensor<float> yi({3});
+    yi = {-1.5, -0.5, 0.5};
+    std::cout << gt::interp2(x, y, z, xi, yi) << std::endl;
+
+    //gt::Tensor<float> correct({4, 4});
+    //correct = {1.1727, 5.4000, 4.6385, -3.7385, -5.7400, 3.8455, 4.4923, 4.7267, 1.9333, 8.7231};
+    //assert(!gt::any(gt::abs(gt::interp2(x, y, z, xi, yi) - correct) > 1e-4f));
 }
 
 int main()
@@ -794,4 +822,5 @@ int main()
     unique_test();
     matmul_test();
     interp1_test();
+    interp2_test();
 }

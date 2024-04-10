@@ -936,47 +936,172 @@ namespace gt
         return index;
     }
 
-    /* 1D linear interpolation; x and xi must be sorted
+    /* helper function for interpolation
+     * returns the indices in x surrounding xi */
+    template<typename T>
+    std::tuple<size_t,size_t> interpolation_bounds(const Tensor<T>& x, T xi)
+    {
+        size_t x1 = binary_search(x, xi);
+
+        size_t x2;
+        if (x.size() > 1) {
+            if (x[1] > x[0]) {
+                /* increasing case */
+                if (x1 == x.size() - 1 || (xi < x[x1] && x1 != 0)) {
+                    x1 = x1 - 1;
+                }
+                x2 = x1 + 1;
+            } else {
+                /* decreasing case */
+                if (x1 == 0 || (xi > x[x1] && x1 != x.size() - 1)) {
+                    x1 = x1 + 1;
+                }
+                x2 = x1 - 1;
+            }
+        } else {
+            x2 = x1;
+        }
+
+        return std::make_pair(x1, x2);
+    }
+
+    /* 1D linear interpolation; x must be sorted
      * extrapolates for values of xi outside of x */
-    template<typename T1, typename T2>
-    Tensor<T2> interp1(const Tensor<T1>& x, const Tensor<T2>& y, const Tensor<T1>& xi)
+    template<typename T>
+    Tensor<T> interp1(const Tensor<T>& x, const Tensor<T>& y, const Tensor<T>& xi)
     {
         assert(x.shape().size() == 1 && "Error in interp1: x is not one-dimensional");
         assert(y.shape().size() == 1 && "Error in interp1: y is not one-dimensional");
         assert(xi.shape().size() == 1 && "Error in interp1: xi is not one-dimensional");
         assert(x.size() == y.size() && "Error in interp1: x and y are different sizes");
         assert(is_sorted(x) && "Error in interp1: x is not sorted");
-        assert(is_sorted(xi) && "Error in interp1: xi is not sorted");
 
-        Tensor<T2> yi(xi.shape());
+        Tensor<T> yi(xi.shape());
 
-        if (x.size() == 1) {
-            for (size_t i = 0; i < yi.size(); i++) {
-                yi[i] = y[0];
-            }
-            return yi;
-        }
-
-        bool is_increasing = x[1] > x[0];
         for (size_t i = 0; i < xi.size(); i++) {
-            size_t x1 = binary_search(x, xi[i]);
+            std::tuple<size_t,size_t> xbounds = interpolation_bounds(x, xi[i]);
+            size_t x1 = std::get<0>(xbounds);
+            size_t x2 = std::get<0>(xbounds);
 
-            size_t x2;
-            if (is_increasing) {
-                if (x1 == xi.size() - 1 || (xi[i] < x[x1] && x1 != 0)) {
-                    x1 = x1 - 1;
-                }
-                x2 = x1 + 1;
-            } else {
-                if (x1 == xi.size() - 1 || (xi[i] > x[x1] && x1 != 0)) {
-                    x1 = x1 - 1;
-                }
-                x2 = x1 + 1;
-            }
-
-            yi[i] = y[x1] + (xi[i] - x[x1]) * (y[x2] - y[x1]) / (x[x2] - x[x1]);
+            T xd = (xi[i] - x[x1]) / (x[x2] - x[x1]);
+            yi[i] = y(x1) * (1 - xd) + y(x2) * xd;
         }
 
         return yi;
+    }
+
+    /* 2D linear interpolation, x and y must be sorted
+     * extrapolates for values of xi, yi outside of x, y */
+    template<typename T>
+    Tensor<T> interp2(const Tensor<T>& x, const Tensor<T>& y,
+        const Tensor<T>& z, const Tensor<T>& xi, const Tensor<T>& yi)
+    {
+        assert(x.shape().size() == 1 && "Error in interp2: x is not one-dimensional");
+        assert(y.shape().size() == 1 && "Error in interp2: y is not one-dimensional");
+        assert(z.shape().size() == 2 && "Error in interp2: z is not two-dimensional");
+        assert(xi.shape().size() == 1 && "Error in interp2: xi is not one-dimensional");
+        assert(yi.shape().size() == 1 && "Error in interp2: yi is not one-dimensional");
+        assert(x.shape(0) == z.shape(0) && "Error in interp2: size of x doesn't match zeroth dimension of z");
+        assert(y.shape(0) == z.shape(1) && "Error in interp2: size of y doesn't match first dimension of z");
+        assert(is_sorted(x) && "Error in interp2: x is not sorted");
+        assert(is_sorted(y) && "Error in interp2: y is not sorted");
+
+        Tensor<T> zi({xi.size(), yi.size()});
+
+        for (size_t i = 0; i < xi.size(); i++) {
+            std::tuple<size_t,size_t> xbounds = interpolation_bounds(x, xi[i]);
+
+            size_t x1 = std::get<0>(xbounds);
+            size_t x2 = std::get<1>(xbounds);
+
+            T xd = (xi[i] - x[x1]) / (x[x2] - x[x1]);
+
+            for (size_t j = 0; j < yi.size(); j++) {
+                std::tuple<size_t,size_t> ybounds = interpolation_bounds(y, yi[j]);
+
+                size_t y1 = std::get<0>(ybounds);
+                size_t y2 = std::get<1>(ybounds);
+                
+                T yd = (yi[j] - y[y1]) / (y[y2] - y[y1]);
+
+                T c00 = z(x1,y1) * (1 - xd) + z(x2,y1) * xd;
+                T c01 = z(x1,y2) * (1 - xd) + z(x2,y2) * xd;
+                zi(i,j) = c00 * (1 - yd) + c01 * yd;
+            }
+        }
+
+        return zi;
+    }
+
+    /* 3D linear interpolation, x and y must be sorted
+     * extrapolates for values of xi, yi outside of x, y */
+    template<typename T>
+    Tensor<T> interp3(const Tensor<T>& x, const Tensor<T>& y, const Tensor<T>& z,
+        const Tensor<T>& xyz, const Tensor<T>& xi, const Tensor<T>& yi, 
+        const Tensor<T>& zi)
+    {
+        assert(x.shape().size() == 1 && "Error in interp3: x is not one-dimensional");
+        assert(y.shape().size() == 1 && "Error in interp3: y is not one-dimensional");
+        assert(z.shape().size() == 1 && "Error in interp3: z is not one-dimensional");
+        assert(xyz.shape().size() == 3 && "Error in interp3: xyz is not three-dimensional");
+        assert(xi.shape().size() == 1 && "Error in interp3: xi is not one-dimensional");
+        assert(yi.shape().size() == 1 && "Error in interp3: yi is not one-dimensional");
+        assert(zi.shape().size() == 1 && "Error in interp3: zi is not one-dimensional");
+        assert(x.shape(0) == xyz.shape(0) && "Error in interp3: size of x doesn't match zeroth dimension of xyz");
+        assert(y.shape(1) == xyz.shape(1) && "Error in interp3: size of y doesn't match first dimension of xyz");
+        assert(y.shape(2) == xyz.shape(2) && "Error in interp3: size of y doesn't match second dimension of xyz");
+        assert(is_sorted(x) && "Error in interp3: x is not sorted");
+        assert(is_sorted(y) && "Error in interp3: y is not sorted");
+        assert(is_sorted(z) && "Error in interp3: z is not sorted");
+
+        Tensor<T> xiyizi({xi.size(), yi.size(), zi.size()});
+
+        for (size_t i = 0; i < xi.size(); i++) {
+            std::tuple<size_t,size_t> xbounds = interpolation_bounds(x, xi[i]);
+
+            size_t x1 = std::get<0>(xbounds);
+            size_t x2 = std::get<1>(xbounds);
+
+            T xd = (xi[i] - x[x1]) / (x[x2] - x[x1]);
+
+            for (size_t j = 0; j < yi.size(); j++) {
+                std::tuple<size_t,size_t> ybounds = interpolation_bounds(y, yi[j]);
+
+                size_t y1 = std::get<0>(ybounds);
+                size_t y2 = std::get<1>(ybounds);
+                
+                T yd = (yi[j] - y[y1]) / (y[y2] - y[y1]);
+
+                for (size_t k = 0; k < zi.size(); k++) {
+                    std::tuple<size_t,size_t> zbounds = interpolation_bounds(z, zi[k]);
+
+                    size_t z1 = std::get<0>(zbounds);
+                    size_t z2 = std::get<1>(zbounds);
+                    
+                    T zd = (zi[k] - z[z1]) / (z[z2] - z[z1]);
+
+                    T c000 = xyz(x1,y1,z1);
+                    T c001 = xyz(x1,y1,z2);
+                    T c010 = xyz(x1,y2,z1);
+                    T c011 = xyz(x1,y2,z2);
+                    T c100 = xyz(x2,y1,z1);
+                    T c101 = xyz(x2,y1,z2);
+                    T c110 = xyz(x2,y2,z1);
+                    T c111 = xyz(x2,y2,z2);
+
+                    T c00 = c000 * (1 - xd) + c100 * xd;
+                    T c01 = c001 * (1 - xd) + c101 * xd;
+                    T c10 = c010 * (1 - xd) + c110 * xd;
+                    T c11 = c011 * (1 - xd) + c111 * xd;
+
+                    T c0 = c00 * (1 - yd) + c10 * yd;
+                    T c1 = c01 * (1 - yd) + c11 * yd;
+                    
+                    xiyizi(i,j,k) = c0 * (1 - zd) + c1 * zd;
+                }
+            }
+        }
+
+        return zi;
     }
 };
