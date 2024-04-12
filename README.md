@@ -51,9 +51,14 @@ Fortran, but differs from C and Numpy which use row-major format.
 
 * interp
 * conv
-* filter
+* minval
+* maxval
 * where
+* windows
+* ones
+* zeros
+* eye
 
 ## Licensing
 
-This project is licensed under the terms of the GNU General Public License v3.0.
+This project is licensed under the terms of the GNU GPL-3.0-or-later.

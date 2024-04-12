@@ -1,9 +1,26 @@
+/* 
+ * This file is part of Tensor.
+ * 
+ * Tensor is free software: you can redistribute it and/or modify it under the 
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or any later version.
+ * 
+ * Tensor is distributed in the hope that it will be useful, but WITHOUT ANY 
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR * A PARTICULAR PURPOSE. See the GNU General Public License for more 
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with 
+ * Tensor. If not, see <https://www.gnu.org/licenses/>. 
+ */
+
 #include <cassert>
 #include <iostream>
 
 #include "Tensor.h"
 #include "TensorOperations.h"
 #include "LinearAlgebra.h"
+#include "SignalProcessing.h"
 
 /* Tests that the () operator overload is indexing correctly */
 void access_test()
@@ -779,6 +796,27 @@ void interp2_test()
     //assert(!gt::any(gt::abs(gt::interp2(x, y, z, xi, yi) - correct) > 1e-4f));
 }
 
+void conv1_test()
+{
+    gt::Tensor<float> t1({5});
+    t1 = {1, 5, 6, 7, 8};
+    gt::Tensor<float> t2({3});
+    t2 = {2, 3, 4};
+
+    gt::Tensor<float> correct_full({7});
+    correct_full = {2, 13, 31, 52, 61, 52, 32};
+
+    gt::Tensor<float> correct_same({5});
+    correct_same = {13, 31, 52, 61, 52};
+
+    gt::Tensor<float> correct_valid({3});
+    correct_valid = {31, 52, 61};
+
+    assert(gt::all(gt::sp::conv1(t1, t2, gt::FULL) == correct_full));
+    assert(gt::all(gt::sp::conv1(t1, t2, gt::SAME) == correct_same));
+    assert(gt::all(gt::sp::conv1(t1, t2, gt::VALID) == correct_valid));
+}
+
 int main()
 {
     access_test();
@@ -823,4 +861,5 @@ int main()
     matmul_test();
     interp1_test();
     interp2_test();
+    conv1_test();
 }
