@@ -51,13 +51,8 @@ Fortran, but differs from C and Numpy which use row-major format.
 
 * interp
 * conv
-* minval
-* maxval
 * where
 * windows
-* ones
-* zeros
-* eye
 
 ## Licensing
 

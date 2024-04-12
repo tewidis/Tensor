@@ -191,6 +191,42 @@ namespace gt
     }
 
     template<typename T>
+    Tensor<T> ones(const std::vector<size_t>& shape)
+    {
+        Tensor<T> output(shape);
+
+        for (size_t i = 0; i < output.size(); i++) {
+            output[i] = 1;
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> zeros(const std::vector<size_t>& shape)
+    {
+        Tensor<T> output(shape);
+
+        for (size_t i = 0; i < output.size(); i++) {
+            output[i] = 0;
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> eye(size_t size)
+    {
+        Tensor<T> output = zeros<T>({size, size});
+
+        for (size_t i = 0; i < output.shape(0); i++) {
+            output(i,i) = 1;
+        }
+
+        return output;
+    }
+
+    template<typename T>
     Tensor<T> pow(const Tensor<T>& input, float scalar)
     {
         Tensor<T> output(input.shape());
@@ -451,6 +487,17 @@ namespace gt
     }
 
     template<typename T>
+    Tensor<T> maxval(const Tensor<T>& input, T value)
+    {
+        Tensor<T> output(input.shape());
+
+        std::transform(input.begin(), input.end(), output.begin(), \
+            [value] (T data) { return std::max(data, value); }); \
+
+        return output;
+    }
+
+    template<typename T>
     Tensor<T> min(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
@@ -504,6 +551,17 @@ namespace gt
                 output[offset + j * output.stride(dim)] = local_min;
             }
         }
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> minval(const Tensor<T>& input, T value)
+    {
+        Tensor<T> output(input.shape());
+
+        std::transform(input.begin(), input.end(), output.begin(), \
+            [value] (T data) { return std::min(data, value); }); \
 
         return output;
     }
