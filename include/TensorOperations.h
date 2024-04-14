@@ -1068,19 +1068,19 @@ namespace gt
      * extrapolates for values of xi, yi outside of x, y */
     template<typename T>
     Tensor<T> interp2(const Tensor<T>& x, const Tensor<T>& y,
-        const Tensor<T>& z, const Tensor<T>& xi, const Tensor<T>& yi)
+        const Tensor<T>& xy, const Tensor<T>& xi, const Tensor<T>& yi)
     {
         assert(x.shape().size() == 1 && "Error in interp2: x is not one-dimensional");
         assert(y.shape().size() == 1 && "Error in interp2: y is not one-dimensional");
-        assert(z.shape().size() == 2 && "Error in interp2: z is not two-dimensional");
+        assert(xy.shape().size() == 2 && "Error in interp2: xy is not two-dimensional");
         assert(xi.shape().size() == 1 && "Error in interp2: xi is not one-dimensional");
         assert(yi.shape().size() == 1 && "Error in interp2: yi is not one-dimensional");
-        assert(x.shape(0) == z.shape(0) && "Error in interp2: size of x doesn't match zeroth dimension of z");
-        assert(y.shape(0) == z.shape(1) && "Error in interp2: size of y doesn't match first dimension of z");
+        assert(x.shape(0) == xy.shape(0) && "Error in interp2: size of x doesn't match zeroth dimension of xy");
+        assert(y.shape(0) == xy.shape(1) && "Error in interp2: size of y doesn't match first dimension of xy");
         assert(is_sorted(x) && "Error in interp2: x is not sorted");
         assert(is_sorted(y) && "Error in interp2: y is not sorted");
 
-        Tensor<T> zi({xi.size(), yi.size()});
+        Tensor<T> xiyi({xi.size(), yi.size()});
 
         for (size_t i = 0; i < xi.size(); i++) {
             std::tuple<size_t,size_t> xbounds = interpolation_bounds(x, xi[i]);
@@ -1098,13 +1098,13 @@ namespace gt
                 
                 T yd = (yi[j] - y[y1]) / (y[y2] - y[y1]);
 
-                T c00 = z(x1,y1) * (1 - xd) + z(x2,y1) * xd;
-                T c01 = z(x1,y2) * (1 - xd) + z(x2,y2) * xd;
-                zi(i,j) = c00 * (1 - yd) + c01 * yd;
+                T c00 = xy(x1,y1) * (1 - xd) + xy(x2,y1) * xd;
+                T c01 = xy(x1,y2) * (1 - xd) + xy(x2,y2) * xd;
+                xiyi(i,j) = c00 * (1 - yd) + c01 * yd;
             }
         }
 
-        return zi;
+        return xiyi;
     }
 
     /* 3D linear interpolation, x and y must be sorted

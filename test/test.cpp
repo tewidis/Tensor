@@ -789,11 +789,12 @@ void interp2_test()
     xi = {-1.5, -0.5, 0.5, 1.5};
     gt::Tensor<float> yi({3});
     yi = {-1.5, -0.5, 0.5};
-    std::cout << gt::interp2(x, y, z, xi, yi) << std::endl;
 
-    //gt::Tensor<float> correct({4, 4});
-    //correct = {1.1727, 5.4000, 4.6385, -3.7385, -5.7400, 3.8455, 4.4923, 4.7267, 1.9333, 8.7231};
-    //assert(!gt::any(gt::abs(gt::interp2(x, y, z, xi, yi) - correct) > 1e-4f));
+    gt::Tensor<float> correct({4, 3});
+    correct = {-1.5033, 1.6279, 4.3938, 3.7129,
+               -2.7367, -1.9661, -0.2677, -0.8516,
+               -2.5547, -3.1335, -2.1851, -2.7729};
+    assert(!gt::any(gt::abs(gt::interp2(x, y, z, xi, yi) - correct) > 1e-4f));
 }
 
 void conv1_test()
@@ -815,6 +816,62 @@ void conv1_test()
     assert(gt::all(gt::sp::conv1(t1, t2, gt::FULL) == correct_full));
     assert(gt::all(gt::sp::conv1(t1, t2, gt::SAME) == correct_same));
     assert(gt::all(gt::sp::conv1(t1, t2, gt::VALID) == correct_valid));
+}
+
+void conv2_test()
+{
+    gt::Tensor<float> t1({3, 4});
+    t1 = {2, 5, 7, 3, 4, 9, 6, 1, 0, 8, 4, 8};
+    gt::Tensor<float> t2({2, 3});
+    t2 = {5, 9, 8, 2, 1, 3};
+
+    gt::Tensor<float> correct_full({4, 6});
+    correct_full = {10, 43, 80, 63,
+                    31, 91, 147, 95,
+                    56, 108, 111, 39,
+                    91, 125, 99, 99,
+                    70, 67, 75, 16,
+                    8, 28, 20, 24};
+
+    gt::Tensor<float> correct_same({3, 4});
+    correct_same = {91, 147, 95, 108, 111, 39, 125, 99, 99, 67, 75, 16};
+
+    gt::Tensor<float> correct_valid({2, 2});
+    correct_valid = {108, 111, 125, 99};
+
+    assert(gt::all(gt::sp::conv2(t1, t2, gt::FULL) == correct_full));
+    assert(gt::all(gt::sp::conv2(t1, t2, gt::SAME) == correct_same));
+    assert(gt::all(gt::sp::conv2(t1, t2, gt::VALID) == correct_valid));
+}
+
+void conv3_test()
+{
+    gt::Tensor<float> t1({2, 3, 4});
+    t1 = {2, 5, 7, 3, 4, 9, 6, 1, 0, 8, 4, 8,
+          3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8};
+    gt::Tensor<float> t2({1, 2, 3});
+    t2 = {5, 9, 8, 2, 1, 3};
+
+    gt::Tensor<float> correct_full({2, 4, 6});
+    correct_full = {10, 25, 53, 60, 83, 72, 36, 81,
+                    46, 45, 114, 83, 66, 190, 44, 90,
+                    65, 18, 72, 98, 118, 152, 65, 124,
+                    40, 39, 99, 90, 122, 173, 67, 114,
+                    19, 49, 57, 40, 67, 82, 25, 43,
+                    2, 6, 11, 21, 20, 17, 15, 24};
+
+    gt::Tensor<float> correct_same({2, 3, 4});
+    correct_same = {114, 83, 66, 190, 44, 90,
+                    72, 98, 118, 152, 65, 124,
+                    99, 90, 122, 173, 67, 114,
+                    57, 40, 67, 82, 25, 43};
+
+    gt::Tensor<float> correct_valid({2, 2, 2});
+    correct_valid = {72, 98, 118, 152, 99, 90, 122, 173};
+
+    assert(gt::all(gt::sp::conv3(t1, t2, gt::FULL) == correct_full));
+    assert(gt::all(gt::sp::conv3(t1, t2, gt::SAME) == correct_same));
+    assert(gt::all(gt::sp::conv3(t1, t2, gt::VALID) == correct_valid));
 }
 
 int main()
@@ -862,4 +919,6 @@ int main()
     interp1_test();
     interp2_test();
     conv1_test();
+    conv2_test();
+    conv3_test();
 }
