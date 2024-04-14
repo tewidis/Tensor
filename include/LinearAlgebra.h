@@ -24,7 +24,7 @@ namespace gt
 {
     namespace linalg
     {
-        Tensor<float> matmul(const Tensor<float>& lhs, const Tensor<float>& rhs)
+        inline Tensor<float> matmul(const Tensor<float>& lhs, const Tensor<float>& rhs)
         {
             assert(lhs.shape().size() <= 2 && rhs.shape().size() <= 2 && 
                 "Error in matmul: Matrix multiplication is only defined on vectors or matrices");
@@ -49,7 +49,7 @@ namespace gt
             return output;
         }
 
-        Tensor<double> matmul(const Tensor<double>& lhs, const Tensor<double>& rhs)
+        inline Tensor<double> matmul(const Tensor<double>& lhs, const Tensor<double>& rhs)
         {
             assert(lhs.shape().size() <= 2 && rhs.shape().size() <= 2 && 
                 "Error in matmul: Matrix multiplication is only defined on vectors or matrices");
@@ -74,7 +74,7 @@ namespace gt
             return output;
         }
 
-        Tensor<std::complex<float>> matmul(const Tensor<std::complex<float>>& lhs, const Tensor<std::complex<float>>& rhs)
+        inline Tensor<std::complex<float>> matmul(const Tensor<std::complex<float>>& lhs, const Tensor<std::complex<float>>& rhs)
         {
             assert(lhs.shape().size() <= 2 && rhs.shape().size() <= 2 && 
                 "Error in matmul: Matrix multiplication is only defined on vectors or matrices");
@@ -99,7 +99,7 @@ namespace gt
             return output;
         }
 
-        Tensor<std::complex<double>> matmul(const Tensor<std::complex<double>>& lhs, const Tensor<std::complex<double>>& rhs)
+        inline Tensor<std::complex<double>> matmul(const Tensor<std::complex<double>>& lhs, const Tensor<std::complex<double>>& rhs)
         {
             assert(lhs.shape().size() <= 2 && rhs.shape().size() <= 2 && 
                 "Error in matmul: Matrix multiplication is only defined on vectors or matrices");

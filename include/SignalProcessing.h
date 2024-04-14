@@ -31,7 +31,7 @@ namespace gt
     namespace sp
     {
         template<typename T>
-        inline auto convolution_parameters(const Tensor<T>& t1,
+        inline constexpr auto convolution_parameters(const Tensor<T>& t1,
             const Tensor<T>& t2, CONVOLUTION type)
         {
             std::vector<size_t> shape(t1.shape().size());
@@ -64,7 +64,7 @@ namespace gt
             return std::make_pair(shape, offset);
         }
 
-        inline size_t convolution_limit(size_t i, size_t t1_shape, size_t t2_shape)
+        inline constexpr size_t convolution_limit(size_t i, size_t t1_shape, size_t t2_shape)
         {
             return std::min(
                 std::min(t1_shape, t2_shape),
@@ -73,7 +73,7 @@ namespace gt
         }
 
         template<typename T>
-        inline Tensor<T> conv1(const Tensor<T>& t1, const Tensor<T>& t2, CONVOLUTION type)
+        inline constexpr Tensor<T> conv1(const Tensor<T>& t1, const Tensor<T>& t2, CONVOLUTION type)
         {
             assert(t1.shape().size() == 1 && t2.shape().size() == 1 && 
                 "Error in conv1: Tensors are not one-dimensional");
@@ -95,7 +95,7 @@ namespace gt
         }
 
         template<typename T>
-        inline Tensor<T> conv2(const Tensor<T>& t1, const Tensor<T>& t2, CONVOLUTION type)
+        inline constexpr Tensor<T> conv2(const Tensor<T>& t1, const Tensor<T>& t2, CONVOLUTION type)
         {
             assert(t1.shape().size() == 2 && t2.shape().size() == 2 && 
                 "Error in conv2: Tensors are not two-dimensional");
@@ -124,7 +124,7 @@ namespace gt
         }
 
         template<typename T>
-        inline Tensor<T> conv3(const Tensor<T>& t1, const Tensor<T>& t2, CONVOLUTION type)
+        inline constexpr Tensor<T> conv3(const Tensor<T>& t1, const Tensor<T>& t2, CONVOLUTION type)
         {
             assert(t1.shape().size() == 3 && t2.shape().size() == 3 && 
                 "Error in conv3: Tensors are not three-dimensional");

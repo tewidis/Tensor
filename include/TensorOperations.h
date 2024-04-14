@@ -28,7 +28,7 @@ namespace gt
 {
     #define UNARY_EXPRESSION(op) \
     template<typename T> \
-    Tensor<T> op(const Tensor<T>& input) \
+    inline constexpr Tensor<T> op(const Tensor<T>& input) \
     { \
         Tensor<T> output(input.shape()); \
         std::transform(input.begin(), input.end(), output.begin(), \
@@ -39,7 +39,7 @@ namespace gt
     //TODO: Need to be smarter about handling type promotion here
     #define BINARY_EXPRESSION(op) \
     template<typename LHS, typename RHS> \
-    Tensor<LHS> operator op(const Tensor<LHS>& lhs, const Tensor<RHS>& rhs) \
+    inline constexpr Tensor<LHS> operator op(const Tensor<LHS>& lhs, const Tensor<RHS>& rhs) \
     { \
         assert((lhs.size() == rhs.size()) && "Error in binary operation: Tensors are different shapes"); \
         Tensor<LHS> output(lhs.shape()); \
@@ -49,7 +49,7 @@ namespace gt
         return output; \
     } \
     template<typename LHS, typename RHS> requires std::is_arithmetic_v<RHS>\
-    Tensor<LHS> operator op(const Tensor<LHS>& lhs, RHS rhs) \
+    inline constexpr Tensor<LHS> operator op(const Tensor<LHS>& lhs, RHS rhs) \
     { \
         Tensor<LHS> output(lhs.shape()); \
         for (size_t i = 0; i < output.size(); i++) { \
@@ -95,7 +95,7 @@ namespace gt
     BINARY_EXPRESSION(!=);
 
     template<typename T>
-    bool all(const Tensor<T>& input)
+    inline constexpr bool all(const Tensor<T>& input)
     {
         bool all = true;
         for (size_t i = 0; i < input.size(); i++) {
@@ -105,7 +105,7 @@ namespace gt
     }
 
     template<typename T>
-    bool any(const Tensor<T>& input)
+    inline constexpr bool any(const Tensor<T>& input)
     {
         bool any = false;
         for (size_t i = 0; i < input.size(); i++) {
@@ -115,7 +115,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> isinf(const Tensor<T>& input)
+    inline constexpr Tensor<T> isinf(const Tensor<T>& input)
     {
         Tensor<T> output(input.shape());
         std::transform(input.begin(), input.end(), output.begin(),
@@ -125,7 +125,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> isnan(const Tensor<T>& input)
+    inline constexpr Tensor<T> isnan(const Tensor<T>& input)
     {
         Tensor<T> output(input.shape());
         std::transform(input.begin(), input.end(), output.begin(),
@@ -135,7 +135,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> isfinite(const Tensor<T>& input)
+    inline constexpr Tensor<T> isfinite(const Tensor<T>& input)
     {
         Tensor<T> output(input.shape());
         std::transform(input.begin(), input.end(), output.begin(),
@@ -146,13 +146,13 @@ namespace gt
 
     /* rounds towards 0 */
     template<typename T> requires std::is_arithmetic_v<T>
-    T fix(T input)
+    inline constexpr T fix(T input)
     {
         return (input < 0) ? std::ceil(input) : std::floor(input);
     }
 
     template<typename T>
-    Tensor<T> fix(const Tensor<T>& input)
+    inline constexpr Tensor<T> fix(const Tensor<T>& input)
     {
         Tensor<T> output(input.shape());
         std::transform(input.begin(), input.end(), output.begin(),
@@ -164,14 +164,14 @@ namespace gt
     /* remainder as computed by MATLAB */
     template<typename T1, typename T2>
         requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
-    T1 rem(T1 lhs, T2 rhs)
+    inline constexpr T1 rem(T1 lhs, T2 rhs)
     {
         return lhs - fix(lhs / rhs) * rhs;
     }
 
     template<typename T1, typename T2>
         requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
-    Tensor<T1> rem(const Tensor<T2>& lhs, T1 rhs)
+    inline constexpr Tensor<T1> rem(const Tensor<T2>& lhs, T1 rhs)
     {
         Tensor<T1> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
@@ -183,14 +183,14 @@ namespace gt
     /* modulus as computed by MATLAB */
     template<typename T1, typename T2>
         requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
-    T1 mod(T1 lhs, T2 rhs)
+    inline constexpr T1 mod(T1 lhs, T2 rhs)
     {
         return lhs - std::floor(lhs / rhs) * rhs;
     }
 
     template<typename T1, typename T2>
         requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
-    Tensor<T1> mod(const Tensor<T1>& lhs, T2 rhs)
+    inline constexpr Tensor<T1> mod(const Tensor<T1>& lhs, T2 rhs)
     {
         Tensor<T1> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
@@ -201,7 +201,7 @@ namespace gt
 
     /* produces N linearly spaced points between min and max */
     template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> linspace(T min, T max, size_t N)
+    inline constexpr Tensor<T> linspace(T min, T max, size_t N)
     {
         assert((N > 0) && "Error in linspace: N must be greater than 0");
         Tensor<T> output({N});
@@ -214,14 +214,14 @@ namespace gt
 
     /* produces N logarithmically spaced points between min and max */
     template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> logspace(T min, T max, size_t N)
+    inline constexpr Tensor<T> logspace(T min, T max, size_t N)
     {
         assert((N > 0) && "Error in logspace: N must be greater than 0");
         return pow(10.0f, linspace(min, max, N));
     }
 
     template<typename T>
-    Tensor<T> ones(const std::vector<size_t>& shape)
+    inline constexpr Tensor<T> ones(const std::vector<size_t>& shape)
     {
         Tensor<T> output(shape);
 
@@ -233,7 +233,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> zeros(const std::vector<size_t>& shape)
+    inline constexpr Tensor<T> zeros(const std::vector<size_t>& shape)
     {
         Tensor<T> output(shape);
 
@@ -245,7 +245,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> eye(size_t size)
+    inline constexpr Tensor<T> eye(size_t size)
     {
         Tensor<T> output = zeros<T>({size, size});
 
@@ -257,7 +257,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> pow(const Tensor<T>& input, float scalar)
+    inline constexpr Tensor<T> pow(const Tensor<T>& input, float scalar)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size(); i++) {
@@ -267,7 +267,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> pow(float scalar, const Tensor<T>& input)
+    inline constexpr Tensor<T> pow(float scalar, const Tensor<T>& input)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size(); i++) {
@@ -277,7 +277,7 @@ namespace gt
     }
 
     template<typename T>
-    size_t calculate_offset(const gt::Tensor<T>& input, size_t index, size_t dim)
+    inline constexpr size_t calculate_offset(const gt::Tensor<T>& input, size_t index, size_t dim)
     {
         assert((dim < input.shape().size()) && "Error in calculate offset: Dimension exceeds dimensions of input");
         std::vector<size_t> shape = input.shape();
@@ -293,7 +293,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> sum(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> sum(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
         if (dim < shape.size()) {
@@ -312,7 +312,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> cumsum(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> cumsum(const Tensor<T>& input, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -328,7 +328,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> movsum(const Tensor<T>& input, size_t B, size_t dim)
+    inline constexpr Tensor<T> movsum(const Tensor<T>& input, size_t B, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -348,7 +348,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> diff(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> diff(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
         if (dim < shape.size()) {
@@ -365,7 +365,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> prod(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> prod(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
         if (dim < shape.size()) {
@@ -385,7 +385,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> cumprod(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> cumprod(const Tensor<T>& input, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -401,7 +401,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> movprod(const Tensor<T>& input, size_t B, size_t dim)
+    inline constexpr Tensor<T> movprod(const Tensor<T>& input, size_t B, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -421,7 +421,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> trapz(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> trapz(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
         if (dim < shape.size()) {
@@ -441,7 +441,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> cumtrapz(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> cumtrapz(const Tensor<T>& input, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -459,7 +459,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> max(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> max(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
         if (dim < shape.size()) {
@@ -479,7 +479,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> cummax(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> cummax(const Tensor<T>& input, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -496,7 +496,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> movmax(const Tensor<T>& input, size_t B, size_t dim)
+    inline constexpr Tensor<T> movmax(const Tensor<T>& input, size_t B, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -517,7 +517,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> maxval(const Tensor<T>& input, T value)
+    inline constexpr Tensor<T> maxval(const Tensor<T>& input, T value)
     {
         Tensor<T> output(input.shape());
 
@@ -528,7 +528,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> min(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> min(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
         if (dim < shape.size()) {
@@ -548,7 +548,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> cummin(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> cummin(const Tensor<T>& input, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -565,7 +565,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> movmin(const Tensor<T>& input, size_t B, size_t dim)
+    inline constexpr Tensor<T> movmin(const Tensor<T>& input, size_t B, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -586,7 +586,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> minval(const Tensor<T>& input, T value)
+    inline constexpr Tensor<T> minval(const Tensor<T>& input, T value)
     {
         Tensor<T> output(input.shape());
 
@@ -597,7 +597,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> reshape(const Tensor<T>& input, const std::vector<size_t>& shape)
+    inline constexpr Tensor<T> reshape(const Tensor<T>& input, const std::vector<size_t>& shape)
     {
         Tensor<T> output(shape);
         std::copy(input.begin(), input.end(), output.begin());
@@ -605,7 +605,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> squeeze(const Tensor<T>& input)
+    inline constexpr Tensor<T> squeeze(const Tensor<T>& input)
     {
         std::vector<size_t> shape;
         for (size_t dim : input.shape()) {
@@ -618,13 +618,13 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> flatten(const Tensor<T>& input)
+    inline constexpr Tensor<T> flatten(const Tensor<T>& input)
     {
         return reshape(input, {input.size()});
     }
 
     template<typename T>
-    Tensor<T> repmat(const Tensor<T>& input, const std::vector<size_t>& reps)
+    inline constexpr Tensor<T> repmat(const Tensor<T>& input, const std::vector<size_t>& reps)
     {
         size_t ndims = std::max(reps.size(), input.shape().size());
         std::vector<size_t> shape(reps.size());
@@ -648,9 +648,8 @@ namespace gt
         return output;
     }
 
-    size_t calculate_permute_index(const std::vector<size_t>& shape,
-        const std::vector<size_t>& stride, const std::vector<size_t>& step,
-        size_t index)
+    inline size_t calculate_permute_index(const std::vector<size_t>& shape,
+        const std::vector<size_t>& stride, const std::vector<size_t>& step, size_t index)
     {
         size_t output = 0;
         for (size_t i = 0; i < shape.size(); i++) {
@@ -661,7 +660,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> permute(const Tensor<T>& input, const std::vector<size_t>& order)
+    inline constexpr Tensor<T> permute(const Tensor<T>& input, const std::vector<size_t>& order)
     {
         assert((input.shape().size() == order.size()) &&
             "Error in permute: Size of order does not dimensionality of Tensor");
@@ -683,7 +682,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> ipermute(const Tensor<T>& input, const std::vector<size_t>& order)
+    inline constexpr Tensor<T> ipermute(const Tensor<T>& input, const std::vector<size_t>& order)
     {
         assert((input.shape().size() == order.size()) &&
             "Error in ipermute: Size of order does not dimensionality of Tensor");
@@ -697,7 +696,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> mean(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> mean(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
         if (dim < shape.size()) {
@@ -716,7 +715,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> movmean(const Tensor<T>& input, size_t B, size_t dim)
+    inline constexpr Tensor<T> movmean(const Tensor<T>& input, size_t B, size_t dim)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -739,7 +738,7 @@ namespace gt
     }
 
     template<typename T>
-    T median(Tensor<T>& input)
+    inline constexpr T median(Tensor<T>& input)
     {
         if (input.size() % 2 == 0) {
             auto med = input.begin() + input.size() / 2;
@@ -753,7 +752,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> median(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> median(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
         if (dim < shape.size()) {
@@ -774,7 +773,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> var(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> var(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> reps(input.shape().size());
         std::fill(reps.begin(), reps.end(), 1);
@@ -784,13 +783,13 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> stddev(const Tensor<T>& input, size_t dim)
+    inline constexpr Tensor<T> stddev(const Tensor<T>& input, size_t dim)
     {
         return sqrt(var(input, dim));
     }
 
     template<typename T>
-    Tensor<T> circshift(const Tensor<T>& input, int64_t nshift, size_t dim = 0)
+    inline constexpr Tensor<T> circshift(const Tensor<T>& input, int64_t nshift, size_t dim = 0)
     {
         nshift = input.shape(dim) - rem(nshift, input.shape(dim));
 
@@ -808,7 +807,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> flip(const Tensor<T>& input, size_t dim = 0)
+    inline constexpr Tensor<T> flip(const Tensor<T>& input, size_t dim = 0)
     {
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
@@ -829,7 +828,7 @@ namespace gt
      * the first dimension is the elevation, and the second dimension is the
      * radius */
     template<typename T>
-    Tensor<T> cart2sph(const Tensor<T>& input)
+    inline constexpr Tensor<T> cart2sph(const Tensor<T>& input)
     {
         assert(input.shape().size() == 2 && input.shape(1) == 3);
 
@@ -851,7 +850,7 @@ namespace gt
      * the first dimension is the y-coordinate, and the second dimension is the
      * z-coordinate */
     template<typename T>
-    Tensor<T> sph2cart(const Tensor<T>& input)
+    inline constexpr Tensor<T> sph2cart(const Tensor<T>& input)
     {
         assert(input.shape().size() == 2 && input.shape(1) == 3);
 
@@ -873,7 +872,7 @@ namespace gt
      * the first dimension is the radius, and the second dimension is the
      * height */
     template<typename T>
-    Tensor<T> cart2pol(const Tensor<T>& input)
+    inline constexpr Tensor<T> cart2pol(const Tensor<T>& input)
     {
         assert(input.shape().size() == 2 && input.shape(1) == 3);
 
@@ -894,7 +893,7 @@ namespace gt
      * the first dimension is the y-coordinate, and the second dimension is the
      * z-coordinate */
     template<typename T>
-    Tensor<T> pol2cart(const Tensor<T>& input)
+    inline constexpr Tensor<T> pol2cart(const Tensor<T>& input)
     {
         assert(input.shape().size() == 2 && input.shape(1) == 3);
 
@@ -909,7 +908,7 @@ namespace gt
     }
 
     template<typename T>
-    Tensor<T> cat(size_t dim, const Tensor<T>& lhs, const Tensor<T>& rhs)
+    inline constexpr Tensor<T> cat(size_t dim, const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
         std::vector<size_t> shape(std::max(lhs.shape().size(), rhs.shape().size()));
         for (size_t i = 0; i < lhs.shape().size(); i++) {
@@ -947,13 +946,13 @@ namespace gt
     }
 
     template<typename T, typename... Ts>
-    Tensor<T> cat(size_t dim, const Tensor<T>& arg, const Tensor<Ts...>& args)
+    inline constexpr Tensor<T> cat(size_t dim, const Tensor<T>& arg, const Tensor<Ts...>& args)
     {
         return cat(dim, arg, cat(dim, args));
     }
 
     template<typename T>
-    Tensor<T> unique(const Tensor<T>& input)
+    inline constexpr Tensor<T> unique(const Tensor<T>& input)
     {
         std::set<T> unique_set(input.begin(), input.end());
 
@@ -969,7 +968,7 @@ namespace gt
 
     /* returns true only if input is monotonically increasing or decreasing */
     template<typename T>
-    bool is_sorted(const Tensor<T>& input)
+    inline constexpr bool is_sorted(const Tensor<T>& input)
     {
         bool is_increasing = true;
         for (size_t i = 1; i < input.size(); i++) {
@@ -993,7 +992,7 @@ namespace gt
     /* return the closest index in input to value using a binary search 
      * if value is equidistant between two input values, returns the lower */
     template<typename T>
-    size_t binary_search(const Tensor<T>& input, T value)
+    inline constexpr size_t binary_search(const Tensor<T>& input, T value)
     {
         assert(is_sorted(input) && "Error in binary_search: input isn't sorted");
 
@@ -1043,7 +1042,7 @@ namespace gt
     /* helper function for interpolation
      * returns the indices in x surrounding xi */
     template<typename T>
-    std::tuple<size_t,size_t> interpolation_bounds(const Tensor<T>& x, T xi)
+    inline constexpr std::tuple<size_t,size_t> interpolation_bounds(const Tensor<T>& x, T xi)
     {
         size_t x1 = binary_search(x, xi);
 
@@ -1072,7 +1071,7 @@ namespace gt
     /* 1D linear interpolation; x must be sorted
      * extrapolates for values of xi outside of x */
     template<typename T>
-    Tensor<T> interp1(const Tensor<T>& x, const Tensor<T>& y, const Tensor<T>& xi)
+    inline constexpr Tensor<T> interp1(const Tensor<T>& x, const Tensor<T>& y, const Tensor<T>& xi)
     {
         assert(x.shape().size() == 1 && "Error in interp1: x is not one-dimensional");
         assert(y.shape().size() == 1 && "Error in interp1: y is not one-dimensional");
@@ -1097,7 +1096,7 @@ namespace gt
     /* 2D linear interpolation, x and y must be sorted
      * extrapolates for values of xi, yi outside of x, y */
     template<typename T>
-    Tensor<T> interp2(const Tensor<T>& x, const Tensor<T>& y,
+    inline constexpr Tensor<T> interp2(const Tensor<T>& x, const Tensor<T>& y,
         const Tensor<T>& xy, const Tensor<T>& xi, const Tensor<T>& yi)
     {
         assert(x.shape().size() == 1 && "Error in interp2: x is not one-dimensional");
@@ -1140,9 +1139,9 @@ namespace gt
     /* 3D linear interpolation, x and y must be sorted
      * extrapolates for values of xi, yi outside of x, y */
     template<typename T>
-    Tensor<T> interp3(const Tensor<T>& x, const Tensor<T>& y, const Tensor<T>& z,
-        const Tensor<T>& xyz, const Tensor<T>& xi, const Tensor<T>& yi, 
-        const Tensor<T>& zi)
+    inline constexpr Tensor<T> interp3(const Tensor<T>& x, const Tensor<T>& y,
+        const Tensor<T>& z, const Tensor<T>& xyz, const Tensor<T>& xi,
+        const Tensor<T>& yi, const Tensor<T>& zi)
     {
         assert(x.shape().size() == 1 && "Error in interp3: x is not one-dimensional");
         assert(y.shape().size() == 1 && "Error in interp3: y is not one-dimensional");
