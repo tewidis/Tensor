@@ -114,6 +114,36 @@ namespace gt
         return any;
     }
 
+    template<typename T>
+    Tensor<T> isinf(const Tensor<T>& input)
+    {
+        Tensor<T> output(input.shape());
+        std::transform(input.begin(), input.end(), output.begin(),
+            [] (T value) { return std::isinf(value); });
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> isnan(const Tensor<T>& input)
+    {
+        Tensor<T> output(input.shape());
+        std::transform(input.begin(), input.end(), output.begin(),
+            [] (T value) { return std::isnan(value); });
+
+        return output;
+    }
+
+    template<typename T>
+    Tensor<T> isfinite(const Tensor<T>& input)
+    {
+        Tensor<T> output(input.shape());
+        std::transform(input.begin(), input.end(), output.begin(),
+            [] (T value) { return !std::isinf(value) && !std::isnan(value); });
+
+        return output;
+    }
+
     /* rounds towards 0 */
     template<typename T> requires std::is_arithmetic_v<T>
     T fix(T input)
