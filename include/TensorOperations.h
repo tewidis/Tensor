@@ -276,17 +276,13 @@ namespace gt
         return output;
     }
 
-    template<typename T>
-    inline constexpr size_t calculate_offset(const gt::Tensor<T>& input, size_t index, size_t dim)
+    inline size_t calculate_offset(const std::vector<size_t>& input_stride,
+        const std::vector<size_t>& output_stride, const std::vector<size_t>& shape,
+        size_t index)
     {
-        assert((dim < input.shape().size()) && "Error in calculate offset: Dimension exceeds dimensions of input");
-        std::vector<size_t> shape = input.shape();
-        shape[dim] = 1;
-        std::vector<size_t> stride = calculate_stride(shape);
-
         size_t offset = 0;
         for (size_t i = 0; i < shape.size(); i++) {
-            offset += input.stride(i) * ((index / stride[i]) % shape[i]);
+            offset += input_stride[i] * ((index / output_stride[i]) % shape[i]);
         }
 
         return offset;
@@ -299,10 +295,11 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
+        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] += input[offset + j * input.stride(dim)];
             }
@@ -314,9 +311,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> cumsum(const Tensor<T>& input, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             T running_total = 0;
             for (size_t j = 0; j < output.shape(dim); j++) {
                 running_total += input[offset + j * input.stride(dim)];
@@ -330,9 +333,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> movsum(const Tensor<T>& input, size_t B, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 output[offset + j * output.stride(dim)] = 0;
                 for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
@@ -354,10 +363,11 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] -= 1;
         }
+        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             output[i] = input[offset + input.stride(dim)] - input[offset];
         }
 
@@ -371,10 +381,11 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
+        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             output[i] = 1;
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] *= input[offset + j * input.stride(dim)];
@@ -387,9 +398,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> cumprod(const Tensor<T>& input, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             T running_total = 1;
             for (size_t j = 0; j < output.shape(dim); j++) {
                 running_total *= input[offset + j * input.stride(dim)];
@@ -403,9 +420,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> movprod(const Tensor<T>& input, size_t B, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 output[offset + j * output.stride(dim)] = 1;
                 for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
@@ -427,10 +450,11 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
+        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 1; j < input.shape(dim); j++) {
                 output[i] += (input[offset + j * input.stride(dim)] +
                     input[offset + (j - 1) * input.stride(dim)]) / 2.0f;
@@ -443,9 +467,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> cumtrapz(const Tensor<T>& input, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             output[offset] = 0;
             for (size_t j = 1; j < output.shape(dim); j++) {
                 output[offset + j * input.stride(dim)] = 
@@ -465,10 +495,11 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
+        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             output[i] = input[offset];
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] = std::max(output[i], input[offset + j * input.stride(dim)]);
@@ -481,9 +512,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> cummax(const Tensor<T>& input, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             output[offset] = input[offset];
             for (size_t j = 1; j < output.shape(dim); j++) {
                 output[offset + j * input.stride(dim)] = std::max(
@@ -498,9 +535,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> movmax(const Tensor<T>& input, size_t B, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 T local_max = input[offset + j * input.stride(dim)];
                 for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
@@ -534,10 +577,11 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
+        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             output[i] = input[offset];
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] = std::min(output[i], input[offset + j * input.stride(dim)]);
@@ -550,9 +594,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> cummin(const Tensor<T>& input, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             output[offset] = input[offset];
             for (size_t j = 1; j < output.shape(dim); j++) {
                 output[offset + j * input.stride(dim)] = std::min(
@@ -567,9 +617,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> movmin(const Tensor<T>& input, size_t B, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 T local_min = input[offset + j * input.stride(dim)];
                 for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
@@ -702,10 +758,11 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
+        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] += input[offset + j * input.stride(dim)] / input.shape(dim);
             }
@@ -717,9 +774,15 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> movmean(const Tensor<T>& input, size_t B, size_t dim)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 output[offset + j * output.stride(dim)] = 0;
                 T denom = 0;
@@ -758,10 +821,11 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
+        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             Tensor<T> temp({input.shape(dim)});
             for (size_t j = 0; j < input.shape(dim); j++) {
                 temp[j] = input[offset + j * input.stride(dim)];
@@ -791,15 +855,21 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> circshift(const Tensor<T>& input, int64_t nshift, size_t dim = 0)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         nshift = input.shape(dim) - rem(nshift, input.shape(dim));
 
         Tensor<T> output(input.shape());
         size_t modulo = input.shape(dim) * input.stride(dim);
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t index = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
-                output[index + j * output.stride(dim)] =
-                    input[index + (j + nshift) * output.stride(dim) % modulo];
+                output[offset + j * output.stride(dim)] =
+                    input[offset + (j + nshift) * output.stride(dim) % modulo];
             }
         }
 
@@ -809,12 +879,18 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> flip(const Tensor<T>& input, size_t dim = 0)
     {
+        std::vector<size_t> shape = input.shape();
+        if (dim < shape.size()) {
+            shape[dim] = 1;
+        }
+        std::vector<size_t> stride = calculate_stride(shape);
+
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t index = calculate_offset(input, i, dim);
+            size_t offset = calculate_offset(input.stride(), stride, shape, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
-                output[index + j * output.stride(dim)] =
-                    input[index + (input.shape(dim) - j - 1) * input.stride(dim)];
+                output[offset + j * output.stride(dim)] =
+                    input[offset + (input.shape(dim) - j - 1) * input.stride(dim)];
             }
         }
 
