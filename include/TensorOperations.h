@@ -22,6 +22,7 @@
 #include <set>
 
 #include "Tensor.h"
+#include "Trigonometry.h"
 #include "cblas.h"
 
 namespace gt
@@ -58,18 +59,6 @@ namespace gt
         return output; \
     }
 
-    UNARY_EXPRESSION(sin);
-    UNARY_EXPRESSION(cos);
-    UNARY_EXPRESSION(tan);
-    UNARY_EXPRESSION(sinh);
-    UNARY_EXPRESSION(cosh);
-    UNARY_EXPRESSION(tanh);
-    UNARY_EXPRESSION(asin);
-    UNARY_EXPRESSION(acos);
-    UNARY_EXPRESSION(atan);
-    UNARY_EXPRESSION(asinh);
-    UNARY_EXPRESSION(acosh);
-    UNARY_EXPRESSION(atanh);
     UNARY_EXPRESSION(sqrt);
     UNARY_EXPRESSION(log);
     UNARY_EXPRESSION(log1p);
@@ -81,7 +70,7 @@ namespace gt
     UNARY_EXPRESSION(floor);
     UNARY_EXPRESSION(ceil);
     UNARY_EXPRESSION(abs);
-    UNARY_EXPRESSION(hypot);
+    UNARY_EXPRESSION(round);
 
     BINARY_EXPRESSION(+);
     BINARY_EXPRESSION(-);
@@ -897,92 +886,6 @@ namespace gt
         return output;
     }
 
-    /* input is an Nx3 Tensor where the zeroth dimension is the x-coordinate,
-     * the first dimension is the y-coordinate, and the second dimension is the
-     * z-coordinate
-     * output is an Nx3 Tensor where the zeroth dimension is the azimuth,
-     * the first dimension is the elevation, and the second dimension is the
-     * radius */
-    template<typename T>
-    inline constexpr Tensor<T> cart2sph(const Tensor<T>& input)
-    {
-        assert(input.shape().size() == 2 && input.shape(1) == 3);
-
-        Tensor<T> output(input.shape());
-        for (size_t i = 0; i < input.shape(0); i++) {
-            T hypotxy = std::hypot(input(i,0), input(i,1));
-            output(i,0) = std::atan2(input(i,1), input(i,0));
-            output(i,1) = std::atan2(input(i,2), hypotxy);
-            output(i,2) = std::hypot(hypotxy, input(i,2));
-        }
-
-        return output;
-    }
-
-    /* input is an Nx3 Tensor where the zeroth dimension is the azimuth,
-     * the first dimension is the elevation, and the second dimension is the
-     * radius
-     * output is an Nx3 Tensor where the zeroth dimension is the x-coordinate,
-     * the first dimension is the y-coordinate, and the second dimension is the
-     * z-coordinate */
-    template<typename T>
-    inline constexpr Tensor<T> sph2cart(const Tensor<T>& input)
-    {
-        assert(input.shape().size() == 2 && input.shape(1) == 3);
-
-        Tensor<T> output(input.shape());
-        for (size_t i = 0; i < input.shape(0); i++) {
-            T rcoselev = input(i,2) * std::cos(input(i,1));
-            output(i,0) = rcoselev * std::cos(input(i,0));
-            output(i,1) = rcoselev * std::sin(input(i,0));
-            output(i,2) = input(i,2) * std::sin(input(i,1));
-        }
-
-        return output;
-    }
-
-    /* input is an Nx3 Tensor where the zeroth dimension is the x-coordinate,
-     * the first dimension is the y-coordinate, and the second dimension is the
-     * z-coordinate
-     * output is an Nx3 Tensor where the zeroth dimension is the theta,
-     * the first dimension is the radius, and the second dimension is the
-     * height */
-    template<typename T>
-    inline constexpr Tensor<T> cart2pol(const Tensor<T>& input)
-    {
-        assert(input.shape().size() == 2 && input.shape(1) == 3);
-
-        Tensor<T> output(input.shape());
-        for (size_t i = 0; i < input.shape(0); i++) {
-            output(i,0) = std::atan2(input(i,1), input(i,0));
-            output(i,1) = std::hypot(input(i,0), input(i,1));
-            output(i,2) = input(i,2);
-        }
-
-        return output;
-    }
-
-    /* input is an Nx3 Tensor where the zeroth dimension is the theta,
-     * the first dimension is the radius, and the second dimension is the
-     * height
-     * output is an Nx3 Tensor where the zeroth dimension is the x-coordinate,
-     * the first dimension is the y-coordinate, and the second dimension is the
-     * z-coordinate */
-    template<typename T>
-    inline constexpr Tensor<T> pol2cart(const Tensor<T>& input)
-    {
-        assert(input.shape().size() == 2 && input.shape(1) == 3);
-
-        Tensor<T> output(input.shape());
-        for (size_t i = 0; i < input.shape(0); i++) {
-            output(i,0) = input(i,1) * std::cos(input(i,0));
-            output(i,1) = input(i,1) * std::sin(input(i,0));
-            output(i,2) = input(i,2);
-        }
-
-        return output;
-    }
-
     template<typename T>
     inline constexpr Tensor<T> cat(size_t dim, const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
@@ -1282,5 +1185,101 @@ namespace gt
         }
 
         return zi;
+    }
+
+    enum OPERATION {
+        PLUS,
+        MINUS,
+        TIMES,
+        DIVIDE,
+        POWER,
+        MAX,
+        MIN,
+        MOD,
+        REM,
+        ATAN2,
+        ATAN2D,
+        HYPOT
+    };
+
+    template<typename T>
+    constexpr inline Tensor<T> broadcast(const Tensor<T>& t1, const Tensor<T>& t2, OPERATION op)
+    {
+        std::vector<size_t> shape(std::max(t1.shape().size(), t2.shape().size()));
+        for (size_t i = 0; i < shape.size(); i++) {
+            shape[i] = std::max(t1.shape(i), t2.shape(i));
+        }
+
+        Tensor<T> output(shape);
+        for (size_t i = 0; i < output.size(); i++) {
+            size_t lidx = 0;
+            size_t ridx = 0;
+            for (size_t j = 0; j < output.shape().size(); j++) {
+                lidx += t1.stride(j) * ((i / output.stride(j)) % t1.shape(j));
+                ridx += t2.stride(j) * ((i / output.stride(j)) % t2.shape(j));
+            }
+
+            switch (op) {
+                case PLUS:
+                    output[i] = t1[lidx] + t2[ridx];
+                    break;
+                case MINUS:
+                    output[i] = t1[lidx] - t2[ridx];
+                    break;
+                case TIMES:
+                    output[i] = t1[lidx] * t2[ridx];
+                    break;
+                case DIVIDE:
+                    output[i] = t1[lidx] / t2[ridx];
+                    break;
+                case POWER:
+                    output[i] = std::pow(t1[lidx], t2[ridx]);
+                    break;
+                case MAX:
+                    output[i] = gt::max(t1[lidx], t2[ridx]);
+                    break;
+                case MIN:
+                    output[i] = gt::min(t1[lidx], t2[ridx]);
+                    break;
+                case MOD:
+                    output[i] = gt::mod(t1[lidx], t2[ridx]);
+                    break;
+                case REM:
+                    output[i] = gt::rem(t1[lidx], t2[ridx]);
+                    break;
+                case ATAN2:
+                    output[i] = gt::atan2(t1[lidx], t2[ridx]);
+                    break;
+                case ATAN2D:
+                    output[i] = gt::atan2d(t1[lidx], t2[ridx]);
+                    break;
+                case HYPOT:
+                    output[i] = std::hypot(t1[lidx], t2[ridx]);
+                    break;
+            }
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    constexpr inline size_t sub2ind(const Tensor<T>& input, const std::vector<size_t>& subs) {
+        size_t index = 0;
+
+        for (size_t i = 0; i < subs.size(); i++) {
+            index += input.stride(i) * subs[i];
+        }
+
+        return index;
+    }
+
+    template<typename T>
+    constexpr inline std::vector<size_t> ind2sub(const Tensor<T>& input, size_t index) {
+        std::vector<size_t> subs(input.shape().size());
+        for (size_t i = 0; i < subs.size(); i++) {
+            subs[i] = input.stride(i) * ((index / input.stride(i)) % input.shape(i));
+        }
+
+        return subs;
     }
 };
