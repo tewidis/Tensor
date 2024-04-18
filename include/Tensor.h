@@ -40,13 +40,13 @@ namespace gt {
         template<typename... Ts>
         const_reference operator () (Ts... dims) const {
             std::vector<size_t> subs = {static_cast<size_t>(dims)...};
-            return this->data_ptr[sub2ind(subs)];
+            return this->data_ptr[sub2ind(*this, subs)];
         }
 
         template<typename... Ts>
         reference operator () (Ts... dims) {
             std::vector<size_t> subs = {static_cast<size_t>(dims)...};
-            return this->data_ptr[sub2ind(subs)];
+            return this->data_ptr[sub2ind(*this, subs)];
         }
 
         Tensor& operator = (const auto& input) {
@@ -124,15 +124,5 @@ namespace gt {
 
         private:
         std::vector<T> data_ptr;
-
-        size_t sub2ind(const std::vector<size_t>& subs) const {
-            size_t index = 0;
-
-            for (size_t i = 0; i < subs.size(); i++) {
-                index += this->stride(i) * subs[i];
-            }
-
-            return index;
-        }
     };
 };

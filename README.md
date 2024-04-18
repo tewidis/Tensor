@@ -108,7 +108,7 @@ tensor = gt::min(tensor, 1);
     * Complex
         - abs, angle, conj, real, imag, unwrap
     * Classifications
-        - isinf, isnan, isfinite, isreal
+        - isinf, isnan, isfinite, isreal, any, all
 2. Trigonometry
     * Sine
         - sin, sind, asin, asind, sinh, asinh
@@ -132,6 +132,7 @@ tensor = gt::min(tensor, 1);
     * Size, Shape, and Order
         - length, size, ndims, numel
         - isscalar, issorted, isvector, ismatrix, isempty
+        - broadcast
     * Reshape and Rearrange
         - flip, rot90, permute, ipermute, circshift, shiftdim, reshape, squeeze
     * Indexing

@@ -19,6 +19,8 @@
 
 #include "Tensor.h"
 #include "TensorOperations.h"
+#include "Trigonometry.h"
+#include "Interpolation.h"
 #include "LinearAlgebra.h"
 #include "SignalProcessing.h"
 
