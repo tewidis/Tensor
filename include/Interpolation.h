@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "Tensor.h"
+
 namespace gt
 {
     /* produces N linearly spaced points between min and max */

@@ -326,23 +326,35 @@ namespace gt
     }
 
     template<typename T>
-    constexpr inline Tensor<T> atan2(const Tensor<T>& input)
+    constexpr inline Tensor<T> atan2(const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        Tensor<T> output(input.shape());
+        assert(lhs.shape() == rhs.shape() && "Error in atan2: Shapes are different");
 
-        std::transform(input.begin(), input.end(), output.begin(),
-            [] (T x) { return std::atan2(x); });
+        Tensor<T> output(lhs.shape());
+
+        for (size_t i = 0; i < output.size(); i++) {
+            output[i] = std::atan2(lhs[i], rhs[i]);
+        }
 
         return output;
     }
 
     template<typename T>
-    constexpr inline Tensor<T> atan2d(const Tensor<T>& input)
+    constexpr inline T atan2d(T lhs, T rhs)
     {
-        Tensor<T> output(input.shape());
+        return std::atan2(deg2rad(lhs), deg2rad(rhs));
+    }
 
-        std::transform(input.begin(), input.end(), output.begin(),
-            [] (T x) { return std::atan2(deg2rad(x)); });
+    template<typename T>
+    constexpr inline Tensor<T> atan2d(const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in atan2: Shapes are different");
+
+        Tensor<T> output(lhs.shape());
+
+        for (size_t i = 0; i < output.size(); i++) {
+            output[i] = gt::atan2d(lhs, rhs);
+        }
 
         return output;
     }

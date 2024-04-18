@@ -17,11 +17,12 @@
 #include <cassert>
 #include <iostream>
 
+#include "Interpolation.h"
+#include "LinearAlgebra.h"
+#include "Statistics.h"
 #include "Tensor.h"
 #include "TensorOperations.h"
 #include "Trigonometry.h"
-#include "Interpolation.h"
-#include "LinearAlgebra.h"
 #include "SignalProcessing.h"
 
 /* Tests that the () operator overload is indexing correctly */
@@ -876,6 +877,22 @@ void conv3_test()
     assert(gt::all(gt::sp::conv3(t1, t2, gt::VALID) == correct_valid));
 }
 
+void broadcast_test()
+{
+    gt::Tensor<float> t1({1, 4});
+    std::iota(t1.begin(), t1.end(), 0);
+    gt::Tensor<float> t2({5, 1});
+    std::iota(t2.begin(), t2.end(), 0);
+
+    gt::Tensor<float> correct({5, 4});
+    correct = {0, 1, 2, 3, 4,
+               1, 2, 3, 4, 5,
+               2, 3, 4, 5, 6,
+               3, 4, 5, 6, 7};
+
+    assert(gt::all(gt::broadcast(t1, t2, gt::PLUS) == correct));
+}
+
 int main()
 {
     access_test();
@@ -923,4 +940,5 @@ int main()
     conv1_test();
     conv2_test();
     conv3_test();
+    broadcast_test();
 }

@@ -134,7 +134,8 @@ tensor = gt::min(tensor, 1);
         - isscalar, issorted, isvector, ismatrix, isempty
         - broadcast
     * Reshape and Rearrange
-        - flip, rot90, permute, ipermute, circshift, shiftdim, reshape, squeeze
+        - flip, rot90, permute, ipermute, circshift, shiftdim, reshape, squeeze,
+        flatten
     * Indexing
         - ind2sub, sub2ind
 4. Interpolation
@@ -146,7 +147,7 @@ tensor = gt::min(tensor, 1);
         - linspace, logspace, meshgrid, ndgrid
 5. Statistics
     * Basic Statistics
-        - min, mink, max, maxk, bounds, mean, median, mode, std, var
+        - min, mink, max, maxk, bounds, mean, median, mode, stddev, var
     * Cumulative Statistics
         - cummax, cummin
     * Moving Statistics
