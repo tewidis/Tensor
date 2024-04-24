@@ -46,41 +46,40 @@ size_t calculate_size(const std::vector<size_t>& shape) {
 class Dimensional {
     public:
         Dimensional(const std::vector<size_t>& shape) :
-            _shape(shape), 
-            _stride(calculate_stride(shape)),
-            _size(calculate_size(shape)) {}
+            m_shape(shape), 
+            m_stride(calculate_stride(shape)),
+            m_size(calculate_size(shape)) {}
 
         std::vector<size_t> shape() const {
-            return this->_shape;
+            return this->m_shape;
         }
 
         size_t shape(size_t dim) const {
-            if (dim < this->_shape.size()) {
-                return this->_shape[dim];
+            if (dim < this->m_shape.size()) {
+                return this->m_shape[dim];
             } else {
                 return 1;
             }
         }
 
         std::vector<size_t> stride() const {
-            return this->_stride;
+            return this->m_stride;
         }
 
         size_t stride(size_t dim) const {
-            if (dim > this->_stride.size()) {
-                return this->_size;
+            if (dim > this->m_stride.size()) {
+                return this->m_size;
             } else {
-                return this->_stride[dim];
+                return this->m_stride[dim];
             }
         }
 
         size_t size() const {
-            return this->_size;
+            return this->m_size;
         }
 
     protected:
-        std::vector<size_t> _shape;
-        std::vector<size_t> _stride;
-        size_t _size;
-
+        std::vector<size_t> m_shape;
+        std::vector<size_t> m_stride;
+        size_t m_size;
 };

@@ -403,7 +403,7 @@ namespace gt
         std::vector<size_t> reps(input.shape().size());
         std::fill(reps.begin(), reps.end(), 1);
         reps[dim] = input.shape(dim);
-        size_t denom = std::max(std::size_t{1}, input.shape(dim) - 1);
+        T denom = std::max(std::size_t{1}, input.shape(dim) - 1);
         return sum(pow(abs(input - repmat(mean(input, dim), reps)), 2), dim) / denom;
     }
 

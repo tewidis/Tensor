@@ -47,6 +47,35 @@ namespace gt
         throw std::runtime_error{"meshgrid is not yet implemented."};
     }
 
+    /* helper function for interpolation
+     * returns the indices in x surrounding xi */
+    template<typename T>
+    inline constexpr std::tuple<size_t,size_t> interpolation_bounds(const Tensor<T>& x, T xi)
+    {
+        size_t x1 = binary_search(x, xi);
+
+        size_t x2;
+        if (x.size() > 1) {
+            if (x[1] > x[0]) {
+                /* increasing case */
+                if (x1 == x.size() - 1 || (xi < x[x1] && x1 != 0)) {
+                    x1 = x1 - 1;
+                }
+                x2 = x1 + 1;
+            } else {
+                /* decreasing case */
+                if (x1 == 0 || (xi < x[x1] && x1 != x.size() - 1)) {
+                    x1 = x1 + 1;
+                }
+                x2 = x1 - 1;
+            }
+        } else {
+            x2 = x1;
+        }
+
+        return std::make_pair(x1, x2);
+    }
+
     /* 1D linear interpolation; x must be sorted
      * extrapolates for values of xi outside of x */
     template<typename T>
@@ -63,7 +92,8 @@ namespace gt
         for (size_t i = 0; i < xi.size(); i++) {
             std::tuple<size_t,size_t> xbounds = interpolation_bounds(x, xi[i]);
             size_t x1 = std::get<0>(xbounds);
-            size_t x2 = std::get<0>(xbounds);
+            size_t x2 = std::get<1>(xbounds);
+            //std::cout << x1 << " " << x2 << std::endl;
 
             T xd = (xi[i] - x[x1]) / (x[x2] - x[x1]);
             yi[i] = y(x1) * (1 - xd) + y(x2) * xd;

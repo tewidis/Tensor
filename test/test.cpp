@@ -493,6 +493,7 @@ void reshape_test()
 
     gt::Tensor<float> correct({1, 24});
     std::iota(correct.begin(), correct.end(), 0);
+
     assert(gt::all(gt::reshape(input, {1, 24}) == correct));
 }
 
@@ -509,7 +510,10 @@ void flatten_test()
     gt::Tensor<float> input({2, 3, 4});
     std::iota(input.begin(), input.end(), 0);
 
-    assert(gt::all(gt::flatten(input) == input));
+    gt::Tensor<float> correct({24});
+    std::iota(correct.begin(), correct.end(), 0);
+
+    assert(gt::all(gt::flatten(input) == correct));
 }
 
 void permute_test()
@@ -548,7 +552,7 @@ void permute_test()
                   4, 10, 16, 22, 5, 11, 17, 23};
     assert(gt::all(gt::permute(input, {2, 0, 1}) == correct201));
 
-    gt::Tensor<float> correct210({3, 4, 2});
+    gt::Tensor<float> correct210({4, 3, 2});
     correct210 = {0, 6, 12, 18, 2, 8, 14, 20, 4, 10, 16, 22,
                   1, 7, 13, 19, 3, 9, 15, 21, 5, 11, 17, 23};
     assert(gt::all(gt::permute(input, {2, 1, 0}) == correct210));
@@ -714,14 +718,14 @@ void cat_test()
                 18, 19, 18, 19, 20, 21, 20, 21, 22, 23, 22, 23};
     assert(gt::all(gt::cat(0, input, input) == correct0));
 
-    gt::Tensor<float> correct1({4, 3, 4});
+    gt::Tensor<float> correct1({2, 6, 4});
     correct1 = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5,
                 6, 7, 8, 9, 10, 11, 6, 7, 8, 9, 10, 11,
                 12, 13, 14, 15, 16, 17, 12, 13, 14, 15, 16, 17,
                 18, 19, 20, 21, 22, 23, 18, 19, 20, 21, 22, 23};
     assert(gt::all(gt::cat(1, input, input) == correct1));
 
-    gt::Tensor<float> correct2({4, 3, 4});
+    gt::Tensor<float> correct2({2, 3, 8});
     correct2 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
                 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,

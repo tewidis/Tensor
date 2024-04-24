@@ -31,51 +31,151 @@ namespace gt {
         typedef T* pointer;
         typedef const T* const_pointer;
 
-        Tensor(const std::vector<size_t>& dims) : Dimensional(dims), data_ptr(this->_size) {}
+        class iterator {
+            public:
+            using iterator_category = std::random_access_iterator_tag;
+            using difference_type   = std::ptrdiff_t;
+            using value_type        = T;
+            using pointer           = T*;
+            using reference         = T&;
 
-        //TODO: Figure out the right way to do this with concepts
-        //template<typename... Ts>// requires std::is_same_v<T1, size_t>
-        //Tensor(Ts... dims) : Dimensional({static_cast<size_t>(dims)...}), data_ptr(this->_size) {}
+            iterator(pointer ptr) : m_ptr(ptr) {}
+            reference operator * () const { return *m_ptr; }
+            pointer operator -> () { return m_ptr; }
+            iterator& operator ++ () { m_ptr++; return *this; }
+            iterator operator ++ (int) { iterator tmp = *this; ++(*this); return tmp; }
+            iterator& operator -- () { m_ptr--; return *this; }
+            iterator operator -- (int) { iterator tmp = *this; --(*this); return tmp; }
+            iterator operator + (size_t value) { m_ptr += value; return *this; }
+            iterator operator - (size_t value) { m_ptr -= value; return *this; }
+            friend bool operator == (const iterator& a, const iterator& b) { return a.m_ptr == b.m_ptr; }
+            friend bool operator != (const iterator& a, const iterator& b) { return a.m_ptr != b.m_ptr; }
+            friend bool operator > (const iterator& a, const iterator& b) { return a.m_ptr > b.m_ptr; }
+            friend bool operator < (const iterator& a, const iterator& b) { return a.m_ptr < b.m_ptr; }
+            friend bool operator >= (const iterator& a, const iterator& b) { return a.m_ptr >= b.m_ptr; }
+            friend bool operator <= (const iterator& a, const iterator& b) { return a.m_ptr <= b.m_ptr; }
+            friend bool operator - (const iterator& a, const iterator& b) { return a.m_ptr - b.m_ptr; }
+
+            private:
+            pointer m_ptr;
+        };
+
+        class const_iterator {
+            public:
+            using iterator_category = std::random_access_iterator_tag;
+            using difference_type   = std::ptrdiff_t;
+            using value_type        = T;
+            using pointer           = const T*;
+            using reference         = const T&;
+
+            const_iterator(pointer ptr) : m_ptr(ptr) {}
+            reference operator * () const { return *m_ptr; }
+            pointer operator -> () const { return m_ptr; }
+            const_iterator& operator ++ () { m_ptr++; return *this; }
+            const_iterator operator ++ (int) { const_iterator tmp = *this; ++(*this); return tmp; }
+            const_iterator& operator -- () { m_ptr--; return *this; }
+            const_iterator operator -- (int) { const_iterator tmp = *this; --(*this); return tmp; }
+            const_iterator operator + (size_t value) { m_ptr += value; return *this; }
+            const_iterator operator - (size_t value) { m_ptr -= value; return *this; }
+            friend bool operator == (const const_iterator& a, const const_iterator& b) { return a.m_ptr == b.m_ptr; }
+            friend bool operator != (const const_iterator& a, const const_iterator& b) { return a.m_ptr != b.m_ptr; }
+            friend bool operator > (const const_iterator& a, const const_iterator& b) { return a.m_ptr > b.m_ptr; }
+            friend bool operator < (const const_iterator& a, const const_iterator& b) { return a.m_ptr < b.m_ptr; }
+            friend bool operator >= (const const_iterator& a, const const_iterator& b) { return a.m_ptr >= b.m_ptr; }
+            friend bool operator <= (const const_iterator& a, const const_iterator& b) { return a.m_ptr <= b.m_ptr; }
+            friend bool operator - (const const_iterator& a, const const_iterator& b) { return a.m_ptr - b.m_ptr; }
+
+            private:
+            pointer m_ptr;
+        };
+
+        /* Constructor */
+        Tensor(const std::vector<size_t>& dims)
+            : Dimensional(dims)
+            , m_data(new T[this->m_size])
+        {
+            std::fill(this->begin(), this->end(), static_cast<T>(0));
+        }
+
+        /* Destructor */
+        ~Tensor()
+        {
+            delete[] this->m_data;
+        }
+
+        /* Copy assignment operator */
+        Tensor& operator = (const Tensor& other)
+        {
+            if (this != &other) {
+                delete[] this->m_data;
+                this->m_data = new T[other.size()];
+                this->m_shape = other.shape();
+                this->m_size = other.size();
+                this->m_stride = other.stride();
+                std::copy(other.begin(), other.end(), this->begin());
+            }
+            return *this;
+        }
+
+        /* Move assignment operator */
+        Tensor& operator = (Tensor<T>&& other) noexcept
+        {
+            if (this != &other) {
+                delete[] this->m_data;
+                this->m_data = other.m_data;
+                this->m_shape = other.m_shape;
+                this->m_size = other.m_size;
+                this->m_stride = other.m_stride;
+
+                other.m_size = 0;
+                other.m_data = nullptr;
+            }
+            return *this;
+        }
+
+        Tensor& operator = (std::vector<T>&& other) noexcept
+        {
+            std::copy(other.begin(), other.end(), this->begin());
+            return *this;
+        }
+
+        /* Copy constructor */
+        Tensor(const Tensor<T>& other)
+            : Dimensional(other.shape())
+            , m_data(new T[this->m_size])
+        {
+            std::copy(other.begin(), other.end(), this->begin());
+        }
+
+        /* Move constructor */
+        Tensor(Tensor<T>&& other) noexcept
+            : Dimensional(other.shape())
+            , m_data(other.m_data)
+        {
+            other.m_data = nullptr;
+            other.m_size = 0;
+            other.m_shape = {};
+            other.m_stride = {};
+        }
 
         template<typename... Ts>
         const_reference operator () (Ts... dims) const {
             std::vector<size_t> subs = {static_cast<size_t>(dims)...};
-            return this->data_ptr[sub2ind(*this, subs)];
+            return this->m_data[sub2ind(*this, subs)];
         }
 
         template<typename... Ts>
         reference operator () (Ts... dims) {
             std::vector<size_t> subs = {static_cast<size_t>(dims)...};
-            return this->data_ptr[sub2ind(*this, subs)];
-        }
-
-        Tensor& operator = (const auto& input) {
-            for (size_t i = 0; i < input.size(); i++) {
-                this->data_ptr[i] = input[i];
-            }
-            return *this;
+            return this->m_data[sub2ind(*this, subs)];
         }
 
         reference operator [] (size_t index) {
-            return this->data_ptr[index];
+            return this->m_data[index];
         }
 
         const_reference operator [] (size_t index) const {
-            return this->data_ptr[index];
-        }
-
-        //template<typename T1>
-        //Tensor(Tensor<T1>&& input) : Dimensional(input.shape()) {
-        //    this->data_ptr.resize(input.size());
-        //    for (size_t i = 0; i < input.size(); i++) {
-        //        this->data_ptr[i] = input[i];
-        //    }
-        //}
-
-        Tensor& operator = (std::vector<T>&& input) {
-            //TODO: Make this a true move assignment operator instead of copying
-            std::copy(input.begin(), input.end(), this->data_ptr.begin());
-            return *this;
+            return this->m_data[index];
         }
 
         friend std::ostream& operator << (std::ostream& output, const Tensor<T>& input) {
@@ -98,31 +198,330 @@ namespace gt {
         }
 
         /* Iterators */
-        std::vector<T>::iterator begin() {
-            return this->data_ptr.begin();
+        typedef std::reverse_iterator<iterator> reverse_iterator;
+        typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+        iterator begin() {
+            return iterator(&m_data[0]);
         }
 
-        std::vector<T>::iterator end() {
-            return this->data_ptr.end();
+        iterator end() {
+            return iterator(&m_data[this->size()]);
         }
 
-        std::vector<T>::const_iterator begin() const {
-            return this->data_ptr.begin();
+        const_iterator begin() const {
+            return const_iterator(&m_data[0]);
         }
 
-        std::vector<T>::const_iterator end() const {
-            return this->data_ptr.end();
+        const_iterator end() const {
+            return const_iterator(&m_data[this->size()]);
         }
 
         pointer data() {
-            return this->data_ptr.data();
+            return this->m_data;
         }
 
         const_pointer data() const {
-            return this->data_ptr.data();
+            return this->m_data;
         }
 
         private:
-        std::vector<T> data_ptr;
+        T* m_data;
     };
-};
+
+    /* addition operators */
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator + (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in + operator: Tensors are different shapes");
+
+        Tensor<T> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(), output.begin(), std::plus<>{});
+        return output;
+    }
+
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T1> operator + (const Tensor<T1>& lhs, T2 rhs)
+    {
+        Tensor<T1> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(), std::plus<>{});
+        return output;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator + (T lhs, const Tensor<T>& rhs)
+    {
+        return rhs + lhs;
+    }
+
+    /* subtraction operators */
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator - (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in - operator: Tensors are different shapes");
+
+        Tensor<T> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(), output.begin(),
+            [] (T lhs, T rhs) { return lhs - rhs; });
+        return output;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator - (const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<T> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value - rhs; });
+        return output;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator - (T lhs, const Tensor<T>& rhs)
+    {
+        Tensor<T> output(rhs.shape());
+        std::transform(rhs.begin(), rhs.end(), output.begin(),
+            [lhs] (T value) { return lhs - value; });
+        return output;
+    }
+
+    /* multiplication operators */
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator * (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in * operator: Tensors are different shapes");
+
+        Tensor<T> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value * rhs; });
+        return output;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator * (const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<T> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value * rhs; });
+        return output;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator * (T lhs, const Tensor<T>& rhs)
+    {
+        Tensor<T> output(lhs.shape());
+        std::transform(rhs.begin(), rhs.end(), output.begin(),
+            [lhs] (T value) { return lhs * value; });
+        return output;
+    }
+
+    /* division operators */
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator / (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in / operator: Tensors are different shapes");
+
+        Tensor<T> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value / rhs; });
+        return output;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator / (const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<T> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value / rhs; });
+        return output;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    Tensor<T> operator / (T lhs, const Tensor<T>& rhs)
+    {
+        Tensor<T> output(lhs.shape());
+        std::transform(rhs.begin(), rhs.end(), output.begin(),
+            [lhs] (T value) { return lhs / value; });
+        return output;
+    }
+
+    /* equal operators */
+    template<typename T>
+    Tensor<bool> operator == (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in == operator: Tensors are different shapes");
+
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(),
+            output.begin(), std::equal_to<>{});
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator == (const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value == rhs; });
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator == (T lhs, const Tensor<T>& rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(rhs.begin(), rhs.end(), output.begin(),
+            [lhs] (T value) { return lhs == value; });
+        return output;
+    }
+
+    /* not equal operators */
+    template<typename T>
+    Tensor<bool> operator != (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in != operator: Tensors are different shapes");
+
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(),
+            output.begin(), std::not_equal_to<>{});
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator != (const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value != rhs; });
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator != (T lhs, const Tensor<T>& rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(rhs.begin(), rhs.end(), output.begin(),
+            [lhs] (T value) { return lhs != value; });
+        return output;
+    }
+
+    /* greater operators */
+    template<typename T>
+    Tensor<bool> operator > (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in > operator: Tensors are different shapes");
+
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(),
+            output.begin(), std::greater<>{});
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator > (const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value > rhs; });
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator > (T lhs, const Tensor<T>& rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(rhs.begin(), rhs.end(), output.begin(),
+            [lhs] (T value) { return lhs > value; });
+        return output;
+    }
+
+    /* less operators */
+    template<typename T>
+    Tensor<bool> operator < (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in < operator: Tensors are different shapes");
+
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(),
+            output.begin(), std::less<>{});
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator < (const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value < rhs; });
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator < (T lhs, const Tensor<T>& rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(rhs.begin(), rhs.end(), output.begin(),
+            [lhs] (T value) { return lhs < value; });
+        return output;
+    }
+
+    /* greater/equal operators */
+    template<typename T>
+    Tensor<bool> operator >= (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in >= operator: Tensors are different shapes");
+
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(),
+            output.begin(), std::greater_equal<>{});
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator >= (const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value >= rhs; });
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator >= (T lhs, const Tensor<T>& rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(rhs.begin(), rhs.end(), output.begin(),
+            [lhs] (T value) { return lhs >= value; });
+        return output;
+    }
+
+    /* less operators */
+    template<typename T>
+    Tensor<bool> operator <= (const Tensor<T>& lhs, const Tensor<T>& rhs)
+    {
+        assert(lhs.shape() == rhs.shape() && "Error in <= operator: Tensors are different shapes");
+
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(),
+            output.begin(), std::less_equal<>{});
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator <= (const Tensor<T>& lhs, T rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T value) { return value <= rhs; });
+        return output;
+    }
+
+    template<typename T>
+    Tensor<bool> operator <= (T lhs, const Tensor<T>& rhs)
+    {
+        Tensor<bool> output(lhs.shape());
+        std::transform(rhs.begin(), rhs.end(), output.begin(),
+            [lhs] (T value) { return lhs <= value; });
+        return output;
+    }
+}

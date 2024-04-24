@@ -37,28 +37,6 @@ namespace gt
         return output; \
     }
 
-    //TODO: Need to be smarter about handling type promotion here
-    #define BINARY_EXPRESSION(op) \
-    template<typename LHS, typename RHS> \
-    inline constexpr Tensor<LHS> operator op(const Tensor<LHS>& lhs, const Tensor<RHS>& rhs) \
-    { \
-        assert((lhs.size() == rhs.size()) && "Error in binary operation: Tensors are different shapes"); \
-        Tensor<LHS> output(lhs.shape()); \
-        for (size_t i = 0; i < output.size(); i++) { \
-            output[i] = lhs[i] op rhs[i]; \
-        } \
-        return output; \
-    } \
-    template<typename LHS, typename RHS> requires std::is_arithmetic_v<RHS>\
-    inline constexpr Tensor<LHS> operator op(const Tensor<LHS>& lhs, RHS rhs) \
-    { \
-        Tensor<LHS> output(lhs.shape()); \
-        for (size_t i = 0; i < output.size(); i++) { \
-            output[i] = lhs[i] op rhs; \
-        } \
-        return output; \
-    }
-
     UNARY_EXPRESSION(sqrt);
     UNARY_EXPRESSION(log);
     UNARY_EXPRESSION(log1p);
@@ -71,17 +49,6 @@ namespace gt
     UNARY_EXPRESSION(ceil);
     UNARY_EXPRESSION(abs);
     UNARY_EXPRESSION(round);
-
-    BINARY_EXPRESSION(+);
-    BINARY_EXPRESSION(-);
-    BINARY_EXPRESSION(*);
-    BINARY_EXPRESSION(/);
-    BINARY_EXPRESSION(>);
-    BINARY_EXPRESSION(<);
-    BINARY_EXPRESSION(>=);
-    BINARY_EXPRESSION(<=);
-    BINARY_EXPRESSION(==);
-    BINARY_EXPRESSION(!=);
 
     template<typename T>
     inline constexpr bool all(const Tensor<T>& input)
@@ -392,7 +359,10 @@ namespace gt
     inline constexpr Tensor<T> reshape(const Tensor<T>& input, const std::vector<size_t>& shape)
     {
         Tensor<T> output(shape);
-        std::copy(input.begin(), input.end(), output.begin());
+        for (size_t i = 0; i < input.size(); i++) {
+            output[i] = input[i];
+        }
+        //std::copy(input.begin(), input.end(), output.begin());
         return output;
     }
 
@@ -626,10 +596,18 @@ namespace gt
         }
 
         bool is_increasing = input[1] > input[0];
-
         size_t low = 0;
         size_t high = input.size() - 1;
 
+        /* handle the case where value is outside of the array bounds */
+        if ((is_increasing && value <= input[low]) || (!is_increasing && value >= input[low])) {
+            return low;
+        }
+        if ((is_increasing && value >= input[high]) || (!is_increasing && value <= input[high])) {
+            return high;
+        }
+
+        /* binary search */
         while (low < high) {
             if (high - low <= 1) {
                 break;
@@ -637,60 +615,22 @@ namespace gt
 
             size_t mid = (low + high) / 2;
 
-            if (input[mid] == value) {
-                return mid;
-            } else if (input[mid] < value) {
+            if ((is_increasing && input[mid] <= value) || (!is_increasing && input[mid] >= value)) {
                 low = mid;
             } else {
                 high = mid;
             }
         }
 
+        /* pick the closer of low and high */
         size_t index;
-        if (is_increasing) {
-            if (value <= input[low] || std::abs(input[low] - value) <= std::abs(input[high] - value)) {
-                index = low;
-            } else {
-                index = high;
-            }
+        if (std::abs(input[low] - value) <= std::abs(input[high] - value)) {
+            index = low;
         } else {
-            if (value >= input[low] || std::abs(input[low] - value) > std::abs(input[high] - value)) {
-                index = low;
-            } else {
-                index = high;
-            }
+            index = high;
         }
 
         return index;
-    }
-
-    /* helper function for interpolation
-     * returns the indices in x surrounding xi */
-    template<typename T>
-    inline constexpr std::tuple<size_t,size_t> interpolation_bounds(const Tensor<T>& x, T xi)
-    {
-        size_t x1 = binary_search(x, xi);
-
-        size_t x2;
-        if (x.size() > 1) {
-            if (x[1] > x[0]) {
-                /* increasing case */
-                if (x1 == x.size() - 1 || (xi < x[x1] && x1 != 0)) {
-                    x1 = x1 - 1;
-                }
-                x2 = x1 + 1;
-            } else {
-                /* decreasing case */
-                if (x1 == 0 || (xi > x[x1] && x1 != x.size() - 1)) {
-                    x1 = x1 + 1;
-                }
-                x2 = x1 - 1;
-            }
-        } else {
-            x2 = x1;
-        }
-
-        return std::make_pair(x1, x2);
     }
 
     enum OPERATION {
