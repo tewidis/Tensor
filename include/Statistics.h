@@ -21,8 +21,8 @@
 #include <complex>
 #include <set>
 
+#include "Arithmetic.h"
 #include "Tensor.h"
-//#include "TensorOperations.h"
 
 namespace gt
 {

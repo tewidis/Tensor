@@ -47,6 +47,55 @@ namespace gt
         throw std::runtime_error{"meshgrid is not yet implemented."};
     }
 
+    /* return the closest index in input to value using a binary search 
+     * if value is equidistant between two input values, returns the lower */
+    template<typename T>
+    inline constexpr size_t binary_search(const Tensor<T>& input, T value)
+    {
+        assert(is_sorted(input) && "Error in binary_search: input isn't sorted");
+
+        if (input.size() == 1) {
+            return 0;
+        }
+
+        bool is_increasing = input[1] > input[0];
+        size_t low = 0;
+        size_t high = input.size() - 1;
+
+        /* handle the case where value is outside of the array bounds */
+        if ((is_increasing && value <= input[low]) || (!is_increasing && value >= input[low])) {
+            return low;
+        }
+        if ((is_increasing && value >= input[high]) || (!is_increasing && value <= input[high])) {
+            return high;
+        }
+
+        /* binary search */
+        while (low < high) {
+            if (high - low <= 1) {
+                break;
+            }
+
+            size_t mid = (low + high) / 2;
+
+            if ((is_increasing && input[mid] <= value) || (!is_increasing && input[mid] >= value)) {
+                low = mid;
+            } else {
+                high = mid;
+            }
+        }
+
+        /* pick the closer of low and high */
+        size_t index;
+        if (std::abs(input[low] - value) <= std::abs(input[high] - value)) {
+            index = low;
+        } else {
+            index = high;
+        }
+
+        return index;
+    }
+
     /* helper function for interpolation
      * returns the indices in x surrounding xi */
     template<typename T>

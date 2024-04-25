@@ -20,6 +20,7 @@
 
 #include "cblas.h"
 
+#include "Arithmetic.h"
 #include "Tensor.h"
 
 namespace gt
