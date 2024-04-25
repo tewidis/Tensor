@@ -167,34 +167,18 @@ namespace gt
 
         inline Tensor<float> bartlett(size_t N)
         {
-#if 0
             Tensor<float> output = gt::cat(0,
-                2.0f * gt::linspace(0.0f, (N - 1) / 2.0f, (N - 1) / 2) / (N - 1),
-                2.0f * gt::linspace((N - 1) / 2.0f, 0.0f, (N - 1) / 2) / (N - 1));
-#else
-            Tensor<float> output({N});
-            int32_t L = N;
-            for (int32_t i = 0; i < static_cast<int32_t>(N); i++) {
-                output(i) = 1 - std::fabs((i - N / 2) / (L / 2));
-            }
-#endif
+                2 * gt::linspace(0.0f, (N - 1) / 2.0f, (N - 1) / 2) / (N - 1),
+                2 * gt::linspace((N - 1) / 2.0f, 0.0f, (N - 1) / 2) / (N - 1));
 
             return output;
         }
 
         inline Tensor<float> triang(size_t N)
         {
-#if 0
             Tensor<float> output = gt::cat(0,
-                2.0f * gt::linspace(0.0f, (N + 1) / 2.0f, (N - 1) / 2) / (N + 1),
-                2.0f * gt::linspace((N + 1) / 2.0f, 0.0f, (N - 1) / 2) / (N + 1));
-#else
-            Tensor<float> output({N});
-            int32_t L = N + 1;
-            for (int32_t i = 0; i < static_cast<int32_t>(N); i++) {
-                output(i) = 1 - std::fabs((i - N / 2) / (L / 2));
-            }
-#endif
+                2 * gt::linspace(0.0f, (N + 1) / 2.0f, (N - 1) / 2) / (N + 1),
+                2 * gt::linspace((N + 1) / 2.0f, 0.0f, (N - 1) / 2) / (N + 1));
 
             return output;
         }

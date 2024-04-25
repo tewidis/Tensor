@@ -249,8 +249,9 @@ namespace gt {
         return output;
     }
 
-    template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> operator + (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T2> operator + (T1 lhs, const Tensor<T2>& rhs)
     {
         return rhs + lhs;
     }
@@ -267,21 +268,23 @@ namespace gt {
         return output;
     }
 
-    template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> operator - (const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T1> operator - (const Tensor<T1>& lhs, T2 rhs)
     {
-        Tensor<T> output(lhs.shape());
+        Tensor<T1> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value - rhs; });
+            [rhs] (T1 value) { return value - rhs; });
         return output;
     }
 
-    template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> operator - (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T2> operator - (T1 lhs, const Tensor<T2>& rhs)
     {
-        Tensor<T> output(rhs.shape());
+        Tensor<T2> output(rhs.shape());
         std::transform(rhs.begin(), rhs.end(), output.begin(),
-            [lhs] (T value) { return lhs - value; });
+            [lhs] (T2 value) { return lhs - value; });
         return output;
     }
 
@@ -297,22 +300,21 @@ namespace gt {
         return output;
     }
 
-    template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> operator * (const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T1> operator * (const Tensor<T1>& lhs, T2 rhs)
     {
-        Tensor<T> output(lhs.shape());
+        Tensor<T1> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value * rhs; });
+            [rhs] (T1 value) { return value * rhs; });
         return output;
     }
 
-    template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> operator * (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T2> operator * (T1 lhs, const Tensor<T2>& rhs)
     {
-        Tensor<T> output(lhs.shape());
-        std::transform(rhs.begin(), rhs.end(), output.begin(),
-            [lhs] (T value) { return lhs * value; });
-        return output;
+        return rhs * lhs;
     }
 
     /* division operators */
@@ -327,21 +329,23 @@ namespace gt {
         return output;
     }
 
-    template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> operator / (const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T1> operator / (const Tensor<T1>& lhs, T2 rhs)
     {
-        Tensor<T> output(lhs.shape());
+        Tensor<T1> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value / rhs; });
+            [rhs] (T1 value) { return value / rhs; });
         return output;
     }
 
-    template<typename T> requires std::is_arithmetic_v<T>
-    Tensor<T> operator / (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<T2> operator / (T1 lhs, const Tensor<T2>& rhs)
     {
-        Tensor<T> output(lhs.shape());
+        Tensor<T2> output(rhs.shape());
         std::transform(rhs.begin(), rhs.end(), output.begin(),
-            [lhs] (T value) { return lhs / value; });
+            [lhs] (T2 value) { return lhs / value; });
         return output;
     }
 
@@ -357,22 +361,21 @@ namespace gt {
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator == (const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator == (const Tensor<T1>& lhs, T2 rhs)
     {
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value == rhs; });
+            [rhs] (T1 value) { return value == rhs; });
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator == (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator == (T1 lhs, const Tensor<T2>& rhs)
     {
-        Tensor<bool> output(lhs.shape());
-        std::transform(rhs.begin(), rhs.end(), output.begin(),
-            [lhs] (T value) { return lhs == value; });
-        return output;
+        return rhs == lhs;
     }
 
     /* not equal operators */
@@ -387,22 +390,21 @@ namespace gt {
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator != (const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator != (const Tensor<T1>& lhs, T2 rhs)
     {
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value != rhs; });
+            [rhs] (T1 value) { return value != rhs; });
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator != (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator != (T1 lhs, const Tensor<T2>& rhs)
     {
-        Tensor<bool> output(lhs.shape());
-        std::transform(rhs.begin(), rhs.end(), output.begin(),
-            [lhs] (T value) { return lhs != value; });
-        return output;
+        return rhs != lhs;
     }
 
     /* greater operators */
@@ -417,21 +419,23 @@ namespace gt {
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator > (const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator > (const Tensor<T1>& lhs, T2 rhs)
     {
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value > rhs; });
+            [rhs] (T1 value) { return value > rhs; });
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator > (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator > (T1 lhs, const Tensor<T2>& rhs)
     {
-        Tensor<bool> output(lhs.shape());
+        Tensor<bool> output(rhs.shape());
         std::transform(rhs.begin(), rhs.end(), output.begin(),
-            [lhs] (T value) { return lhs > value; });
+            [lhs] (T2 value) { return lhs > value; });
         return output;
     }
 
@@ -447,21 +451,23 @@ namespace gt {
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator < (const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator < (const Tensor<T1>& lhs, T2 rhs)
     {
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value < rhs; });
+            [rhs] (T1 value) { return value < rhs; });
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator < (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator < (T1 lhs, const Tensor<T2>& rhs)
     {
-        Tensor<bool> output(lhs.shape());
+        Tensor<bool> output(rhs.shape());
         std::transform(rhs.begin(), rhs.end(), output.begin(),
-            [lhs] (T value) { return lhs < value; });
+            [lhs] (T2 value) { return lhs < value; });
         return output;
     }
 
@@ -477,25 +483,27 @@ namespace gt {
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator >= (const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator >= (const Tensor<T1>& lhs, T2 rhs)
     {
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value >= rhs; });
+            [rhs] (T1 value) { return value >= rhs; });
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator >= (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator >= (T1 lhs, const Tensor<T2>& rhs)
     {
-        Tensor<bool> output(lhs.shape());
+        Tensor<bool> output(rhs.shape());
         std::transform(rhs.begin(), rhs.end(), output.begin(),
-            [lhs] (T value) { return lhs >= value; });
+            [lhs] (T2 value) { return lhs >= value; });
         return output;
     }
 
-    /* less operators */
+    /* less/equal operators */
     template<typename T>
     Tensor<bool> operator <= (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
@@ -507,21 +515,23 @@ namespace gt {
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator <= (const Tensor<T>& lhs, T rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator <= (const Tensor<T1>& lhs, T2 rhs)
     {
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value <= rhs; });
+            [rhs] (T1 value) { return value <= rhs; });
         return output;
     }
 
-    template<typename T>
-    Tensor<bool> operator <= (T lhs, const Tensor<T>& rhs)
+    template<typename T1, typename T2>
+        requires std::is_arithmetic_v<T1> && std::is_arithmetic_v<T2>
+    Tensor<bool> operator <= (T1 lhs, const Tensor<T2>& rhs)
     {
-        Tensor<bool> output(lhs.shape());
+        Tensor<bool> output(rhs.shape());
         std::transform(rhs.begin(), rhs.end(), output.begin(),
-            [lhs] (T value) { return lhs <= value; });
+            [lhs] (T2 value) { return lhs <= value; });
         return output;
     }
 }
