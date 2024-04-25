@@ -40,14 +40,14 @@ namespace gt {
             using reference         = T&;
 
             iterator(pointer ptr) : m_ptr(ptr) {}
-            reference operator * () const { return *m_ptr; }
+            reference operator * () { return *m_ptr; }
             pointer operator -> () { return m_ptr; }
             iterator& operator ++ () { m_ptr++; return *this; }
             iterator operator ++ (int) { iterator tmp = *this; ++(*this); return tmp; }
             iterator& operator -- () { m_ptr--; return *this; }
             iterator operator -- (int) { iterator tmp = *this; --(*this); return tmp; }
-            iterator operator + (size_t value) { m_ptr += value; return *this; }
-            iterator operator - (size_t value) { m_ptr -= value; return *this; }
+            iterator operator + (const difference_type& value) { m_ptr += value; return *this; }
+            iterator operator - (const difference_type& value) { m_ptr -= value; return *this; }
             friend bool operator == (const iterator& a, const iterator& b) { return a.m_ptr == b.m_ptr; }
             friend bool operator != (const iterator& a, const iterator& b) { return a.m_ptr != b.m_ptr; }
             friend bool operator > (const iterator& a, const iterator& b) { return a.m_ptr > b.m_ptr; }
@@ -75,8 +75,8 @@ namespace gt {
             const_iterator operator ++ (int) { const_iterator tmp = *this; ++(*this); return tmp; }
             const_iterator& operator -- () { m_ptr--; return *this; }
             const_iterator operator -- (int) { const_iterator tmp = *this; --(*this); return tmp; }
-            const_iterator operator + (size_t value) { m_ptr += value; return *this; }
-            const_iterator operator - (size_t value) { m_ptr -= value; return *this; }
+            const_iterator operator + (const difference_type& value) { m_ptr += value; return *this; }
+            const_iterator operator - (const difference_type& value) { m_ptr -= value; return *this; }
             friend bool operator == (const const_iterator& a, const const_iterator& b) { return a.m_ptr == b.m_ptr; }
             friend bool operator != (const const_iterator& a, const const_iterator& b) { return a.m_ptr != b.m_ptr; }
             friend bool operator > (const const_iterator& a, const const_iterator& b) { return a.m_ptr > b.m_ptr; }
@@ -201,29 +201,29 @@ namespace gt {
         typedef std::reverse_iterator<iterator> reverse_iterator;
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-        iterator begin() {
-            return iterator(&m_data[0]);
-        }
+        iterator begin() { return iterator(&m_data[0]); }
+        iterator end() { return iterator(&m_data[this->size()]); }
+        const_iterator begin() const { return const_iterator(&m_data[0]); }
+        const_iterator end() const { return const_iterator(&m_data[this->size()]); }
 
-        iterator end() {
-            return iterator(&m_data[this->size()]);
-        }
+        reverse_iterator rbegin() { return iterator(&m_data[this->size()]); }
+        reverse_iterator rend() { return iterator(&m_data[0]); }
+        const_reverse_iterator rbegin() const { return const_iterator(&m_data[this->size()]); }
+        const_reverse_iterator rend() const { return const_iterator(&m_data[0]); }
 
-        const_iterator begin() const {
-            return const_iterator(&m_data[0]);
-        }
+        const_iterator cbegin() const { return const_iterator(&m_data[0]); }
+        const_iterator cend() const { return const_iterator(&m_data[this->size()]); }
 
-        const_iterator end() const {
-            return const_iterator(&m_data[this->size()]);
-        }
+        const_reverse_iterator crbegin() const { return const_iterator(&m_data[this->size()]); }
+        const_reverse_iterator crend() const { return const_iterator(&m_data[0]); }
 
-        pointer data() {
-            return this->m_data;
-        }
-
-        const_pointer data() const {
-            return this->m_data;
-        }
+        /* data accessors */
+        pointer data() { return this->m_data; }
+        const_pointer data() const { return this->m_data; }
+        reference front() { return this->m_data[0]; }
+        const_reference front() const { return this->m_data[0]; }
+        reference back() { return this->m_data[this->size()-1]; }
+        const_reference back() const { return this->m_data[this->size()-1]; }
 
         private:
         T* m_data;
