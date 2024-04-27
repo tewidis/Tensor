@@ -183,7 +183,7 @@ tensor = gt::min(tensor, 1);
     * Fourier Analysis
         - fft, fft2, ifft, ifft2, fftn, ifftn, fftshift, ifftshift
     * Windows
-        - barthhan, bartlett, blackman, blackmanharris, bohman, cheb, flattop,
+        - barthann, bartlett, blackman, blackmanharris, bohman, cheb, flattop,
         gaussian, hamming, hann, hanning, kaiser, nuttall, parzen, rect, taylor,
         triang, tukey
 

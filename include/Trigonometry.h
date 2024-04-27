@@ -22,7 +22,7 @@
 
 namespace gt
 {
-    constexpr float PI = std::acos(1.0f);
+    constexpr float PI = std::acos(-1.0f);
 
     /* Conversions */
     template<typename T> requires std::is_floating_point_v<T>

@@ -135,6 +135,7 @@ namespace gt {
 
         Tensor& operator = (std::vector<T>&& other) noexcept
         {
+            assert(this->size() == other.size() && "Error in move assignment operator: Size mismatch");
             std::copy(other.begin(), other.end(), this->begin());
             return *this;
         }

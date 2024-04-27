@@ -927,6 +927,18 @@ void triang_test()
     assert(!gt::any(gt::abs(gt::sp::triang(9) - correct_odd) > 1e-4f));
 }
 
+void barthann_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0, 0.2116, 0.6017, 0.9281, 0.9281, 0.6017, 0.2116, 0};
+    std::cout << gt::sp::barthann(8) << std::endl;
+    assert(!gt::any(gt::abs(gt::sp::barthann(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0, 0.1713, 0.5000, 0.8287, 1.0000, 0.8287, 0.5000, 0.1713, 0};
+    assert(!gt::any(gt::abs(gt::sp::barthann(9) - correct_odd) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -978,4 +990,5 @@ int main()
     rect_test();
     bartlett_test();
     triang_test();
+    barthann_test();
 }

@@ -195,5 +195,13 @@ namespace gt
 
             return output;
         }
+
+        inline Tensor<float> barthann(size_t N)
+        {
+            Tensor<float> output = gt::linspace(0.0f, 1.0f, N) - 0.5f;
+            output = 0.62 - 0.48 * gt::abs(output) + 0.38 * gt::cos(2 * PI * output);
+
+            return output;
+        }
     }
 }
