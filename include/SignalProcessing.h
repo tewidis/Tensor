@@ -159,26 +159,39 @@ namespace gt
             return output;
         }
 
-        template<typename T>
-        inline constexpr Tensor<T> rect(size_t N)
+        inline Tensor<float> rect(size_t N)
         {
-            return gt::ones<T>(N);
+            return gt::ones<float>({N});
         }
 
         inline Tensor<float> bartlett(size_t N)
         {
-            Tensor<float> output = gt::cat(0,
-                2 * gt::linspace(0.0f, (N - 1) / 2.0f, (N - 1) / 2) / (N - 1),
-                2 * gt::linspace((N - 1) / 2.0f, 0.0f, (N - 1) / 2) / (N - 1));
+            Tensor<float> output({N});
+            if (iseven(N)) {
+                output = 2.0f / (N - 1) * gt::cat(0,
+                    gt::linspace(0.0f, std::floor((N - 1) / 2.0f), N / 2),
+                    gt::linspace(std::floor((N - 1) / 2.0f), 0.0f, N / 2));
+            } else {
+                output = 2.0f / (N - 1) * gt::cat(0,
+                    gt::linspace(0.0f, std::floor((N - 1) / 2.0f), (N + 1) / 2),
+                    gt::linspace(std::floor((N - 2) / 2.0f), 0.0f, N / 2));
+            }
 
             return output;
         }
 
         inline Tensor<float> triang(size_t N)
         {
-            Tensor<float> output = gt::cat(0,
-                2 * gt::linspace(0.0f, (N + 1) / 2.0f, (N - 1) / 2) / (N + 1),
-                2 * gt::linspace((N + 1) / 2.0f, 0.0f, (N - 1) / 2) / (N + 1));
+            Tensor<float> output({N});
+            if (iseven(N)) {
+                output = (2.0f * gt::cat(0,
+                    gt::linspace(1.0f, std::floor((N + 1) / 2.0f), N / 2),
+                    gt::linspace(std::floor((N + 1) / 2.0f), 1.0f, N / 2)) - 1.0f) / N;
+            } else {
+                output = 2.0f / (N + 1) * gt::cat(0,
+                    gt::linspace(1.0f, std::floor((N + 1) / 2.0f), (N + 1) / 2),
+                    gt::linspace(std::floor(N / 2.0f), 1.0f, N / 2));
+            }
 
             return output;
         }

@@ -897,6 +897,36 @@ void broadcast_test()
     assert(gt::all(gt::broadcast(t1, t2, gt::PLUS) == correct));
 }
 
+void rect_test()
+{
+    gt::Tensor<float> correct({8});
+    correct = {1, 1, 1, 1, 1, 1, 1, 1};
+
+    assert(gt::all(gt::sp::rect(8) == correct));
+}
+
+void bartlett_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0, 0.2857, 0.5714, 0.8571, 0.8571, 0.5714, 0.2857, 0};
+    assert(!gt::any(gt::abs(gt::sp::bartlett(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0, 0.25, 0.5, 0.75, 1.0, 0.75, 0.5, 0.25, 0};
+    assert(!gt::any(gt::abs(gt::sp::bartlett(9) - correct_odd) > 1e-4f));
+}
+
+void triang_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0.125, 0.375, 0.625, 0.875, 0.875, 0.625, 0.375, 0.125};
+    assert(!gt::any(gt::abs(gt::sp::triang(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0.2, 0.4, 0.6, 0.8, 1.0, 0.8, 0.6, 0.4, 0.2};
+    assert(!gt::any(gt::abs(gt::sp::triang(9) - correct_odd) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -945,4 +975,7 @@ int main()
     conv2_test();
     conv3_test();
     broadcast_test();
+    rect_test();
+    bartlett_test();
+    triang_test();
 }

@@ -245,7 +245,8 @@ namespace gt {
     Tensor<T1> operator + (const Tensor<T1>& lhs, T2 rhs)
     {
         Tensor<T1> output(lhs.shape());
-        std::transform(lhs.begin(), lhs.end(), output.begin(), std::plus<>{});
+        std::transform(lhs.begin(), lhs.end(), output.begin(),
+            [rhs] (T1 value) { return value + rhs; });
         return output;
     }
 

@@ -70,6 +70,18 @@ namespace gt
         return any;
     }
 
+    template<typename T> requires std::is_arithmetic_v<T>
+    inline constexpr bool iseven(T input)
+    {
+        return (input % 2) == 0;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    inline constexpr bool isodd(T input)
+    {
+        return (input % 2) != 0;
+    }
+
     template<typename T>
     inline constexpr Tensor<T> isinf(const Tensor<T>& input)
     {
