@@ -308,8 +308,8 @@ namespace gt {
         assert(compare_shape(lhs, rhs) && "Error in * operator: Tensors are different shapes");
 
         Tensor<T> output(lhs.shape());
-        std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value * rhs; });
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(), output.begin(),
+            [] (T lhs, T rhs) { return lhs * rhs; });
         return output;
     }
 
@@ -337,8 +337,8 @@ namespace gt {
         assert(compare_shape(lhs, rhs) && "Error in / operator: Tensors are different shapes");
 
         Tensor<T> output(lhs.shape());
-        std::transform(lhs.begin(), lhs.end(), output.begin(),
-            [rhs] (T value) { return value / rhs; });
+        std::transform(lhs.begin(), lhs.end(), rhs.begin(), output.begin(),
+            [] (T lhs, T rhs) { return lhs / rhs; });
         return output;
     }
 

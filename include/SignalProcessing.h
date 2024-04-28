@@ -242,5 +242,15 @@ namespace gt
 
             return output;
         }
+
+        inline Tensor<float> bohman(size_t N)
+        {
+            Tensor<float> output = gt::abs(gt::linspace(-1.0f, 1.0f, N));
+            output = (1.0f - output) * gt::cos(PI * output) + (1 / PI) * gt::sin(PI * output);
+            output(0) = 0.0f;
+            output(N - 1) = 0.0f;
+
+            return output;
+        }
     }
 }
