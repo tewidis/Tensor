@@ -230,11 +230,22 @@ namespace gt {
         T* m_data;
     };
 
+    template<typename T1, typename T2>
+    bool compare_shape(const Tensor<T1>& lhs, const Tensor<T2>& rhs)
+    {
+        for (size_t i = 0; i < std::max(lhs.shape().size(), rhs.shape().size()); i++) {
+            if (lhs.shape(i) != rhs.shape(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /* addition operators */
     template<typename T> requires std::is_arithmetic_v<T>
     Tensor<T> operator + (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in + operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in + operator: Tensors are different shapes");
 
         Tensor<T> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), rhs.begin(), output.begin(), std::plus<>{});
@@ -262,7 +273,7 @@ namespace gt {
     template<typename T> requires std::is_arithmetic_v<T>
     Tensor<T> operator - (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in - operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in - operator: Tensors are different shapes");
 
         Tensor<T> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), rhs.begin(), output.begin(),
@@ -294,7 +305,7 @@ namespace gt {
     template<typename T> requires std::is_arithmetic_v<T>
     Tensor<T> operator * (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in * operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in * operator: Tensors are different shapes");
 
         Tensor<T> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
@@ -323,7 +334,7 @@ namespace gt {
     template<typename T> requires std::is_arithmetic_v<T>
     Tensor<T> operator / (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in / operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in / operator: Tensors are different shapes");
 
         Tensor<T> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), output.begin(),
@@ -355,7 +366,7 @@ namespace gt {
     template<typename T>
     Tensor<bool> operator == (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in == operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in == operator: Tensors are different shapes");
 
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), rhs.begin(),
@@ -384,7 +395,7 @@ namespace gt {
     template<typename T>
     Tensor<bool> operator != (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in != operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in != operator: Tensors are different shapes");
 
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), rhs.begin(),
@@ -413,7 +424,7 @@ namespace gt {
     template<typename T>
     Tensor<bool> operator > (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in > operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in > operator: Tensors are different shapes");
 
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), rhs.begin(),
@@ -445,7 +456,7 @@ namespace gt {
     template<typename T>
     Tensor<bool> operator < (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in < operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in < operator: Tensors are different shapes");
 
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), rhs.begin(),
@@ -477,7 +488,7 @@ namespace gt {
     template<typename T>
     Tensor<bool> operator >= (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in >= operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in >= operator: Tensors are different shapes");
 
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), rhs.begin(),
@@ -509,7 +520,7 @@ namespace gt {
     template<typename T>
     Tensor<bool> operator <= (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        assert(lhs.shape() == rhs.shape() && "Error in <= operator: Tensors are different shapes");
+        assert(compare_shape(lhs, rhs) && "Error in <= operator: Tensors are different shapes");
 
         Tensor<bool> output(lhs.shape());
         std::transform(lhs.begin(), lhs.end(), rhs.begin(),

@@ -949,6 +949,17 @@ void blackman_test()
     assert(!gt::any(gt::abs(gt::sp::blackman(9) - correct_odd) > 1e-4f));
 }
 
+void blackmanharris_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0.0001, 0.0334, 0.3328, 0.8894, 0.8894, 0.3328, 0.0334, 0.0001};
+    assert(!gt::any(gt::abs(gt::sp::blackmanharris(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0.0001, 0.0217, 0.2175, 0.6958, 1.0000, 0.6958, 0.2175, 0.0217, 0.0001};
+    assert(!gt::any(gt::abs(gt::sp::blackmanharris(9) - correct_odd) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -1002,4 +1013,5 @@ int main()
     triang_test();
     barthann_test();
     blackman_test();
+    blackmanharris_test();
 }

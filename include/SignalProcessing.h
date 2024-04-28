@@ -159,6 +159,22 @@ namespace gt
             return output;
         }
 
+        inline Tensor<float> gencoswin(size_t N)
+        {
+            Tensor<float> output({N});
+            if (iseven(N)) {
+                output = gt::cat(0,
+                    gt::linspace(0.0f, std::floor(N / 2.0f) - 1, N / 2),
+                    gt::linspace(std::floor(N / 2.0f) - 1, 0.0f, N / 2)) / (N - 1);
+            } else {
+                output = gt::cat(0,
+                    gt::linspace(0.0f, std::floor((N + 1) / 2.0f) - 1, (N + 1) / 2),
+                    gt::linspace(std::floor(N / 2.0f) - 1, 0.0f, N / 2)) / (N - 1);
+            }
+
+            return output;
+        }
+
         inline Tensor<float> rect(size_t N)
         {
             return gt::ones<float>({N});
@@ -206,17 +222,23 @@ namespace gt
 
         inline Tensor<float> blackman(size_t N)
         {
-            Tensor<float> output({N});
-            if (iseven(N)) {
-                output = gt::cat(0,
-                    gt::linspace(0.0f, std::floor(N / 2.0f) - 1, N / 2),
-                    gt::linspace(std::floor(N / 2.0f) - 1, 0.0f, N / 2)) / (N - 1);
-            } else {
-                output = gt::cat(0,
-                    gt::linspace(0.0f, std::floor((N + 1) / 2.0f) - 1, (N + 1) / 2),
-                    gt::linspace(std::floor(N / 2.0f) - 1, 0.0f, N / 2)) / (N - 1);
-            }
+            Tensor<float> output = gencoswin(N);
             output = 0.42 - 0.5 * gt::cos(2 * PI * output) + 0.08 * gt::cos(4 * PI * output);
+
+            return output;
+        }
+
+        inline Tensor<float> blackmanharris(size_t N)
+        {
+            assert(N >= 4 && "Error in blackmanharris: N must be greater than or equal to 4");
+
+            Tensor<float> coeff({4});
+            coeff = {0.35875, -0.48829, 0.14128, -0.01168};
+            Tensor<float> increment({1, 4});
+            increment = {0.0f, 1.0f, 2.0f, 3.0f};
+
+            Tensor<float> output = 2 * PI * gt::linspace(0.0f, N - 1.0f, N) / (N - 1);
+            output = gt::linalg::matmul(gt::cos(gt::broadcast(output, increment, gt::TIMES)), coeff);
 
             return output;
         }
