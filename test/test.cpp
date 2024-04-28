@@ -931,12 +931,22 @@ void barthann_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0, 0.2116, 0.6017, 0.9281, 0.9281, 0.6017, 0.2116, 0};
-    std::cout << gt::sp::barthann(8) << std::endl;
     assert(!gt::any(gt::abs(gt::sp::barthann(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0, 0.1713, 0.5000, 0.8287, 1.0000, 0.8287, 0.5000, 0.1713, 0};
     assert(!gt::any(gt::abs(gt::sp::barthann(9) - correct_odd) > 1e-4f));
+}
+
+void blackman_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0, 0.0905, 0.4592, 0.9204, 0.9204, 0.4592, 0.0905, 0};
+    assert(!gt::any(gt::abs(gt::sp::blackman(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0, 0.0664, 0.3400, 0.7736,1.0000, 0.7736, 0.3400, 0.0664, 0};
+    assert(!gt::any(gt::abs(gt::sp::blackman(9) - correct_odd) > 1e-4f));
 }
 
 int main()
@@ -991,4 +1001,5 @@ int main()
     bartlett_test();
     triang_test();
     barthann_test();
+    blackman_test();
 }
