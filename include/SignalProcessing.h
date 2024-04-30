@@ -262,5 +262,16 @@ namespace gt
 
             return output;
         }
+
+        inline Tensor<float> gaussian(size_t N)
+        {
+            const float alpha = 2.5f;
+
+            float L = N - 1.0f;
+            Tensor<float> output = gt::linspace(0.0f, L, N) - (L / 2.0f);
+            output = gt::exp(-0.5f * gt::pow(alpha * output / (L / 2), 2.0f));
+
+            return output;
+        }
     }
 }

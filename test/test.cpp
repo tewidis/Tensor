@@ -993,6 +993,17 @@ void flattop_test()
     assert(!gt::any(gt::abs(gt::sp::flattop(9) - correct_odd) > 1e-4f));
 }
 
+void gaussian_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0.0439, 0.2030, 0.5633, 0.9382, 0.9382, 0.5633, 0.2030, 0.0439};
+    assert(!gt::any(gt::abs(gt::sp::gaussian(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0.0439, 0.1724, 0.4578, 0.8226, 1.0000, 0.8226, 0.4578, 0.1724, 0.0439};
+    assert(!gt::any(gt::abs(gt::sp::gaussian(9) - correct_odd) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -1050,4 +1061,5 @@ int main()
     bohman_test();
     //chebyshev_test();
     flattop_test();
+    gaussian_test();
 }
