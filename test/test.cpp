@@ -1059,6 +1059,17 @@ void nuttall_test()
     assert(!gt::any(gt::abs(gt::sp::nuttall(9) - correct_odd) > 1e-4f));
 }
 
+void parzen_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0.0039, 0.1055, 0.4727, 0.9180, 0.9180, 0.4727, 0.1055, 0.0039};
+    assert(!gt::any(gt::abs(gt::sp::parzen(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0.0027, 0.0741, 0.3416, 0.7695, 1.0000, 0.7695, 0.3416, 0.0741, 0.0027};
+    assert(!gt::any(gt::abs(gt::sp::parzen(9) - correct_odd) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -1122,4 +1133,5 @@ int main()
     hanning_test();
     kaiser_test();
     nuttall_test();
+    parzen_test();
 }

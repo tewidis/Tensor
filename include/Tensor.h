@@ -171,6 +171,23 @@ namespace gt {
             return this->m_data[sub2ind(*this, subs)];
         }
 
+        Tensor<T> operator () (const Tensor<bool>& indices)
+        {
+            assert(indices.size() == this->size() && "Error in logical indexing");
+
+            size_t count = std::count_if(indices.begin(), indices.end(), [] (bool b) { return b; });
+            Tensor<T> output({count});
+            size_t index = 0;
+            for (size_t i = 0; i < indices.size(); i++) {
+                if (indices[i]) {
+                    output[index] = this->m_data[i];
+                    index += 1;
+                }
+            }
+            
+            return output;
+        }
+
         reference operator [] (size_t index) {
             return this->m_data[index];
         }

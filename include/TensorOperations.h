@@ -384,4 +384,13 @@ namespace gt
 
         return subs;
     }
+
+    template<typename T1, typename T2>
+    inline Tensor<bool> where(const Tensor<T1>& tensor, const T2& unary)
+    {
+        Tensor<bool> output(tensor.shape());
+        std::transform(tensor.begin(), tensor.end(), output.begin(), unary);
+
+        return output;
+    }
 };

@@ -345,7 +345,22 @@ namespace gt
             output = gt::linalg::matmul(gt::cos(gt::broadcast(output, increment, gt::TIMES)), coeff);
 
             return output;
+        }
 
+        inline Tensor<float> parzen(int64_t N)
+        {
+            Tensor<float> k = gt::linspace(-(N - 1) / 2.0f, (N - 1) / 2.0f, N);
+            Tensor<float> k1 = k(gt::where(k,
+                [N] (float f) { return f < -(N - 1) / 4.0f; }));
+            Tensor<float> k2 = k(gt::where(k,
+                [N] (float f) { return std::abs(f) <= (N - 1) / 4.0f; }));
+            Tensor<float> w1 = 2 * gt::pow((1 - gt::abs(k1) / (N / 2.0f)), 3.0f);
+            Tensor<float> w2 = 1 - 6 * gt::pow((gt::abs(k2) / (N / 2.0f)), 2.0f)
+                + 6 * gt::pow(gt::abs(k2) / (N / 2.0f), 3.0f);
+            //Tensor<float> output = gt::cat(0, w1, w2, gt::flip(w1));
+            Tensor<float> output = gt::cat(0, gt::cat(0, w1, w2), gt::flip(w1));
+
+            return output;
         }
     }
 }
