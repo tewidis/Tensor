@@ -161,16 +161,10 @@ namespace gt
 
         inline Tensor<float> gencoswin(size_t N)
         {
-            Tensor<float> output({N});
-            if (iseven(N)) {
-                output = gt::cat(0,
-                    gt::linspace(0.0f, std::floor(N / 2.0f) - 1, N / 2),
-                    gt::linspace(std::floor(N / 2.0f) - 1, 0.0f, N / 2)) / (N - 1);
-            } else {
-                output = gt::cat(0,
-                    gt::linspace(0.0f, std::floor((N + 1) / 2.0f) - 1, (N + 1) / 2),
-                    gt::linspace(std::floor(N / 2.0f) - 1, 0.0f, N / 2)) / (N - 1);
-            }
+            float half = std::ceil(N / 2.0f);
+            Tensor<float> output = gt::cat(0,
+                gt::linspace(0.0f, half - 1.0f, half),
+                gt::linspace(std::floor(N / 2.0f) - 1.0f, 0.0f, N - half)) / (N - 1);
 
             return output;
         }
@@ -182,31 +176,23 @@ namespace gt
 
         inline Tensor<float> bartlett(size_t N)
         {
-            Tensor<float> output({N});
-            if (iseven(N)) {
-                output = 2.0f / (N - 1) * gt::cat(0,
-                    gt::linspace(0.0f, std::floor((N - 1) / 2.0f), N / 2),
-                    gt::linspace(std::floor((N - 1) / 2.0f), 0.0f, N / 2));
-            } else {
-                output = 2.0f / (N - 1) * gt::cat(0,
-                    gt::linspace(0.0f, std::floor((N - 1) / 2.0f), (N + 1) / 2),
-                    gt::linspace(std::floor((N - 2) / 2.0f), 0.0f, N / 2));
-            }
+            Tensor<float> output = 2.0f * gencoswin(N);
 
             return output;
         }
 
         inline Tensor<float> triang(size_t N)
         {
+            float half = std::ceil(N / 2.0f);
             Tensor<float> output({N});
             if (iseven(N)) {
-                output = (2.0f * gt::cat(0,
-                    gt::linspace(1.0f, std::floor((N + 1) / 2.0f), N / 2),
-                    gt::linspace(std::floor((N + 1) / 2.0f), 1.0f, N / 2)) - 1.0f) / N;
+                output = (2 * gt::cat(0,
+                    gt::linspace(1.0f, half, half),
+                    gt::linspace(half, 1.0f, N - half)) - 1) / N;
             } else {
-                output = 2.0f / (N + 1) * gt::cat(0,
-                    gt::linspace(1.0f, std::floor((N + 1) / 2.0f), (N + 1) / 2),
-                    gt::linspace(std::floor(N / 2.0f), 1.0f, N / 2));
+                output = (2 * gt::cat(0,
+                    gt::linspace(1.0f, half, half),
+                    gt::linspace(half - 1.0f, 1.0f, N - half))) / (N + 1);
             }
 
             return output;

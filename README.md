@@ -176,16 +176,16 @@ tensor = gt::min(tensor, 1);
     * Distributions
         - uniform, bernoulli, binomial, geometric, negative binomial, poisson,
         exponential, gamma, weibull, extreme value, normal, lognormal, chi
-        squared, cauchy, fisher f, student t
+        squared, cauchy, fisher-f, student-t
 8. Signal Processing
     * Convolution
         - conv1, conv2, conv3
     * Fourier Analysis
         - fft, fft2, ifft, ifft2, fftn, ifftn, fftshift, ifftshift
     * Windows
-        - barthann, bartlett, blackman, blackmanharris, bohman, cheb, flattop,
-        gaussian, hamming, hann, hanning, kaiser, nuttall, parzen, rect, taylor,
-        triang, tukey
+        - barthann, bartlett, blackman, blackmanharris, bohman, chebyshev,
+        flattop, gaussian, hamming, hann, hanning, kaiser, nuttall, parzen,
+        rect, taylor, triang, tukey
 
 ## Licensing
 
