@@ -273,5 +273,12 @@ namespace gt
 
             return output;
         }
+
+        inline Tensor<float> hamming(size_t N)
+        {
+            Tensor<float> output = 0.54f - 0.46f * gt::cos(2 * PI * gencoswin(N));
+
+            return output;
+        }
     }
 }

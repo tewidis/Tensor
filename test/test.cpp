@@ -1004,6 +1004,17 @@ void gaussian_test()
     assert(!gt::any(gt::abs(gt::sp::gaussian(9) - correct_odd) > 1e-4f));
 }
 
+void hamming_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0.0800, 0.2532, 0.6424, 0.9544, 0.9544, 0.6424, 0.2532, 0.0800};
+    assert(!gt::any(gt::abs(gt::sp::hamming(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0.0800, 0.2147, 0.5400, 0.8653, 1.0000, 0.8653, 0.5400, 0.2147, 0.0800};
+    assert(!gt::any(gt::abs(gt::sp::hamming(9) - correct_odd) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -1062,4 +1073,5 @@ int main()
     //chebyshev_test();
     flattop_test();
     gaussian_test();
+    hamming_test();
 }
