@@ -238,5 +238,29 @@ namespace gt
 
             return output;
         }
+
+        inline Tensor<float> chebyshev(size_t N)
+        {
+            Tensor<float> output({N});
+
+            return output;
+        }
+
+        inline Tensor<float> flattop(size_t N)
+        {
+            const float a0 = 0.21557895;
+            const float a1 = 0.41663158;
+            const float a2 = 0.277263158;
+            const float a3 = 0.083578947;
+            const float a4 = 0.006947368;
+
+            Tensor<float> output = gencoswin(N);
+            output = a0 - a1 * gt::cos(2 * PI * output)
+                + a2 * gt::cos(4 * PI * output)
+                - a3 * gt::cos(6 * PI * output)
+                + a4 * gt::cos(8 * PI * output);
+
+            return output;
+        }
     }
 }

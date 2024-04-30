@@ -971,18 +971,27 @@ void bohman_test()
     assert(!gt::any(gt::abs(gt::sp::bohman(9) - correct_odd) > 1e-4f));
 }
 
-#if 0
 void chebyshev_test()
 {
     gt::Tensor<float> correct_even({8});
-    correct_even = {0.0364, 0.2254, 0.6242, 1.0000, 1.0000, 0.6242, 0.2254, 0.0364}
+    correct_even = {0.0364, 0.2254, 0.6242, 1.0000, 1.0000, 0.6242, 0.2254, 0.0364};
     assert(!gt::any(gt::abs(gt::sp::chebyshev(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.0218, 0.1445, 0.4435, 0.8208, 1.0000, 0.8208, 0.4435, 0.1445, 0.0218};
     assert(!gt::any(gt::abs(gt::sp::chebyshev(9) - correct_odd) > 1e-4f));
 }
-#endif
+
+void flattop_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {-0.0004, -0.0368, 0.0107, 0.7809, 0.7809, 0.0107, -0.0368, -0.0004};
+    assert(!gt::any(gt::abs(gt::sp::flattop(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {-0.0004, -0.0269, -0.0547, 0.4441, 1.0000, 0.4441, -0.0547, -0.0269, -0.0004};
+    assert(!gt::any(gt::abs(gt::sp::flattop(9) - correct_odd) > 1e-4f));
+}
 
 int main()
 {
@@ -1040,4 +1049,5 @@ int main()
     blackmanharris_test();
     bohman_test();
     //chebyshev_test();
+    flattop_test();
 }
