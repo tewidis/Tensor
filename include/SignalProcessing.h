@@ -280,5 +280,23 @@ namespace gt
 
             return output;
         }
+
+        inline Tensor<float> hann(size_t N)
+        {
+            Tensor<float> output = 0.5f - 0.5f * gt::cos(2 * PI * gencoswin(N));
+
+            return output;
+        }
+
+        inline Tensor<float> hanning(size_t N)
+        {
+            float half = std::ceil(N / 2.0f);
+            Tensor<float> output = gt::cat(0,
+                gt::linspace(1.0f, half, half),
+                gt::linspace(std::floor(N / 2.0f), 1.0f, N - half)) / (N + 1);
+            output = 0.5f * (1 - gt::cos(2 * PI * output));
+
+            return output;
+        }
     }
 }
