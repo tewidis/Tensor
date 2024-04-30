@@ -263,10 +263,8 @@ namespace gt
             return output;
         }
 
-        inline Tensor<float> gaussian(size_t N)
+        inline Tensor<float> gaussian(size_t N, float alpha = 2.5f)
         {
-            const float alpha = 2.5f;
-
             float L = N - 1.0f;
             Tensor<float> output = gt::linspace(0.0f, L, N) - (L / 2.0f);
             output = gt::exp(-0.5f * gt::pow(alpha * output / (L / 2), 2.0f));
@@ -297,6 +295,57 @@ namespace gt
             output = 0.5f * (1 - gt::cos(2 * PI * output));
 
             return output;
+        }
+
+        template<typename T> requires std::is_arithmetic_v<T>
+        inline Tensor<T> besseli(T nu, const Tensor<T>& beta)
+        {
+            Tensor<T> output(beta.shape());
+            std::transform(beta.begin(), beta.end(), output.begin(),
+                [nu] (const T value) { return std::cyl_bessel_i(nu, value); });
+            return output;
+        }
+
+        inline Tensor<float> kaiser(size_t N, float beta = 0.5f)
+        {
+            float bes = std::abs(std::cyl_bessel_i(0.0f, beta));
+            float odd = gt::rem(N, 2);
+            float xind = std::pow(N - 1.0f, 2.0f);
+            float n = gt::fix((N + 1.0f) / 2.0f);
+            Tensor<float> xi = 4 * gt::pow(gt::linspace(0.0f, n - 1.0f, n) + 0.5f * (1 - odd), 2.0f);
+            Tensor<float> w = besseli(0.0f, beta * gt::sqrt(1.0f - xi / xind)) / bes;
+
+            Tensor<float> output({N});
+            if (iseven(N)) {
+                output = gt::abs(gt::cat(0, gt::flip(w), w));
+            } else {
+                size_t half = N / 2;
+                for (size_t i = 0; i < N; i++) {
+                    if (i < half) {
+                        output(i) = std::abs(w(half - i));
+                    } else {
+                        output(i) = std::abs(w(i - half));
+                    }
+                }
+            }
+
+            return output;
+        }
+
+        inline Tensor<float> nuttall(size_t N)
+        {
+            assert(N >= 4 && "Error in nuttall: N must be greater than or equal to 4");
+
+            Tensor<float> coeff({4});
+            coeff = {0.3635819, -0.4891775, 0.1365995, -0.0106411};
+            Tensor<float> increment({1, 4});
+            increment = {0.0f, 1.0f, 2.0f, 3.0f};
+
+            Tensor<float> output = 2 * PI * gt::linspace(0.0f, N - 1.0f, N) / (N - 1);
+            output = gt::linalg::matmul(gt::cos(gt::broadcast(output, increment, gt::TIMES)), coeff);
+
+            return output;
+
         }
     }
 }
