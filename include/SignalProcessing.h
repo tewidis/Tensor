@@ -169,31 +169,9 @@ namespace gt
             return output;
         }
 
-        inline Tensor<float> rect(size_t N)
-        {
-            return gt::ones<float>({N});
-        }
-
         inline Tensor<float> bartlett(size_t N)
         {
             Tensor<float> output = 2.0f * gencoswin(N);
-
-            return output;
-        }
-
-        inline Tensor<float> triang(size_t N)
-        {
-            float half = std::ceil(N / 2.0f);
-            Tensor<float> output({N});
-            if (iseven(N)) {
-                output = (2 * gt::cat(0,
-                    gt::linspace(1.0f, half, half),
-                    gt::linspace(half, 1.0f, N - half)) - 1) / N;
-            } else {
-                output = (2 * gt::cat(0,
-                    gt::linspace(1.0f, half, half),
-                    gt::linspace(half - 1.0f, 1.0f, N - half))) / (N + 1);
-            }
 
             return output;
         }
@@ -350,15 +328,60 @@ namespace gt
         inline Tensor<float> parzen(int64_t N)
         {
             Tensor<float> k = gt::linspace(-(N - 1) / 2.0f, (N - 1) / 2.0f, N);
-            Tensor<float> k1 = k(gt::where(k,
-                [N] (float f) { return f < -(N - 1) / 4.0f; }));
-            Tensor<float> k2 = k(gt::where(k,
-                [N] (float f) { return std::abs(f) <= (N - 1) / 4.0f; }));
+            Tensor<float> k1 = k(k < -(N - 1) / 4.0f);
+            Tensor<float> k2 = k(gt::abs(k) <= (N - 1) / 4.0f);
             Tensor<float> w1 = 2 * gt::pow((1 - gt::abs(k1) / (N / 2.0f)), 3.0f);
             Tensor<float> w2 = 1 - 6 * gt::pow((gt::abs(k2) / (N / 2.0f)), 2.0f)
                 + 6 * gt::pow(gt::abs(k2) / (N / 2.0f), 3.0f);
-            //Tensor<float> output = gt::cat(0, w1, w2, gt::flip(w1));
-            Tensor<float> output = gt::cat(0, gt::cat(0, w1, w2), gt::flip(w1));
+            Tensor<float> output = gt::cat(0, w1, w2, gt::flip(w1));
+
+            return output;
+        }
+
+        inline Tensor<float> rect(size_t N)
+        {
+            return gt::ones<float>({N});
+        }
+
+        inline Tensor<float> taylor(size_t N, size_t nbar = 4, float sll = -30.0f)
+        {
+            assert(sll < 0 && "Error in taylor: sll must be less than 0");
+
+            float A = std::acosh(std::pow(10, -sll / 20.0f)) / PI;
+            float sp2 = std::pow(nbar, 2) / (std::pow(A, 2) + std::pow(nbar - 0.5f, 2));
+            Tensor<float> k = gt::linspace(0.0f, N - 1.0f, N);
+            Tensor<float> xi = (k - 0.5f * N + 0.5f) / N;
+            Tensor<float> n = gt::linspace(1.0f, nbar - 1.0f, nbar - 1);
+
+            Tensor<float> summation = gt::zeros<float>({N});
+            for (size_t m = 1; m <= nbar - 1; m++) {
+                Tensor<float> p = n(n != m);
+
+                float num = gt::prod(1.0f - (std::pow(m, 2) / sp2) / (std::pow(A, 2) + gt::pow(n - 0.5f, 2)));
+                float den = gt::prod(1.0f - std::pow(m, 2) / gt::pow(p, 2));
+                float Fm = (std::pow(-1.0f, m + 1) * num) / (2.0f * den);
+
+                summation = Fm * gt::cos(2 * PI * m * xi) + summation;
+            }
+
+            Tensor<float> output = gt::ones<float>({N});
+            output = output + 2 * summation;
+            return output;
+        }
+
+        inline Tensor<float> triang(size_t N)
+        {
+            float half = std::ceil(N / 2.0f);
+            Tensor<float> output({N});
+            if (iseven(N)) {
+                output = (2 * gt::cat(0,
+                    gt::linspace(1.0f, half, half),
+                    gt::linspace(half, 1.0f, N - half)) - 1) / N;
+            } else {
+                output = (2 * gt::cat(0,
+                    gt::linspace(1.0f, half, half),
+                    gt::linspace(half - 1.0f, 1.0f, N - half))) / (N + 1);
+            }
 
             return output;
         }

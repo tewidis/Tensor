@@ -897,14 +897,6 @@ void broadcast_test()
     assert(gt::all(gt::broadcast(t1, t2, gt::PLUS) == correct));
 }
 
-void rect_test()
-{
-    gt::Tensor<float> correct({8});
-    correct = {1, 1, 1, 1, 1, 1, 1, 1};
-
-    assert(gt::all(gt::sp::rect(8) == correct));
-}
-
 void bartlett_test()
 {
     gt::Tensor<float> correct_even({8});
@@ -914,17 +906,6 @@ void bartlett_test()
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0, 0.25, 0.5, 0.75, 1.0, 0.75, 0.5, 0.25, 0};
     assert(!gt::any(gt::abs(gt::sp::bartlett(9) - correct_odd) > 1e-4f));
-}
-
-void triang_test()
-{
-    gt::Tensor<float> correct_even({8});
-    correct_even = {0.125, 0.375, 0.625, 0.875, 0.875, 0.625, 0.375, 0.125};
-    assert(!gt::any(gt::abs(gt::sp::triang(8) - correct_even) > 1e-4f));
-
-    gt::Tensor<float> correct_odd({9});
-    correct_odd = {0.2, 0.4, 0.6, 0.8, 1.0, 0.8, 0.6, 0.4, 0.2};
-    assert(!gt::any(gt::abs(gt::sp::triang(9) - correct_odd) > 1e-4f));
 }
 
 void barthann_test()
@@ -1070,6 +1051,39 @@ void parzen_test()
     assert(!gt::any(gt::abs(gt::sp::parzen(9) - correct_odd) > 1e-4f));
 }
 
+void rect_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {1, 1, 1, 1, 1, 1, 1, 1};
+    assert(!gt::any(gt::abs(gt::sp::rect(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    assert(!gt::any(gt::abs(gt::sp::rect(9) - correct_odd) > 1e-4f));
+}
+
+void taylor_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0.4353, 0.8024, 1.2423, 1.5201, 1.5201, 1.2423, 0.8024, 0.4353};
+    assert(!gt::any(gt::abs(gt::sp::taylor(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0.4236, 0.7275, 1.1291, 1.4407, 1.5581, 1.4407, 1.1291, 0.7275, 0.4236};
+    assert(!gt::any(gt::abs(gt::sp::taylor(9) - correct_odd) > 1e-4f));
+}
+
+void triang_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0.125, 0.375, 0.625, 0.875, 0.875, 0.625, 0.375, 0.125};
+    assert(!gt::any(gt::abs(gt::sp::triang(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0.2, 0.4, 0.6, 0.8, 1.0, 0.8, 0.6, 0.4, 0.2};
+    assert(!gt::any(gt::abs(gt::sp::triang(9) - correct_odd) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -1118,9 +1132,7 @@ int main()
     conv2_test();
     conv3_test();
     broadcast_test();
-    rect_test();
     bartlett_test();
-    triang_test();
     barthann_test();
     blackman_test();
     blackmanharris_test();
@@ -1134,4 +1146,7 @@ int main()
     kaiser_test();
     nuttall_test();
     parzen_test();
+    rect_test();
+    taylor_test();
+    triang_test();
 }

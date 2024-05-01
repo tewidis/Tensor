@@ -248,6 +248,18 @@ namespace gt
     }
 
     template<typename T>
+    inline constexpr T prod(const Tensor<T>& input)
+    {
+        //T output = std::accumulate(input.begin(), input.end(), 1, std::multiplies<T>());
+        T output = 1;
+        for (size_t i = 0; i < input.size(); i++) {
+            output *= input(i);
+        }
+
+        return output;
+    }
+
+    template<typename T>
     inline constexpr Tensor<T> prod(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();

@@ -246,9 +246,9 @@ namespace gt
     }
 
     template<typename T, typename... Ts>
-    inline constexpr Tensor<T> cat(size_t dim, const Tensor<T>& arg, const Tensor<Ts...>& args)
+    inline constexpr Tensor<T> cat(size_t dim, const Tensor<T>& arg, const Tensor<Ts>&... args)
     {
-        return cat(dim, arg, cat(dim, args));
+        return cat(dim, arg, cat(dim, args...));
     }
 
     template<typename T>
@@ -383,14 +383,5 @@ namespace gt
         }
 
         return subs;
-    }
-
-    template<typename T1, typename T2>
-    inline Tensor<bool> where(const Tensor<T1>& tensor, const T2& unary)
-    {
-        Tensor<bool> output(tensor.shape());
-        std::transform(tensor.begin(), tensor.end(), output.begin(), unary);
-
-        return output;
     }
 };
