@@ -385,5 +385,32 @@ namespace gt
 
             return output;
         }
+
+        inline Tensor<float> tukey(size_t N, float ratio = 0.5f)
+        {
+            Tensor<float> output({N});
+            if (ratio <= 0) {
+                output = gt::ones<float>({N});
+            } else if (ratio >= 1) {
+                output = gt::sp::hann(N);
+            } else {
+                Tensor<float> t = gt::linspace(0.0f, 1.0f, N);
+                float per = ratio / 2.0f;
+                float tl = std::floor(per * (N - 1)) + 1.0f;
+                float th = N - tl;
+
+                for (size_t i = 0; i < output.size(); i++) {
+                    if (i < tl) {
+                        output(i) = (1 + std::cos(PI / per * (t(i) - per))) / 2.0f;
+                    } else if (i >= tl && i < th) {
+                        output(i) = 1.0f;
+                    } else {
+                        output(i) = (1 + std::cos(PI / per * (t(i) - 1 + per))) / 2.0f;
+                    }
+                }
+            }
+
+            return output;
+        }
     }
 }

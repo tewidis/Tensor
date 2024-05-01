@@ -1084,6 +1084,17 @@ void triang_test()
     assert(!gt::any(gt::abs(gt::sp::triang(9) - correct_odd) > 1e-4f));
 }
 
+void tukey_test()
+{
+    gt::Tensor<float> correct_even({8});
+    correct_even = {0, 0.6113, 1.0000, 1.0000, 1.0000, 1.0000, 0.6113, 0};
+    assert(!gt::any(gt::abs(gt::sp::tukey(8) - correct_even) > 1e-4f));
+
+    gt::Tensor<float> correct_odd({9});
+    correct_odd = {0, 0.5000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 0.5000, 0};
+    assert(!gt::any(gt::abs(gt::sp::tukey(9) - correct_odd) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -1149,4 +1160,5 @@ int main()
     rect_test();
     taylor_test();
     triang_test();
+    tukey_test();
 }
