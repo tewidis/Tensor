@@ -259,6 +259,17 @@ namespace gt
     }
 
     template<typename T>
+    inline constexpr T max(const Tensor<T>& input)
+    {
+        T output = input(0);
+        for (size_t i = 1; i < input.size(); i++) {
+            output = gt::max(output, input(i));
+        }
+
+        return output;
+    }
+
+    template<typename T>
     inline constexpr Tensor<T> max(const Tensor<T>& input, size_t dim)
     {
         std::vector<size_t> shape = input.shape();
@@ -307,6 +318,17 @@ namespace gt
         } else {
             return std::min(abs_lhs, abs_rhs);
         }
+    }
+
+    template<typename T>
+    inline constexpr T min(const Tensor<T>& input)
+    {
+        T output = input(0);
+        for (size_t i = 1; i < input.size(); i++) {
+            output = gt::min(output, input(i));
+        }
+
+        return output;
     }
 
     template<typename T>
