@@ -47,8 +47,25 @@ namespace gt
     UNARY_EXPRESSION(exp2);
     UNARY_EXPRESSION(floor);
     UNARY_EXPRESSION(ceil);
-    UNARY_EXPRESSION(abs);
     UNARY_EXPRESSION(round);
+
+    template<typename T>
+    inline constexpr Tensor<T> abs(const Tensor<T>& input)
+    {
+        Tensor<T> output(input.shape());
+        std::transform(input.begin(), input.end(), output.begin(),
+            [] (T value) { return std::abs(value); });
+        return output;
+    }
+
+    template<typename T>
+    inline constexpr Tensor<T> abs(const Tensor<std::complex<T>>& input)
+    {
+        Tensor<T> output(input.shape());
+        std::transform(input.begin(), input.end(), output.begin(),
+            [] (const std::complex<T>& value) { return std::abs(value); });
+        return output;
+    }
 
     template<typename T>
     inline constexpr bool all(const Tensor<T>& input)
