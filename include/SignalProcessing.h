@@ -17,6 +17,7 @@
 #pragma once
 
 #include "cblas.h"
+#include "fftw3.h"
 
 #include "Tensor.h"
 
@@ -30,6 +31,73 @@ namespace gt
 
     namespace sp
     {
+        inline Tensor<std::complex<float>> fft(const Tensor<float>& input)
+        {
+            assert(input.shape().size() == 1 && "Error in fft: input is not 1-D");
+
+            size_t N = input.size();
+            fftwf_complex* out = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * (N/2+1));
+            float* in = (float*) fftwf_malloc(sizeof(float) * N);
+            for (size_t i = 0; i < input.size(); i++) {
+                in[i] = input(i);
+            }
+
+            fftwf_plan plan = fftwf_plan_dft_r2c_1d(N, in, out, FFTW_ESTIMATE);
+
+            if (plan) {
+                fftwf_execute(plan);
+            } else {
+                assert("Error in fft: plan creation failed");
+            }
+
+            Tensor<std::complex<float>> output({N});
+            for (size_t i = 0; i < output.size(); i++) {
+                if (i < N / 2 + 1) {
+                    output(i) = {out[i][0], out[i][1]};
+                } else {
+                    output(i) = {out[N-i][0], -out[N-i][1]};
+                }
+            }
+
+            fftwf_free(in);
+            fftwf_free(out);
+            fftwf_destroy_plan(plan);
+
+            return output;
+        }
+
+        inline Tensor<float> ifft(const Tensor<std::complex<float>>& input)
+        {
+            assert(input.shape().size() == 1 && "Error in fft: input is not 1-D");
+
+            size_t N = input.size();
+            fftwf_complex* in = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * (N/2+1));
+            float* out = (float*) fftwf_malloc(sizeof(float) * N);
+            for (size_t i = 0; i < N / 2 + 1; i++) {
+                in[i][0] = std::real(input(i));
+                in[i][1] = std::imag(input(i));
+            }
+
+            fftwf_plan plan = fftwf_plan_dft_c2r_1d(N, in, out, FFTW_ESTIMATE);
+
+            if (plan) {
+                fftwf_execute(plan);
+            } else {
+                assert("Error in fft: plan creation failed");
+            }
+
+            Tensor<float> output({N});
+            for (size_t i = 0; i < output.size(); i++) {
+                output(i) = out[i] / N;
+            }
+
+            fftwf_free(in);
+            fftwf_free(out);
+            fftwf_destroy_plan(plan);
+
+            return output;
+        }
+
         template<typename T>
         inline constexpr auto convolution_parameters(const Tensor<T>& t1,
             const Tensor<T>& t2, CONVOLUTION type)
@@ -217,9 +285,43 @@ namespace gt
             return output;
         }
 
-        inline Tensor<float> chebyshev(size_t N)
+        inline Tensor<float> cheb(size_t n, const Tensor<float>& input)
+        {
+            Tensor<float> output(input.shape());
+
+            for (size_t i = 0; i < output.size(); i++) {
+                if (std::abs(input(i)) <= 1) {
+                    output(i) = std::cos(n * std::acos(input(i)));
+                } else {
+                    output(i) = std::cosh(n * std::acosh(input(i)));
+                }
+            }
+
+            return output;
+        }
+
+        inline Tensor<float> chebyshev(size_t N, float r = 100.0f)
         {
             Tensor<float> output({N});
+
+            /* N == 1 is a special case */
+            if (N == 1) {
+                output(0) = 1.0f;
+                return output;
+            }
+
+            float gamma = std::pow(10, -r / 20);
+            float beta = std::cosh(1 / (N - 1) * std::acosh(1 / gamma));
+            Tensor<float> k = gt::linspace(0.0f, N - 1.0f, N);
+            Tensor<float> x = beta * gt::cos(PI * k / N);
+            Tensor<float> p = cheb(N - 1, x);
+
+            if (iseven(N)) {
+
+            } else {
+
+            }
+            output = output / gt::max(output);
 
             return output;
         }

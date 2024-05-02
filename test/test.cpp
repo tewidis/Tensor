@@ -881,6 +881,34 @@ void conv3_test()
     assert(gt::all(gt::sp::conv3(t1, t2, gt::VALID) == correct_valid));
 }
 
+void fft_test()
+{
+    gt::Tensor<float> input({10});
+    std::iota(input.begin(), input.end(), 1);
+
+    gt::Tensor<std::complex<float>> correct({10});
+    correct = {{55.0000, 0.0000},
+        {-5.0000, 15.3884}, {-5.0000, 6.8819}, {-5.0000, 3.6327}, 
+        {-5.0000, 1.6246}, {-5.0000, 0.0000}, {-5.0000, -1.6246}, 
+        {-5.0000, -3.6327}, {-5.0000, -6.8819}, {-5.0000, -15.3884}};
+
+    assert(!gt::any(gt::abs(gt::sp::fft(input) - correct) > 1e-4f));
+}
+
+void ifft_test()
+{
+    gt::Tensor<std::complex<float>> input({10});
+    input = {{55.0000, 0.0000},
+        {-5.0000, 15.3884}, {-5.0000, 6.8819}, {-5.0000, 3.6327}, 
+        {-5.0000, 1.6246}, {-5.0000, 0.0000}, {-5.0000, 1.6246}, 
+        {-5.0000, 3.6327}, {-5.0000, 6.8819}, {-5.0000, -15.3884}};
+
+    gt::Tensor<float> correct({10});
+    std::iota(correct.begin(), correct.end(), 1);
+
+    assert(!gt::any(gt::abs(gt::sp::ifft(input) - correct) > 1e-4f));
+}
+
 void broadcast_test()
 {
     gt::Tensor<float> t1({1, 4});
@@ -1142,6 +1170,8 @@ int main()
     conv1_test();
     conv2_test();
     conv3_test();
+    fft_test();
+    ifft_test();
     broadcast_test();
     bartlett_test();
     barthann_test();

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <iomanip>
+#include <complex>
 
 #include "Dimensional.h"
 
@@ -247,6 +248,18 @@ namespace gt {
         T* m_data;
     };
 
+    template<typename T>
+    struct is_complex_t : public std::false_type {};
+
+    template<typename T>
+    struct is_complex_t<std::complex<T>> : public std::true_type {};
+
+    template<typename T>
+    constexpr bool is_complex_v() { return is_complex_t<T>::value; }
+
+    template<typename T>
+    constexpr bool is_valid_v() { return is_complex_t<T>::value || std::is_arithmetic_v<T>; }
+
     template<typename T1, typename T2>
     bool compare_shape(const Tensor<T1>& lhs, const Tensor<T2>& rhs)
     {
@@ -287,7 +300,7 @@ namespace gt {
     }
 
     /* subtraction operators */
-    template<typename T> requires std::is_arithmetic_v<T>
+    template<typename T> requires std::is_arithmetic_v<T> || is_complex_t<T>::value
     Tensor<T> operator - (const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
         assert(compare_shape(lhs, rhs) && "Error in - operator: Tensors are different shapes");
