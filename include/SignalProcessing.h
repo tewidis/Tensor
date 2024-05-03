@@ -19,43 +19,40 @@
 #include "cblas.h"
 #include "fftw3.h"
 
+#include "Enums.h"
+#include "Statistics.h"
 #include "Tensor.h"
 
 namespace gt
 {
-    enum CONVOLUTION {
-        FULL,
-        SAME,
-        VALID
-    };
-
     namespace sp
     {
-        inline Tensor<std::complex<float>> fft(const Tensor<float>& input)
+        inline Tensor<std::complex<float>> fft(const Tensor<float>& input,
+            size_t N, size_t dim = 0)
         {
-            assert(input.shape().size() == 1 && "Error in fft: input is not 1-D");
-
-            size_t N = input.size();
             fftwf_complex* out = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * (N/2+1));
-            float* in = (float*) fftwf_malloc(sizeof(float) * N);
-            for (size_t i = 0; i < input.size(); i++) {
-                in[i] = input(i);
-            }
-
+            float* in = (float*) fftwf_malloc(sizeof(float) * input.size());
+            std::vector<size_t> shape = input.shape();
+            shape[dim] = N;
+            Tensor<std::complex<float>> output(shape);
             fftwf_plan plan = fftwf_plan_dft_r2c_1d(N, in, out, FFTW_ESTIMATE);
+            assert(plan && "Error in fft: plan creation failed");
 
-            if (plan) {
+            for (size_t i = 0; i < input.size() / input.shape(dim); i++) {
+                size_t offset_i = calculate_offset(input.stride(), input.shape(), dim, i);
+                size_t offset_o = calculate_offset(output.stride(), output.shape(), dim, i);
+                for (size_t j = 0; j < input.shape(dim); j++) {
+                    in[j] = input[offset_i + j * input.stride(dim)];
+                }
+
                 fftwf_execute(plan);
-            } else {
-                assert("Error in fft: plan creation failed");
-            }
 
-            Tensor<std::complex<float>> output({N});
-            for (size_t i = 0; i < output.size(); i++) {
-                if (i < N / 2 + 1) {
-                    output(i) = {out[i][0], out[i][1]};
-                } else {
-                    output(i) = {out[N-i][0], -out[N-i][1]};
+                for (size_t j = 0; j < output.shape(dim); j++) {
+                    if (j < N / 2 + 1) {
+                        output[offset_o + j * output.stride(dim)] = {out[j][0], out[j][1]};
+                    } else {
+                        output[offset_o + j * output.stride(dim)] = {out[N-j][0], -out[N-j][1]};
+                    }
                 }
             }
 
@@ -66,29 +63,34 @@ namespace gt
             return output;
         }
 
-        inline Tensor<float> ifft(const Tensor<std::complex<float>>& input)
+        inline Tensor<float> ifft(const Tensor<std::complex<float>>& input,
+            size_t N, size_t dim = 0)
         {
-            assert(input.shape().size() == 1 && "Error in fft: input is not 1-D");
-
-            size_t N = input.size();
             fftwf_complex* in = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * (N/2+1));
             float* out = (float*) fftwf_malloc(sizeof(float) * N);
-            for (size_t i = 0; i < N / 2 + 1; i++) {
-                in[i][0] = std::real(input(i));
-                in[i][1] = std::imag(input(i));
-            }
-
+            std::vector<size_t> shape = input.shape();
+            shape[dim] = N;
+            Tensor<float> output(shape);
             fftwf_plan plan = fftwf_plan_dft_c2r_1d(N, in, out, FFTW_ESTIMATE);
+            assert(plan && "Error in ifft: plan creation failed");
 
-            if (plan) {
+            for (size_t i = 0; i < input.size() / input.shape(dim); i++) {
+                size_t offset_i = calculate_offset(input.stride(), input.shape(), dim, i);
+                size_t offset_o = calculate_offset(output.stride(), output.shape(), dim, i);
+                for (size_t j = 0; j < N / 2 + 1; j++) {
+                    in[j][0] = std::real(input[offset_i + j * input.stride(dim)]);
+                    in[j][1] = std::imag(input[offset_i + j * input.stride(dim)]);
+                }
+
                 fftwf_execute(plan);
-            } else {
-                assert("Error in fft: plan creation failed");
-            }
 
-            Tensor<float> output({N});
-            for (size_t i = 0; i < output.size(); i++) {
-                output(i) = out[i] / N;
+                for (size_t j = 0; j < output.shape(dim); j++) {
+                    if (j < N / 2 + 1) {
+                        output[offset_o + j * output.stride(dim)] = out[j] / N;
+                    } else {
+                        output[offset_o + j * output.stride(dim)] = out[j] / N;
+                    }
+                }
             }
 
             fftwf_free(in);
