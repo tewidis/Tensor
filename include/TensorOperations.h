@@ -22,6 +22,7 @@
 #include <set>
 
 #include "Arithmetic.h"
+#include "Enums.h"
 #include "Tensor.h"
 #include "Trigonometry.h"
 #include "Statistics.h"
@@ -169,14 +170,13 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         nshift = input.shape(dim) - rem(nshift, input.shape(dim));
 
         Tensor<T> output(input.shape());
         size_t modulo = input.shape(dim) * input.stride(dim);
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 output[offset + j * output.stride(dim)] =
                     input[offset + (j + nshift) * output.stride(dim) % modulo];
@@ -193,11 +193,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 output[offset + j * output.stride(dim)] =
                     input[offset + (input.shape(dim) - j - 1) * input.stride(dim)];
@@ -288,21 +287,6 @@ namespace gt
 
         return is_increasing || is_decreasing;
     }
-
-    enum OPERATION {
-        PLUS,
-        MINUS,
-        TIMES,
-        DIVIDE,
-        POWER,
-        MAX,
-        MIN,
-        MOD,
-        REM,
-        ATAN2,
-        ATAN2D,
-        HYPOT
-    };
 
     template<typename T>
     constexpr inline Tensor<T> broadcast(const Tensor<T>& t1, const Tensor<T>& t2, OPERATION op)

@@ -27,12 +27,15 @@
 namespace gt
 {
     inline size_t calculate_offset(const std::vector<size_t>& input_stride,
-        const std::vector<size_t>& output_stride, const std::vector<size_t>& shape,
-        size_t index)
+        const std::vector<size_t>& shape, size_t dim, size_t index)
     {
         size_t offset = 0;
+        size_t stride = 1;
         for (size_t i = 0; i < shape.size(); i++) {
-            offset += input_stride[i] * ((index / output_stride[i]) % shape[i]);
+            if (i != dim) {
+                offset += input_stride[i] * ((index / stride) % shape[i]);
+                stride *= shape[i];
+            }
         }
 
         return offset;
@@ -46,11 +49,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             output[offset] = input[offset];
             for (size_t j = 1; j < output.shape(dim); j++) {
                 output[offset + j * input.stride(dim)] = std::max(
@@ -69,11 +71,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             output[offset] = input[offset];
             for (size_t j = 1; j < output.shape(dim); j++) {
                 output[offset + j * input.stride(dim)] = std::min(
@@ -93,11 +94,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 output[offset + j * output.stride(dim)] = 0;
                 for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
@@ -119,11 +119,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 output[offset + j * output.stride(dim)] = 1;
                 for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
@@ -145,11 +144,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 T local_max = input[offset + j * input.stride(dim)];
                 for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
@@ -172,11 +170,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 T local_min = input[offset + j * input.stride(dim)];
                 for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
@@ -199,11 +196,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 0; j < output.shape(dim); j++) {
                 output[offset + j * output.stride(dim)] = 0;
                 T denom = 0;
@@ -276,11 +272,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             output[i] = input[offset];
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] = std::max(output[i], input[offset + j * input.stride(dim)]);
@@ -338,11 +333,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             output[i] = input[offset];
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] = std::min(output[i], input[offset + j * input.stride(dim)]);
@@ -370,11 +364,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] += input[offset + j * input.stride(dim)] / input.shape(dim);
             }
@@ -404,11 +397,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             Tensor<T> temp({input.shape(dim)});
             for (size_t j = 0; j < input.shape(dim); j++) {
                 temp[j] = input[offset + j * input.stride(dim)];

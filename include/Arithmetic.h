@@ -211,11 +211,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] += input[offset + j * input.stride(dim)];
             }
@@ -231,11 +230,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             T running_total = 0;
             for (size_t j = 0; j < output.shape(dim); j++) {
                 running_total += input[offset + j * input.stride(dim)];
@@ -253,11 +251,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] -= 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             output[i] = input[offset + input.stride(dim)] - input[offset];
         }
 
@@ -283,11 +280,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             output[i] = 1;
             for (size_t j = 0; j < input.shape(dim); j++) {
                 output[i] *= input[offset + j * input.stride(dim)];
@@ -304,11 +300,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             T running_total = 1;
             for (size_t j = 0; j < output.shape(dim); j++) {
                 running_total *= input[offset + j * input.stride(dim)];
@@ -326,11 +321,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             for (size_t j = 1; j < input.shape(dim); j++) {
                 output[i] += (input[offset + j * input.stride(dim)] +
                     input[offset + (j - 1) * input.stride(dim)]) / 2.0f;
@@ -347,11 +341,10 @@ namespace gt
         if (dim < shape.size()) {
             shape[dim] = 1;
         }
-        std::vector<size_t> stride = calculate_stride(shape);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-            size_t offset = calculate_offset(input.stride(), stride, shape, i);
+            size_t offset = calculate_offset(input.stride(), shape, dim, i);
             output[offset] = 0;
             for (size_t j = 1; j < output.shape(dim); j++) {
                 output[offset + j * input.stride(dim)] = 
