@@ -99,6 +99,26 @@ namespace gt
         return (input % 2) != 0;
     }
 
+    template<typename T> requires std::is_arithmetic_v<T>
+    inline constexpr Tensor<T> real(const Tensor<std::complex<T>>& input)
+    {
+        Tensor<T> output(input.shape());
+        std::transform(input.begin(), input.end(), output.begin(),
+            [] (const std::complex<T>& value) { return std::real(value); });
+
+        return output;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    inline constexpr Tensor<T> imag(const Tensor<std::complex<T>>& input)
+    {
+        Tensor<T> output(input.shape());
+        std::transform(input.begin(), input.end(), output.begin(),
+            [] (const std::complex<T>& value) { return std::imag(value); });
+
+        return output;
+    }
+
     template<typename T>
     inline constexpr Tensor<T> isinf(const Tensor<T>& input)
     {
@@ -125,6 +145,22 @@ namespace gt
         Tensor<T> output(input.shape());
         std::transform(input.begin(), input.end(), output.begin(),
             [] (T value) { return !std::isinf(value) && !std::isnan(value); });
+
+        return output;
+    }
+
+    template<typename T> requires std::is_arithmetic_v<T>
+    inline constexpr T sign(T input)
+    {
+        return (input < 0) ? -1 : 1;
+    }
+
+    template<typename T>
+    inline constexpr Tensor<T> sign(const Tensor<T>& input)
+    {
+        Tensor<T> output(input.shape());
+        std::transform(input.begin(), input.end(), output.begin(),
+            [] (T value) { return sign(value); });
 
         return output;
     }

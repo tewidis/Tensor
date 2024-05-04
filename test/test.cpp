@@ -1219,7 +1219,7 @@ int main()
     blackman_test();
     blackmanharris_test();
     bohman_test();
-    //chebyshev_test();
+    chebyshev_test();
     flattop_test();
     gaussian_test();
     hamming_test();

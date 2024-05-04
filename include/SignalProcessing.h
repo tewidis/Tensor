@@ -31,7 +31,7 @@ namespace gt
             size_t N, size_t dim = 0)
         {
             fftwf_complex* out = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * (N/2+1));
-            float* in = (float*) fftwf_malloc(sizeof(float) * input.size());
+            float* in = (float*) fftwf_malloc(sizeof(float) * N);
             std::vector<size_t> shape = input.shape();
             shape[dim] = N;
             Tensor<std::complex<float>> output(shape);
@@ -41,7 +41,7 @@ namespace gt
             for (size_t i = 0; i < input.size() / input.shape(dim); i++) {
                 size_t offset_i = calculate_offset(input.stride(), input.shape(), dim, i);
                 size_t offset_o = calculate_offset(output.stride(), output.shape(), dim, i);
-                for (size_t j = 0; j < input.shape(dim); j++) {
+                for (size_t j = 0; j < N; j++) {
                     in[j] = input[offset_i + j * input.stride(dim)];
                 }
 
@@ -63,6 +63,38 @@ namespace gt
             return output;
         }
 
+        inline Tensor<std::complex<float>> fft(const Tensor<std::complex<float>>& input,
+            size_t N, size_t dim = 0)
+        {
+            fftwf_complex* out = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * N);
+            fftwf_complex* in = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex) * N);
+            std::vector<size_t> shape = input.shape();
+            shape[dim] = N;
+            Tensor<std::complex<float>> output(shape);
+            fftwf_plan plan = fftwf_plan_dft_1d(N, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+            assert(plan && "Error in fft: plan creation failed");
+
+            for (size_t i = 0; i < input.size() / input.shape(dim); i++) {
+                size_t offset_i = calculate_offset(input.stride(), input.shape(), dim, i);
+                size_t offset_o = calculate_offset(output.stride(), output.shape(), dim, i);
+                for (size_t j = 0; j < N; j++) {
+                    in[j][0] = std::real(input[offset_i + j * input.stride(dim)]);
+                    in[j][1] = std::imag(input[offset_i + j * input.stride(dim)]);
+                }
+
+                fftwf_execute(plan);
+
+                for (size_t j = 0; j < output.shape(dim); j++) {
+                    output[offset_o + j * output.stride(dim)] = {out[j][0], out[j][1]};
+                }
+            }
+
+            fftwf_free(in);
+            fftwf_free(out);
+            fftwf_destroy_plan(plan);
+
+            return output;
+        }
         inline Tensor<float> ifft(const Tensor<std::complex<float>>& input,
             size_t N, size_t dim = 0)
         {
@@ -287,15 +319,16 @@ namespace gt
             return output;
         }
 
-        inline Tensor<float> cheb(size_t n, const Tensor<float>& input)
+        inline Tensor<float> cheb(size_t N, const Tensor<float>& input)
         {
             Tensor<float> output(input.shape());
 
             for (size_t i = 0; i < output.size(); i++) {
                 if (std::abs(input(i)) <= 1) {
-                    output(i) = std::cos(n * std::acos(input(i)));
+                    output(i) = std::cos(N * std::acos(input(i)));
                 } else {
-                    output(i) = std::cosh(n * std::acosh(input(i)));
+                    output(i) = std::pow(gt::sign(input(i)), N % 2)  *
+                        std::cosh(N * std::acosh(std::abs(input(i))));
                 }
             }
 
@@ -313,15 +346,41 @@ namespace gt
             }
 
             float gamma = std::pow(10, -r / 20);
-            float beta = std::cosh(1 / (N - 1) * std::acosh(1 / gamma));
+            float beta = std::cosh(1.0f / (N - 1) * std::acosh(1.0f / gamma));
             Tensor<float> k = gt::linspace(0.0f, N - 1.0f, N);
             Tensor<float> x = beta * gt::cos(PI * k / N);
             Tensor<float> p = cheb(N - 1, x);
 
+            std::complex<float> j{0, 1};
             if (iseven(N)) {
+                Tensor<std::complex<float>> sample({N});
+                for (size_t i = 0; i < sample.size(); i++) {
+                    sample(i) = p(i) * std::exp(j * PI /
+                        static_cast<float>(N) * static_cast<float>(i));
+                }
+                Tensor<float> w = gt::real(gt::sp::fft(sample, sample.size()));
+                w = w / w(1);
 
+                size_t limit = N / 2;
+                for (size_t i = 0; i < output.size(); i++) {
+                    if (i < limit) {
+                        output[i] = w[limit - i];
+                    } else {
+                        output[i] = w[i - limit + 1];
+                    }
+                }
             } else {
+                Tensor<float> w = gt::real(gt::sp::fft(p, p.size()));
+                w = w / w(0);
 
+                size_t limit = (N + 1) / 2 - 1;
+                for (size_t i = 0; i < output.size(); i++) {
+                    if (i < limit) {
+                        output[i] = w[limit - i];
+                    } else {
+                        output[i] = w[i - limit];
+                    }
+                }
             }
             output = output / gt::max(output);
 
