@@ -414,7 +414,7 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> var(const Tensor<T>& input, size_t dim)
     {
-        std::vector<size_t> reps(input.shape().size());
+        std::vector<size_t> reps(ndims(input));
         std::fill(reps.begin(), reps.end(), 1);
         reps[dim] = input.shape(dim);
         T denom = std::max(std::size_t{1}, input.shape(dim) - 1);

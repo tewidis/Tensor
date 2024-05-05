@@ -22,6 +22,7 @@
 
 #include "Arithmetic.h"
 #include "Tensor.h"
+#include "TensorOperations.h"
 
 namespace gt
 {
@@ -29,7 +30,7 @@ namespace gt
     {
         inline Tensor<float> matmul(const Tensor<float>& lhs, const Tensor<float>& rhs)
         {
-            assert(lhs.shape().size() <= 2 && rhs.shape().size() <= 2 && 
+            assert(ndims(lhs) <= 2 && ndims(rhs) <= 2 && 
                 "Error in matmul: Matrix multiplication is only defined on vectors or matrices");
             assert(lhs.shape(1) == rhs.shape(0) && "Error in matmul: Dimension 1 of lhs does not match dimension 0 of rhs");
 
@@ -54,7 +55,7 @@ namespace gt
 
         inline Tensor<double> matmul(const Tensor<double>& lhs, const Tensor<double>& rhs)
         {
-            assert(lhs.shape().size() <= 2 && rhs.shape().size() <= 2 && 
+            assert(ndims(lhs) <= 2 && ndims(rhs) <= 2 && 
                 "Error in matmul: Matrix multiplication is only defined on vectors or matrices");
             assert(lhs.shape(1) == rhs.shape(0) && "Error in matmul: Dimension 1 of lhs does not match dimension 0 of rhs");
 
@@ -79,7 +80,7 @@ namespace gt
 
         inline Tensor<std::complex<float>> matmul(const Tensor<std::complex<float>>& lhs, const Tensor<std::complex<float>>& rhs)
         {
-            assert(lhs.shape().size() <= 2 && rhs.shape().size() <= 2 && 
+            assert(ndims(lhs) <= 2 && ndims(rhs) <= 2 && 
                 "Error in matmul: Matrix multiplication is only defined on vectors or matrices");
             assert(lhs.shape(1) == rhs.shape(0) && "Error in matmul: Dimension 1 of lhs does not match dimension 0 of rhs");
 
@@ -104,7 +105,7 @@ namespace gt
 
         inline Tensor<std::complex<double>> matmul(const Tensor<std::complex<double>>& lhs, const Tensor<std::complex<double>>& rhs)
         {
-            assert(lhs.shape().size() <= 2 && rhs.shape().size() <= 2 && 
+            assert(ndims(lhs) <= 2 && ndims(rhs) <= 2 && 
                 "Error in matmul: Matrix multiplication is only defined on vectors or matrices");
             assert(lhs.shape(1) == rhs.shape(0) && "Error in matmul: Dimension 1 of lhs does not match dimension 0 of rhs");
 

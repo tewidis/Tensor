@@ -130,9 +130,9 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> interp1(const Tensor<T>& x, const Tensor<T>& y, const Tensor<T>& xi)
     {
-        assert(x.shape().size() == 1 && "Error in interp1: x is not one-dimensional");
-        assert(y.shape().size() == 1 && "Error in interp1: y is not one-dimensional");
-        assert(xi.shape().size() == 1 && "Error in interp1: xi is not one-dimensional");
+        assert(ndims(x) == 1 && "Error in interp1: x is not one-dimensional");
+        assert(ndims(y) == 1 && "Error in interp1: y is not one-dimensional");
+        assert(ndims(xi) == 1 && "Error in interp1: xi is not one-dimensional");
         assert(x.size() == y.size() && "Error in interp1: x and y are different sizes");
         assert(is_sorted(x) && "Error in interp1: x is not sorted");
 
@@ -157,11 +157,11 @@ namespace gt
     inline constexpr Tensor<T> interp2(const Tensor<T>& x, const Tensor<T>& y,
         const Tensor<T>& xy, const Tensor<T>& xi, const Tensor<T>& yi)
     {
-        assert(x.shape().size() == 1 && "Error in interp2: x is not one-dimensional");
-        assert(y.shape().size() == 1 && "Error in interp2: y is not one-dimensional");
-        assert(xy.shape().size() == 2 && "Error in interp2: xy is not two-dimensional");
-        assert(xi.shape().size() == 1 && "Error in interp2: xi is not one-dimensional");
-        assert(yi.shape().size() == 1 && "Error in interp2: yi is not one-dimensional");
+        assert(ndims(x) == 1 && "Error in interp2: x is not one-dimensional");
+        assert(ndims(y) == 1 && "Error in interp2: y is not one-dimensional");
+        assert(ndims(xy) == 2 && "Error in interp2: xy is not two-dimensional");
+        assert(ndims(xi) == 1 && "Error in interp2: xi is not one-dimensional");
+        assert(ndims(yi) == 1 && "Error in interp2: yi is not one-dimensional");
         assert(x.shape(0) == xy.shape(0) && "Error in interp2: size of x doesn't match zeroth dimension of xy");
         assert(y.shape(0) == xy.shape(1) && "Error in interp2: size of y doesn't match first dimension of xy");
         assert(is_sorted(x) && "Error in interp2: x is not sorted");
@@ -201,13 +201,13 @@ namespace gt
         const Tensor<T>& z, const Tensor<T>& xyz, const Tensor<T>& xi,
         const Tensor<T>& yi, const Tensor<T>& zi)
     {
-        assert(x.shape().size() == 1 && "Error in interp3: x is not one-dimensional");
-        assert(y.shape().size() == 1 && "Error in interp3: y is not one-dimensional");
-        assert(z.shape().size() == 1 && "Error in interp3: z is not one-dimensional");
-        assert(xyz.shape().size() == 3 && "Error in interp3: xyz is not three-dimensional");
-        assert(xi.shape().size() == 1 && "Error in interp3: xi is not one-dimensional");
-        assert(yi.shape().size() == 1 && "Error in interp3: yi is not one-dimensional");
-        assert(zi.shape().size() == 1 && "Error in interp3: zi is not one-dimensional");
+        assert(ndims(x) == 1 && "Error in interp3: x is not one-dimensional");
+        assert(ndims(y) == 1 && "Error in interp3: y is not one-dimensional");
+        assert(ndims(z) == 1 && "Error in interp3: z is not one-dimensional");
+        assert(ndims(xyz) == 3 && "Error in interp3: xyz is not three-dimensional");
+        assert(ndims(xi) == 1 && "Error in interp3: xi is not one-dimensional");
+        assert(ndims(yi) == 1 && "Error in interp3: yi is not one-dimensional");
+        assert(ndims(zi) == 1 && "Error in interp3: zi is not one-dimensional");
         assert(x.shape(0) == xyz.shape(0) && "Error in interp3: size of x doesn't match zeroth dimension of xyz");
         assert(y.shape(1) == xyz.shape(1) && "Error in interp3: size of y doesn't match first dimension of xyz");
         assert(y.shape(2) == xyz.shape(2) && "Error in interp3: size of y doesn't match second dimension of xyz");

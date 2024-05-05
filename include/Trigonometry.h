@@ -68,7 +68,7 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> cart2sph(const Tensor<T>& input)
     {
-        assert(input.shape().size() == 2 && input.shape(1) == 3);
+        assert(ndims(input) == 2 && input.shape(1) == 3);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < input.shape(0); i++) {
@@ -90,7 +90,7 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> sph2cart(const Tensor<T>& input)
     {
-        assert(input.shape().size() == 2 && input.shape(1) == 3);
+        assert(ndims(input) == 2 && input.shape(1) == 3);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < input.shape(0); i++) {
@@ -112,7 +112,7 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> cart2pol(const Tensor<T>& input)
     {
-        assert(input.shape().size() == 2 && input.shape(1) == 3);
+        assert(ndims(input) == 2 && input.shape(1) == 3);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < input.shape(0); i++) {
@@ -133,7 +133,7 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> pol2cart(const Tensor<T>& input)
     {
-        assert(input.shape().size() == 2 && input.shape(1) == 3);
+        assert(ndims(input) == 2 && input.shape(1) == 3);
 
         Tensor<T> output(input.shape());
         for (size_t i = 0; i < input.shape(0); i++) {

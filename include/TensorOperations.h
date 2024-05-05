@@ -71,10 +71,7 @@ namespace gt
     inline constexpr Tensor<T> reshape(const Tensor<T>& input, const std::vector<size_t>& shape)
     {
         Tensor<T> output(shape);
-        for (size_t i = 0; i < input.size(); i++) {
-            output[i] = input[i];
-        }
-        //std::copy(input.begin(), input.end(), output.begin());
+        std::copy(input.begin(), input.end(), output.begin());
         return output;
     }
 
@@ -100,9 +97,8 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> repmat(const Tensor<T>& input, const std::vector<size_t>& reps)
     {
-        size_t ndims = std::max(reps.size(), input.shape().size());
         std::vector<size_t> shape(reps.size());
-        for (size_t i = 0; i < ndims; i++) {
+        for (size_t i = 0; i < std::max(reps.size(), ndims(input)); i++) {
             if (i < reps.size()) {
                 shape[i] = input.shape(i) * reps[i];
             } else {
@@ -136,7 +132,7 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> permute(const Tensor<T>& input, const std::vector<size_t>& order)
     {
-        assert((input.shape().size() == order.size()) &&
+        assert((ndims(input) == order.size()) &&
             "Error in permute: Size of order does not dimensionality of Tensor");
 
         std::vector<size_t> permuted_shape(order.size());
@@ -158,7 +154,7 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> ipermute(const Tensor<T>& input, const std::vector<size_t>& order)
     {
-        assert((input.shape().size() == order.size()) &&
+        assert((ndims(input) == order.size()) &&
             "Error in ipermute: Size of order does not dimensionality of Tensor");
 
         std::vector<size_t> new_order(order.size());
@@ -196,11 +192,11 @@ namespace gt
     inline constexpr Tensor<T> circshift(const Tensor<T>& input,
         const std::vector<int64_t>& nshift)
     {
-        assert(input.shape().size() == nshift.size() &&
+        assert(ndims(input) == nshift.size() &&
             "Error in circshift: Mismatch in number of dimensions");
 
         Tensor<T> output = input;
-        for (size_t dim = 0; dim < input.shape().size(); dim++) {
+        for (size_t dim = 0; dim < ndims(input); dim++) {
             output = circshift(output, nshift[dim], dim);
         }
 
@@ -230,8 +226,8 @@ namespace gt
     template<typename T>
     inline constexpr Tensor<T> cat(size_t dim, const Tensor<T>& lhs, const Tensor<T>& rhs)
     {
-        std::vector<size_t> shape(std::max(lhs.shape().size(), rhs.shape().size()));
-        for (size_t i = 0; i < lhs.shape().size(); i++) {
+        std::vector<size_t> shape(std::max(ndims(lhs), ndims(rhs)));
+        for (size_t i = 0; i < ndims(lhs); i++) {
             if (i != dim) {
                 assert(lhs.shape(i) == rhs.shape(i) && "Error in cat: Non-singleton dimensions must agree");
                 shape[i] = lhs.shape(i);
@@ -310,58 +306,58 @@ namespace gt
     }
 
     template<typename T>
-    constexpr inline Tensor<T> broadcast(const Tensor<T>& t1, const Tensor<T>& t2, OPERATION op)
+    constexpr inline Tensor<T> broadcast(const Tensor<T>& lhs, const Tensor<T>& rhs, OPERATION op)
     {
-        std::vector<size_t> shape(std::max(t1.shape().size(), t2.shape().size()));
+        std::vector<size_t> shape(std::max(ndims(lhs), ndims(rhs)));
         for (size_t i = 0; i < shape.size(); i++) {
-            shape[i] = std::max(t1.shape(i), t2.shape(i));
+            shape[i] = std::max(lhs.shape(i), rhs.shape(i));
         }
 
         Tensor<T> output(shape);
         for (size_t i = 0; i < output.size(); i++) {
             size_t lidx = 0;
             size_t ridx = 0;
-            for (size_t j = 0; j < output.shape().size(); j++) {
-                lidx += t1.stride(j) * ((i / output.stride(j)) % t1.shape(j));
-                ridx += t2.stride(j) * ((i / output.stride(j)) % t2.shape(j));
+            for (size_t j = 0; j < ndims(output); j++) {
+                lidx += lhs.stride(j) * ((i / output.stride(j)) % lhs.shape(j));
+                ridx += rhs.stride(j) * ((i / output.stride(j)) % rhs.shape(j));
             }
 
             switch (op) {
                 case PLUS:
-                    output[i] = t1[lidx] + t2[ridx];
+                    output[i] = lhs[lidx] + rhs[ridx];
                     break;
                 case MINUS:
-                    output[i] = t1[lidx] - t2[ridx];
+                    output[i] = lhs[lidx] - rhs[ridx];
                     break;
                 case TIMES:
-                    output[i] = t1[lidx] * t2[ridx];
+                    output[i] = lhs[lidx] * rhs[ridx];
                     break;
                 case DIVIDE:
-                    output[i] = t1[lidx] / t2[ridx];
+                    output[i] = lhs[lidx] / rhs[ridx];
                     break;
                 case POWER:
-                    output[i] = std::pow(t1[lidx], t2[ridx]);
+                    output[i] = std::pow(lhs[lidx], rhs[ridx]);
                     break;
                 case MAX:
-                    output[i] = gt::max(t1[lidx], t2[ridx]);
+                    output[i] = gt::max(lhs[lidx], rhs[ridx]);
                     break;
                 case MIN:
-                    output[i] = gt::min(t1[lidx], t2[ridx]);
+                    output[i] = gt::min(lhs[lidx], rhs[ridx]);
                     break;
                 case MOD:
-                    output[i] = gt::mod(t1[lidx], t2[ridx]);
+                    output[i] = gt::mod(lhs[lidx], rhs[ridx]);
                     break;
                 case REM:
-                    output[i] = gt::rem(t1[lidx], t2[ridx]);
+                    output[i] = gt::rem(lhs[lidx], rhs[ridx]);
                     break;
                 case ATAN2:
-                    output[i] = std::atan2(t1[lidx], t2[ridx]);
+                    output[i] = std::atan2(lhs[lidx], rhs[ridx]);
                     break;
                 case ATAN2D:
-                    output[i] = gt::atan2d(t1[lidx], t2[ridx]);
+                    output[i] = gt::atan2d(lhs[lidx], rhs[ridx]);
                     break;
                 case HYPOT:
-                    output[i] = std::hypot(t1[lidx], t2[ridx]);
+                    output[i] = std::hypot(lhs[lidx], rhs[ridx]);
                     break;
             }
         }
@@ -382,7 +378,7 @@ namespace gt
 
     template<typename T>
     constexpr inline std::vector<size_t> ind2sub(const Tensor<T>& input, size_t index) {
-        std::vector<size_t> subs(input.shape().size());
+        std::vector<size_t> subs(ndims(input));
         for (size_t i = 0; i < subs.size(); i++) {
             subs[i] = input.stride(i) * ((index / input.stride(i)) % input.shape(i));
         }
