@@ -978,6 +978,40 @@ void fftshift_test()
     assert(gt::all(gt::sp::fftshift(input) == correct3));
 }
 
+void ifftshift_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {1, 0, 3, 2, 5, 4,
+                7, 6, 9, 8, 11, 10,
+                13, 12, 15, 14, 17, 16,
+                19, 18, 21, 20, 23, 22};
+    assert(gt::all(gt::sp::ifftshift(input, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {2, 3, 4, 5, 0, 1,
+                8, 9, 10, 11, 6, 7,
+                14, 15, 16, 17, 12, 13,
+                20, 21, 22, 23, 18, 19};
+    assert(gt::all(gt::sp::ifftshift(input, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {12, 13, 14, 15, 16, 17,
+                18, 19, 20, 21, 22, 23,
+                0, 1, 2, 3, 4, 5,
+                6, 7, 8, 9, 10, 11};
+    assert(gt::all(gt::sp::ifftshift(input, 2) == correct2));
+
+    gt::Tensor<float> correct3({2, 3, 4});
+    correct3 = {15, 14, 17, 16, 13, 12,
+                21, 20, 23, 22, 19, 18,
+                3, 2, 5, 4, 1, 0,
+                9, 8, 11, 10, 7, 6};
+    assert(gt::all(gt::sp::ifftshift(input) == correct3));
+}
+
 void broadcast_test()
 {
     gt::Tensor<float> t1({1, 4});
@@ -1242,6 +1276,7 @@ int main()
     fft_test();
     ifft_test();
     fftshift_test();
+    ifftshift_test();
     broadcast_test();
     bartlett_test();
     barthann_test();
