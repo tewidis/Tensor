@@ -19,6 +19,7 @@
 
 #include "Interpolation.h"
 #include "LinearAlgebra.h"
+#include "Random.h"
 #include "Statistics.h"
 #include "Tensor.h"
 #include "TensorOperations.h"
@@ -1226,6 +1227,15 @@ void tukey_test()
     assert(!gt::any(gt::abs(gt::sp::tukey(9) - correct_odd) > 1e-4f));
 }
 
+void random_test()
+{
+    gt::Tensor<float> rand = gt::rand::rand<float>({2, 3, 4});
+    gt::Tensor<int32_t> randi = gt::rand::randi<int32_t>({-10, 10}, {2, 3, 4});
+    gt::Tensor<float> randn = gt::rand::randn<float>({2, 3, 4});
+    gt::Tensor<bool> bern = gt::rand::bernoulli<float>(0.5, {2, 3, 4});
+    gt::Tensor<int32_t> binomial = gt::rand::binomial(4, 0.5, {2, 3, 4});
+}
+
 int main()
 {
     access_test();
@@ -1296,4 +1306,5 @@ int main()
     taylor_test();
     triang_test();
     tukey_test();
+    random_test();
 }
