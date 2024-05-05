@@ -1229,11 +1229,25 @@ void tukey_test()
 
 void random_test()
 {
+    /* uniform distributions */
     gt::Tensor<float> rand = gt::rand::rand<float>({2, 3, 4});
     gt::Tensor<int32_t> randi = gt::rand::randi<int32_t>({-10, 10}, {2, 3, 4});
-    gt::Tensor<float> randn = gt::rand::randn<float>({2, 3, 4});
-    gt::Tensor<bool> bern = gt::rand::bernoulli<float>(0.5, {2, 3, 4});
+
+    /* bernoulli distributions */
+    gt::Tensor<bool> bern = gt::rand::bernoulli(0.5f, {2, 3, 4});
     gt::Tensor<int32_t> binomial = gt::rand::binomial(4, 0.5, {2, 3, 4});
+    gt::Tensor<int32_t> neg_binomial = gt::rand::negative_binomial(4, 0.5, {2, 3, 4});
+    gt::Tensor<float> geometric = gt::rand::geometric(0.5f, {2, 3, 4});
+
+    /* poisson distributions */
+    gt::Tensor<int32_t> poisson = gt::rand::poisson(1, {2, 3, 4});
+    gt::Tensor<float> exponential = gt::rand::exponential(1.0f, {2, 3, 4});
+    gt::Tensor<float> gamma = gt::rand::gamma(1.0f, 2.0f, {2, 3, 4});
+    gt::Tensor<float> weibull = gt::rand::weibull(1.0f, 2.0f, {2, 3, 4});
+    gt::Tensor<float> extreme_value = gt::rand::extreme_value(-1.618f, 1.618f, {2, 3, 4});
+
+    /* normal distributions */
+    gt::Tensor<float> randn = gt::rand::randn<float>({2, 3, 4});
 }
 
 int main()

@@ -173,10 +173,14 @@ tensor = gt::min(tensor, 1);
     * Matrix Properties
         - norm, vecnorm, cond, det, null, orth, rank, rref, trace, subspace
 7. Random
-    * Distributions
-        - uniform, bernoulli, binomial, geometric, negative binomial, poisson,
-        exponential, gamma, weibull, extreme value, normal, lognormal, chi
-        squared, cauchy, fisher-f, student-t
+    * Uniform Distributions
+        - rand (uniform real), randi (uniform int)
+    * Bernoulli Distributions
+        - bernoulli, binomial, negative_binomial, geometric
+    * Poisson Distributions
+        - poisson, exponential, gamma, weibull, extreme_value
+    * Normal Distributions
+        - randn, lognormal, chi_squared, cauchy, fisher_f, student_t
 8. Signal Processing
     * Convolution
         - conv1, conv2, conv3
