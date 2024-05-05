@@ -43,19 +43,23 @@ namespace gt {
             iterator(pointer ptr) : m_ptr(ptr) {}
             reference operator * () { return *m_ptr; }
             pointer operator -> () { return m_ptr; }
-            iterator& operator ++ () { m_ptr++; return *this; }
+            reference operator [] (const difference_type& value) const { return m_ptr[value]; }
+            iterator& operator ++ () { ++m_ptr; return *this; }
             iterator operator ++ (int) { iterator tmp = *this; ++(*this); return tmp; }
-            iterator& operator -- () { m_ptr--; return *this; }
+            iterator& operator -- () { --m_ptr; return *this; }
             iterator operator -- (int) { iterator tmp = *this; --(*this); return tmp; }
-            iterator operator + (const difference_type& value) { m_ptr += value; return *this; }
-            iterator operator - (const difference_type& value) { m_ptr -= value; return *this; }
+            iterator operator + (difference_type value) const { return iterator(m_ptr + value); }
+            iterator operator - (difference_type value) const { return iterator(m_ptr - value); }
+            iterator operator + (const iterator& other) const { return iterator(m_ptr + other); }
+            difference_type operator - (const iterator& other) const { return m_ptr - other.m_ptr; }
+            iterator& operator += (difference_type value) const { m_ptr += value; return *this; }
+            iterator& operator -= (difference_type value) const { m_ptr -= value; return *this; }
             friend bool operator == (const iterator& a, const iterator& b) { return a.m_ptr == b.m_ptr; }
             friend bool operator != (const iterator& a, const iterator& b) { return a.m_ptr != b.m_ptr; }
             friend bool operator > (const iterator& a, const iterator& b) { return a.m_ptr > b.m_ptr; }
             friend bool operator < (const iterator& a, const iterator& b) { return a.m_ptr < b.m_ptr; }
             friend bool operator >= (const iterator& a, const iterator& b) { return a.m_ptr >= b.m_ptr; }
             friend bool operator <= (const iterator& a, const iterator& b) { return a.m_ptr <= b.m_ptr; }
-            friend bool operator - (const iterator& a, const iterator& b) { return a.m_ptr - b.m_ptr; }
 
             private:
             pointer m_ptr;
@@ -72,19 +76,23 @@ namespace gt {
             const_iterator(pointer ptr) : m_ptr(ptr) {}
             reference operator * () const { return *m_ptr; }
             pointer operator -> () const { return m_ptr; }
-            const_iterator& operator ++ () { m_ptr++; return *this; }
+            reference operator [] (const difference_type& value) const { return m_ptr[value]; }
+            const_iterator& operator ++ () { ++m_ptr; return *this; }
             const_iterator operator ++ (int) { const_iterator tmp = *this; ++(*this); return tmp; }
-            const_iterator& operator -- () { m_ptr--; return *this; }
+            const_iterator& operator -- () { --m_ptr; return *this; }
             const_iterator operator -- (int) { const_iterator tmp = *this; --(*this); return tmp; }
-            const_iterator operator + (const difference_type& value) { m_ptr += value; return *this; }
-            const_iterator operator - (const difference_type& value) { m_ptr -= value; return *this; }
+            const_iterator operator + (difference_type value) const { return const_iterator(m_ptr + value); }
+            const_iterator operator - (difference_type value) const { return const_iterator(m_ptr - value); }
+            const_iterator operator + (const const_iterator& other) const { return const_iterator(m_ptr + other); }
+            difference_type operator - (const const_iterator& other) const { return m_ptr - other.m_ptr; }
+            const_iterator& operator += (difference_type value) const { m_ptr += value; return *this; }
+            const_iterator& operator -= (difference_type value) const { m_ptr -= value; return *this; }
             friend bool operator == (const const_iterator& a, const const_iterator& b) { return a.m_ptr == b.m_ptr; }
             friend bool operator != (const const_iterator& a, const const_iterator& b) { return a.m_ptr != b.m_ptr; }
             friend bool operator > (const const_iterator& a, const const_iterator& b) { return a.m_ptr > b.m_ptr; }
             friend bool operator < (const const_iterator& a, const const_iterator& b) { return a.m_ptr < b.m_ptr; }
             friend bool operator >= (const const_iterator& a, const const_iterator& b) { return a.m_ptr >= b.m_ptr; }
             friend bool operator <= (const const_iterator& a, const const_iterator& b) { return a.m_ptr <= b.m_ptr; }
-            friend bool operator - (const const_iterator& a, const const_iterator& b) { return a.m_ptr - b.m_ptr; }
 
             private:
             pointer m_ptr;
@@ -113,10 +121,7 @@ namespace gt {
                 this->m_shape = other.shape();
                 this->m_size = other.size();
                 this->m_stride = other.stride();
-                for (size_t i = 0; i < other.size(); i++) {
-                    this->m_data[i] = other[i];
-                }
-                //std::copy(other.begin(), other.end(), this->begin());
+                std::copy(other.begin(), other.end(), this->begin());
             }
             return *this;
         }
@@ -149,10 +154,7 @@ namespace gt {
             : Dimensional(other.shape())
             , m_data(new T[this->m_size])
         {
-            //std::copy(other.begin(), other.end(), this->begin());
-            for (size_t i = 0; i < other.size(); i++) {
-                this->m_data[i] = other[i];
-            }
+            std::copy(other.begin(), other.end(), this->begin());
         }
 
         /* Move constructor */
@@ -269,7 +271,7 @@ namespace gt {
     template<typename T1, typename T2>
     bool compare_shape(const Tensor<T1>& lhs, const Tensor<T2>& rhs)
     {
-        for (size_t i = 0; i < std::max(lhs.shape().size(), rhs.shape().size()); i++) {
+        for (size_t i = 0; i < std::max(ndims(lhs), ndims(rhs)); i++) {
             if (lhs.shape(i) != rhs.shape(i)) {
                 return false;
             }
