@@ -133,6 +133,23 @@ namespace gt
         }
 
         template<typename T>
+        inline constexpr Tensor<T> fftshift(const Tensor<T>& input, size_t dim)
+        {
+            return gt::circshift(input, input.shape(dim) / 2, dim);
+        }
+
+        template<typename T>
+        inline constexpr Tensor<T> fftshift(const Tensor<T>& input)
+        {
+            std::vector<int64_t> nshift(ndims(input));
+            for (size_t i = 0; i < nshift.size(); i++) {
+                nshift[i] = input.shape(i) / 2;
+            }
+
+            return gt::circshift(input, nshift);
+        }
+
+        template<typename T>
         inline constexpr auto convolution_parameters(const Tensor<T>& t1,
             const Tensor<T>& t2, CONVOLUTION type)
         {

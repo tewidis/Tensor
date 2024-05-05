@@ -26,7 +26,6 @@
 
 namespace gt
 {
-    //TODO: Refactor this to take a Tensor instead of shape and stride
     inline size_t calculate_offset(const std::vector<size_t>& input_stride,
         const std::vector<size_t>& shape, size_t dim, size_t index)
     {

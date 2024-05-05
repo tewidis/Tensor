@@ -113,7 +113,10 @@ namespace gt {
                 this->m_shape = other.shape();
                 this->m_size = other.size();
                 this->m_stride = other.stride();
-                std::copy(other.begin(), other.end(), this->begin());
+                for (size_t i = 0; i < other.size(); i++) {
+                    this->m_data[i] = other[i];
+                }
+                //std::copy(other.begin(), other.end(), this->begin());
             }
             return *this;
         }
@@ -146,7 +149,10 @@ namespace gt {
             : Dimensional(other.shape())
             , m_data(new T[this->m_size])
         {
-            std::copy(other.begin(), other.end(), this->begin());
+            //std::copy(other.begin(), other.end(), this->begin());
+            for (size_t i = 0; i < other.size(); i++) {
+                this->m_data[i] = other[i];
+            }
         }
 
         /* Move constructor */

@@ -62,6 +62,12 @@ namespace gt
     }
 
     template<typename T>
+    inline constexpr size_t ndims(const Tensor<T>& input)
+    {
+        return input.shape().size();
+    }
+
+    template<typename T>
     inline constexpr Tensor<T> reshape(const Tensor<T>& input, const std::vector<size_t>& shape)
     {
         Tensor<T> output(shape);
@@ -181,6 +187,21 @@ namespace gt
                 output[offset + j * output.stride(dim)] =
                     input[offset + (j + nshift) * output.stride(dim) % modulo];
             }
+        }
+
+        return output;
+    }
+
+    template<typename T>
+    inline constexpr Tensor<T> circshift(const Tensor<T>& input,
+        const std::vector<int64_t>& nshift)
+    {
+        assert(input.shape().size() == nshift.size() &&
+            "Error in circshift: Mismatch in number of dimensions");
+
+        Tensor<T> output = input;
+        for (size_t dim = 0; dim < input.shape().size(); dim++) {
+            output = circshift(output, nshift[dim], dim);
         }
 
         return output;
