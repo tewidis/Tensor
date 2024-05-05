@@ -1247,7 +1247,12 @@ void random_test()
     gt::Tensor<float> extreme_value = gt::rand::extreme_value(-1.618f, 1.618f, {2, 3, 4});
 
     /* normal distributions */
-    gt::Tensor<float> randn = gt::rand::randn<float>({2, 3, 4});
+    gt::Tensor<float> randn = gt::rand::randn(1.6f, 0.25f, {2, 3, 4});
+    gt::Tensor<float> logn = gt::rand::lognormal(1.6f, 0.25f, {2, 3, 4});
+    gt::Tensor<float> chi_squared = gt::rand::chi_squared(2.0f, {2, 3, 4});
+    gt::Tensor<float> cauchy = gt::rand::cauchy(-2.0f, 0.5f, {2, 3, 4});
+    gt::Tensor<float> fisher_f = gt::rand::fisher_f(1.0f, 5.0f, {2, 3, 4});
+    gt::Tensor<float> student_t = gt::rand::student_t(10.0f, {2, 3, 4});
 }
 
 int main()

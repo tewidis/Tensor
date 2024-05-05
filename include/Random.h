@@ -201,12 +201,77 @@ namespace gt
 
         /* normal distributions */
         template<typename T> requires std::is_floating_point_v<T>
-        inline constexpr Tensor<T> randn(const std::vector<size_t>& shape)
+        inline constexpr Tensor<T> randn(T mean, T stddev, const std::vector<size_t>& shape)
         {
             Tensor<T> output(shape);
 
             std::mt19937 engine;
-            std::normal_distribution distribution(0.0, 1.0);
+            std::normal_distribution distribution(mean, stddev);
+            std::for_each(output.begin(), output.end(),
+                [&] (T& value) { value = distribution(engine); });
+
+            return output;
+        }
+
+        template<typename T> requires std::is_floating_point_v<T>
+        inline constexpr Tensor<T> lognormal(T mean, T stddev, const std::vector<size_t>& shape)
+        {
+            Tensor<T> output(shape);
+
+            std::mt19937 engine;
+            std::lognormal_distribution distribution(mean, stddev);
+            std::for_each(output.begin(), output.end(),
+                [&] (T& value) { value = distribution(engine); });
+
+            return output;
+        }
+
+        template<typename T> requires std::is_floating_point_v<T>
+        inline constexpr Tensor<T> chi_squared(T dof, const std::vector<size_t>& shape)
+        {
+            Tensor<T> output(shape);
+
+            std::mt19937 engine;
+            std::chi_squared_distribution distribution(dof);
+            std::for_each(output.begin(), output.end(),
+                [&] (T& value) { value = distribution(engine); });
+
+            return output;
+        }
+
+        template<typename T> requires std::is_floating_point_v<T>
+        inline constexpr Tensor<T> cauchy(T a, T b, const std::vector<size_t>& shape)
+        {
+            Tensor<T> output(shape);
+
+            std::mt19937 engine;
+            std::cauchy_distribution distribution(a, b);
+            std::for_each(output.begin(), output.end(),
+                [&] (T& value) { value = distribution(engine); });
+
+            return output;
+        }
+
+        template<typename T> requires std::is_floating_point_v<T>
+        inline constexpr Tensor<T> fisher_f(T dof1, T dof2, const std::vector<size_t>& shape)
+        {
+            Tensor<T> output(shape);
+
+            std::mt19937 engine;
+            std::fisher_f_distribution distribution(dof1, dof2);
+            std::for_each(output.begin(), output.end(),
+                [&] (T& value) { value = distribution(engine); });
+
+            return output;
+        }
+
+        template<typename T> requires std::is_floating_point_v<T>
+        inline constexpr Tensor<T> student_t(T dof, const std::vector<size_t>& shape)
+        {
+            Tensor<T> output(shape);
+
+            std::mt19937 engine;
+            std::student_t_distribution distribution(dof);
             std::for_each(output.begin(), output.end(),
                 [&] (T& value) { value = distribution(engine); });
 
