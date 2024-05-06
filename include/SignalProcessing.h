@@ -295,7 +295,7 @@ inline constexpr Tensor<T> conv3(const Tensor<T>& lhs, const Tensor<T>& rhs, CON
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> gencoswin(size_t N)
+inline constexpr Tensor<T> gencoswin(size_t N)
 {
     T half = std::ceil(N / 2.0f);
     Tensor<T> output = gt::cat(0,
@@ -306,7 +306,7 @@ constexpr inline Tensor<T> gencoswin(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> bartlett(size_t N)
+inline constexpr Tensor<T> bartlett(size_t N)
 {
     Tensor<T> output = 2.0f * gencoswin<T>(N);
 
@@ -314,7 +314,7 @@ constexpr inline Tensor<T> bartlett(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> barthann(size_t N)
+inline constexpr Tensor<T> barthann(size_t N)
 {
     Tensor<T> output = gt::linspace(0.0f, 1.0f, N) - 0.5f;
     output = 0.62 - 0.48 * gt::abs(output) + 0.38 * gt::cos(2 * PI * output);
@@ -323,7 +323,7 @@ constexpr inline Tensor<T> barthann(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> blackman(size_t N)
+inline constexpr Tensor<T> blackman(size_t N)
 {
     Tensor<T> output = gencoswin<T>(N);
     output = 0.42 - 0.5 * gt::cos(2 * PI * output) + 0.08 * gt::cos(4 * PI * output);
@@ -332,7 +332,7 @@ constexpr inline Tensor<T> blackman(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> blackmanharris(size_t N)
+inline constexpr Tensor<T> blackmanharris(size_t N)
 {
     assert(N >= 4 && "Error in blackmanharris: N must be greater than or equal to 4");
 
@@ -348,7 +348,7 @@ constexpr inline Tensor<T> blackmanharris(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> bohman(size_t N)
+inline constexpr Tensor<T> bohman(size_t N)
 {
     Tensor<T> output = gt::abs(gt::linspace(-1.0f, 1.0f, N));
     output = (1.0f - output) * gt::cos(PI * output) + (1 / PI) * gt::sin(PI * output);
@@ -359,7 +359,7 @@ constexpr inline Tensor<T> bohman(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> cheb(size_t N, const Tensor<T>& input)
+inline constexpr Tensor<T> cheb(size_t N, const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -376,7 +376,7 @@ constexpr inline Tensor<T> cheb(size_t N, const Tensor<T>& input)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> chebyshev(size_t N, T r = 100.0f)
+inline constexpr Tensor<T> chebyshev(size_t N, T r = 100.0f)
 {
     Tensor<T> output({N});
 
@@ -429,7 +429,7 @@ constexpr inline Tensor<T> chebyshev(size_t N, T r = 100.0f)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> flattop(size_t N)
+inline constexpr Tensor<T> flattop(size_t N)
 {
     const T a0 = 0.21557895;
     const T a1 = 0.41663158;
@@ -447,7 +447,7 @@ constexpr inline Tensor<T> flattop(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> gaussian(size_t N, T alpha = 2.5f)
+inline constexpr Tensor<T> gaussian(size_t N, T alpha = 2.5f)
 {
     T L = N - 1.0f;
     Tensor<T> output = gt::linspace(0.0f, L, N) - (L / 2.0f);
@@ -457,7 +457,7 @@ constexpr inline Tensor<T> gaussian(size_t N, T alpha = 2.5f)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> hamming(size_t N)
+inline constexpr Tensor<T> hamming(size_t N)
 {
     Tensor<T> output = 0.54f - 0.46f * gt::cos(2 * PI * gencoswin<T>(N));
 
@@ -465,7 +465,7 @@ constexpr inline Tensor<T> hamming(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> hann(size_t N)
+inline constexpr Tensor<T> hann(size_t N)
 {
     Tensor<T> output = 0.5f - 0.5f * gt::cos(2 * PI * gencoswin<T>(N));
 
@@ -473,7 +473,7 @@ constexpr inline Tensor<T> hann(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> hanning(size_t N)
+inline constexpr Tensor<T> hanning(size_t N)
 {
     T half = std::ceil(N / 2.0f);
     Tensor<T> output = gt::cat(0,
@@ -485,7 +485,7 @@ constexpr inline Tensor<T> hanning(size_t N)
 }
 
 template<typename T> requires std::is_arithmetic_v<T>
-constexpr inline Tensor<T> besseli(T nu, const Tensor<T>& beta)
+inline constexpr Tensor<T> besseli(T nu, const Tensor<T>& beta)
 {
     Tensor<T> output(beta.shape());
     std::transform(beta.begin(), beta.end(), output.begin(),
@@ -494,7 +494,7 @@ constexpr inline Tensor<T> besseli(T nu, const Tensor<T>& beta)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> kaiser(size_t N, T beta = 0.5f)
+inline constexpr Tensor<T> kaiser(size_t N, T beta = 0.5f)
 {
     T bes = std::abs(std::cyl_bessel_i(0.0f, beta));
     T odd = gt::rem(N, 2);
@@ -521,7 +521,7 @@ constexpr inline Tensor<T> kaiser(size_t N, T beta = 0.5f)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> nuttall(size_t N)
+inline constexpr Tensor<T> nuttall(size_t N)
 {
     assert(N >= 4 && "Error in nuttall: N must be greater than or equal to 4");
 
@@ -537,7 +537,7 @@ constexpr inline Tensor<T> nuttall(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> parzen(int64_t N)
+inline constexpr Tensor<T> parzen(int64_t N)
 {
     Tensor<T> k = gt::linspace(-(N - 1) / 2.0f, (N - 1) / 2.0f, N);
     Tensor<T> k1 = k(k < -(N - 1) / 4.0f);
@@ -551,13 +551,13 @@ constexpr inline Tensor<T> parzen(int64_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> rect(size_t N)
+inline constexpr Tensor<T> rect(size_t N)
 {
     return gt::ones<T>({N});
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> taylor(size_t N, size_t nbar = 4, T sll = -30.0f)
+inline constexpr Tensor<T> taylor(size_t N, size_t nbar = 4, T sll = -30.0f)
 {
     assert(sll < 0 && "Error in taylor: sll must be less than 0");
 
@@ -584,7 +584,7 @@ constexpr inline Tensor<T> taylor(size_t N, size_t nbar = 4, T sll = -30.0f)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> triang(size_t N)
+inline constexpr Tensor<T> triang(size_t N)
 {
     T half = std::ceil(N / 2.0f);
     Tensor<T> output({N});
@@ -602,7 +602,7 @@ constexpr inline Tensor<T> triang(size_t N)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> tukey(size_t N, T ratio = 0.5f)
+inline constexpr Tensor<T> tukey(size_t N, T ratio = 0.5f)
 {
     Tensor<T> output({N});
     if (ratio <= 0) {

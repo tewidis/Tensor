@@ -26,13 +26,13 @@ constexpr float PI = std::acos(-1.0f);
 
 /* Conversions */
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline T deg2rad(T input)
+inline constexpr T deg2rad(T input)
 {
     return input * PI / 180.0f;
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> deg2rad(const Tensor<T>& input)
+inline constexpr Tensor<T> deg2rad(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -43,13 +43,13 @@ constexpr inline Tensor<T> deg2rad(const Tensor<T>& input)
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline T rad2deg(T input)
+inline constexpr T rad2deg(T input)
 {
     return input / PI * 180.0f;
 }
 
 template<typename T> requires std::is_floating_point_v<T>
-constexpr inline Tensor<T> rad2deg(const Tensor<T>& input)
+inline constexpr Tensor<T> rad2deg(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -148,7 +148,7 @@ inline constexpr Tensor<T> pol2cart(const Tensor<T>& input)
 
 /* Sine */
 template<typename T>
-constexpr inline Tensor<T> sin(const Tensor<T>& input)
+inline constexpr Tensor<T> sin(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -159,7 +159,7 @@ constexpr inline Tensor<T> sin(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> sind(const Tensor<T>& input)
+inline constexpr Tensor<T> sind(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -170,7 +170,7 @@ constexpr inline Tensor<T> sind(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> asin(const Tensor<T>& input)
+inline constexpr Tensor<T> asin(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -181,7 +181,7 @@ constexpr inline Tensor<T> asin(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> asind(const Tensor<T>& input)
+inline constexpr Tensor<T> asind(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -192,7 +192,7 @@ constexpr inline Tensor<T> asind(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> sinh(const Tensor<T>& input)
+inline constexpr Tensor<T> sinh(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -203,7 +203,7 @@ constexpr inline Tensor<T> sinh(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> asinh(const Tensor<T>& input)
+inline constexpr Tensor<T> asinh(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -215,7 +215,7 @@ constexpr inline Tensor<T> asinh(const Tensor<T>& input)
 
 /* Cosine */
 template<typename T>
-constexpr inline Tensor<T> cos(const Tensor<T>& input)
+inline constexpr Tensor<T> cos(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -226,7 +226,7 @@ constexpr inline Tensor<T> cos(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> cosd(const Tensor<T>& input)
+inline constexpr Tensor<T> cosd(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -237,7 +237,7 @@ constexpr inline Tensor<T> cosd(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> acos(const Tensor<T>& input)
+inline constexpr Tensor<T> acos(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -248,7 +248,7 @@ constexpr inline Tensor<T> acos(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> acosd(const Tensor<T>& input)
+inline constexpr Tensor<T> acosd(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -259,7 +259,7 @@ constexpr inline Tensor<T> acosd(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> cosh(const Tensor<T>& input)
+inline constexpr Tensor<T> cosh(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -270,7 +270,7 @@ constexpr inline Tensor<T> cosh(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> acosh(const Tensor<T>& input)
+inline constexpr Tensor<T> acosh(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -282,7 +282,7 @@ constexpr inline Tensor<T> acosh(const Tensor<T>& input)
 
 /* Tangent */
 template<typename T>
-constexpr inline Tensor<T> tan(const Tensor<T>& input)
+inline constexpr Tensor<T> tan(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -293,7 +293,7 @@ constexpr inline Tensor<T> tan(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> tand(const Tensor<T>& input)
+inline constexpr Tensor<T> tand(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -304,7 +304,7 @@ constexpr inline Tensor<T> tand(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> atan(const Tensor<T>& input)
+inline constexpr Tensor<T> atan(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -315,7 +315,7 @@ constexpr inline Tensor<T> atan(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> atand(const Tensor<T>& input)
+inline constexpr Tensor<T> atand(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -326,7 +326,7 @@ constexpr inline Tensor<T> atand(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> atan2(const Tensor<T>& lhs, const Tensor<T>& rhs)
+inline constexpr Tensor<T> atan2(const Tensor<T>& lhs, const Tensor<T>& rhs)
 {
     assert(lhs.shape() == rhs.shape() && "Error in atan2: Shapes are different");
 
@@ -340,13 +340,13 @@ constexpr inline Tensor<T> atan2(const Tensor<T>& lhs, const Tensor<T>& rhs)
 }
 
 template<typename T>
-constexpr inline T atan2d(T lhs, T rhs)
+inline constexpr T atan2d(T lhs, T rhs)
 {
     return std::atan2(deg2rad(lhs), deg2rad(rhs));
 }
 
 template<typename T>
-constexpr inline Tensor<T> atan2d(const Tensor<T>& lhs, const Tensor<T>& rhs)
+inline constexpr Tensor<T> atan2d(const Tensor<T>& lhs, const Tensor<T>& rhs)
 {
     assert(lhs.shape() == rhs.shape() && "Error in atan2: Shapes are different");
 
@@ -360,7 +360,7 @@ constexpr inline Tensor<T> atan2d(const Tensor<T>& lhs, const Tensor<T>& rhs)
 }
 
 template<typename T>
-constexpr inline Tensor<T> tanh(const Tensor<T>& input)
+inline constexpr Tensor<T> tanh(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -371,7 +371,7 @@ constexpr inline Tensor<T> tanh(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> atanh(const Tensor<T>& input)
+inline constexpr Tensor<T> atanh(const Tensor<T>& input)
 {
     Tensor<T> output(input.shape());
 
@@ -383,117 +383,117 @@ constexpr inline Tensor<T> atanh(const Tensor<T>& input)
 
 /* Cosecant */
 template<typename T>
-constexpr inline Tensor<T> csc(const Tensor<T>& input)
+inline constexpr Tensor<T> csc(const Tensor<T>& input)
 {
     return 1.0f / gt::sin(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> cscd(const Tensor<T>& input)
+inline constexpr Tensor<T> cscd(const Tensor<T>& input)
 {
     return 1.0f / gt::sind(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> acsc(const Tensor<T>& input)
+inline constexpr Tensor<T> acsc(const Tensor<T>& input)
 {
     return 1.0f / gt::asin(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> acscd(const Tensor<T>& input)
+inline constexpr Tensor<T> acscd(const Tensor<T>& input)
 {
     return 1.0f / gt::asind(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> csch(const Tensor<T>& input)
+inline constexpr Tensor<T> csch(const Tensor<T>& input)
 {
     return 1.0f / gt::sinh(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> acsch(const Tensor<T>& input)
+inline constexpr Tensor<T> acsch(const Tensor<T>& input)
 {
     return 1.0f / gt::asinh(input);
 }
 
 /* Secant */
 template<typename T>
-constexpr inline Tensor<T> sec(const Tensor<T>& input)
+inline constexpr Tensor<T> sec(const Tensor<T>& input)
 {
     return 1.0f / gt::cos(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> secd(const Tensor<T>& input)
+inline constexpr Tensor<T> secd(const Tensor<T>& input)
 {
     return 1.0f / gt::cosd(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> asec(const Tensor<T>& input)
+inline constexpr Tensor<T> asec(const Tensor<T>& input)
 {
     return 1.0f / gt::acos(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> asecd(const Tensor<T>& input)
+inline constexpr Tensor<T> asecd(const Tensor<T>& input)
 {
     return 1.0f / gt::acosd(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> sech(const Tensor<T>& input)
+inline constexpr Tensor<T> sech(const Tensor<T>& input)
 {
     return 1.0f / gt::cosh(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> asech(const Tensor<T>& input)
+inline constexpr Tensor<T> asech(const Tensor<T>& input)
 {
     return 1.0f / gt::acosh(input);
 }
 
 /* Cotangent */
 template<typename T>
-constexpr inline Tensor<T> cot(const Tensor<T>& input)
+inline constexpr Tensor<T> cot(const Tensor<T>& input)
 {
     return 1.0f / gt::tan(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> cotd(const Tensor<T>& input)
+inline constexpr Tensor<T> cotd(const Tensor<T>& input)
 {
     return 1.0f / gt::tand(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> acot(const Tensor<T>& input)
+inline constexpr Tensor<T> acot(const Tensor<T>& input)
 {
     return 1.0f / gt::atan(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> acotd(const Tensor<T>& input)
+inline constexpr Tensor<T> acotd(const Tensor<T>& input)
 {
     return 1.0f / gt::atand(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> coth(const Tensor<T>& input)
+inline constexpr Tensor<T> coth(const Tensor<T>& input)
 {
     return 1.0f / gt::tanh(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> acoth(const Tensor<T>& input)
+inline constexpr Tensor<T> acoth(const Tensor<T>& input)
 {
     return 1.0f / gt::atanh(input);
 }
 
 template<typename T>
-constexpr inline Tensor<T> hypot(const Tensor<T>& lhs, const Tensor<T>& rhs)
+inline constexpr Tensor<T> hypot(const Tensor<T>& lhs, const Tensor<T>& rhs)
 {
     assert(lhs.shape() == rhs.shape() && "Error in hypot: Shapes are different");
 

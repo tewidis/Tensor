@@ -306,7 +306,7 @@ inline constexpr bool is_sorted(const Tensor<T>& input)
 }
 
 template<typename T>
-constexpr inline Tensor<T> broadcast(const Tensor<T>& lhs, const Tensor<T>& rhs, OPERATION op)
+inline constexpr Tensor<T> broadcast(const Tensor<T>& lhs, const Tensor<T>& rhs, OPERATION op)
 {
     std::vector<size_t> shape(std::max(ndims(lhs), ndims(rhs)));
     for (size_t i = 0; i < shape.size(); i++) {
@@ -366,7 +366,7 @@ constexpr inline Tensor<T> broadcast(const Tensor<T>& lhs, const Tensor<T>& rhs,
 }
 
 template<typename T>
-constexpr inline size_t sub2ind(const Tensor<T>& input, const std::vector<size_t>& subs) {
+inline constexpr size_t sub2ind(const Tensor<T>& input, const std::vector<size_t>& subs) {
     size_t index = 0;
 
     for (size_t i = 0; i < subs.size(); i++) {
@@ -377,7 +377,7 @@ constexpr inline size_t sub2ind(const Tensor<T>& input, const std::vector<size_t
 }
 
 template<typename T>
-constexpr inline std::vector<size_t> ind2sub(const Tensor<T>& input, size_t index) {
+inline constexpr std::vector<size_t> ind2sub(const Tensor<T>& input, size_t index) {
     std::vector<size_t> subs(ndims(input));
     for (size_t i = 0; i < subs.size(); i++) {
         subs[i] = input.stride(i) * ((index / input.stride(i)) % input.shape(i));
