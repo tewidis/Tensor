@@ -16,26 +16,27 @@
 
 #pragma once
 
-namespace gt
-{
-    enum OPERATION {
-        PLUS,
-        MINUS,
-        TIMES,
-        DIVIDE,
-        POWER,
-        MAX,
-        MIN,
-        MOD,
-        REM,
-        ATAN2,
-        ATAN2D,
-        HYPOT
-    };
+namespace gt {
 
-    enum CONVOLUTION {
-        FULL,
-        SAME,
-        VALID
-    };
+enum OPERATION {
+    PLUS,
+    MINUS,
+    TIMES,
+    DIVIDE,
+    POWER,
+    MAX,
+    MIN,
+    MOD,
+    REM,
+    ATAN2,
+    ATAN2D,
+    HYPOT
 };
+
+enum CONVOLUTION {
+    FULL,
+    SAME,
+    VALID
+};
+
+} // namespace gt
