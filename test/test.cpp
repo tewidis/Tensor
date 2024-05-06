@@ -1033,198 +1033,198 @@ void bartlett_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0, 0.2857, 0.5714, 0.8571, 0.8571, 0.5714, 0.2857, 0};
-    assert(!gt::any(gt::abs(gt::sp::bartlett(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::bartlett<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0, 0.25, 0.5, 0.75, 1.0, 0.75, 0.5, 0.25, 0};
-    assert(!gt::any(gt::abs(gt::sp::bartlett(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::bartlett<float>(9) - correct_odd) > 1e-4f));
 }
 
 void barthann_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0, 0.2116, 0.6017, 0.9281, 0.9281, 0.6017, 0.2116, 0};
-    assert(!gt::any(gt::abs(gt::sp::barthann(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::barthann<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0, 0.1713, 0.5000, 0.8287, 1.0000, 0.8287, 0.5000, 0.1713, 0};
-    assert(!gt::any(gt::abs(gt::sp::barthann(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::barthann<float>(9) - correct_odd) > 1e-4f));
 }
 
 void blackman_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0, 0.0905, 0.4592, 0.9204, 0.9204, 0.4592, 0.0905, 0};
-    assert(!gt::any(gt::abs(gt::sp::blackman(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::blackman<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0, 0.0664, 0.3400, 0.7736,1.0000, 0.7736, 0.3400, 0.0664, 0};
-    assert(!gt::any(gt::abs(gt::sp::blackman(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::blackman<float>(9) - correct_odd) > 1e-4f));
 }
 
 void blackmanharris_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.0001, 0.0334, 0.3328, 0.8894, 0.8894, 0.3328, 0.0334, 0.0001};
-    assert(!gt::any(gt::abs(gt::sp::blackmanharris(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::blackmanharris<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.0001, 0.0217, 0.2175, 0.6958, 1.0000, 0.6958, 0.2175, 0.0217, 0.0001};
-    assert(!gt::any(gt::abs(gt::sp::blackmanharris(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::blackmanharris<float>(9) - correct_odd) > 1e-4f));
 }
 
 void bohman_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0, 0.0707, 0.4375, 0.9104, 0.9104, 0.4375, 0.0707, 0};
-    assert(!gt::any(gt::abs(gt::sp::bohman(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::bohman<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0, 0.0483, 0.3183, 0.7554, 1.0000, 0.7554, 0.3183, 0.0483, 0};
-    assert(!gt::any(gt::abs(gt::sp::bohman(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::bohman<float>(9) - correct_odd) > 1e-4f));
 }
 
 void chebyshev_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.0364, 0.2254, 0.6242, 1.0000, 1.0000, 0.6242, 0.2254, 0.0364};
-    assert(!gt::any(gt::abs(gt::sp::chebyshev(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::chebyshev<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.0218, 0.1445, 0.4435, 0.8208, 1.0000, 0.8208, 0.4435, 0.1445, 0.0218};
-    assert(!gt::any(gt::abs(gt::sp::chebyshev(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::chebyshev<float>(9) - correct_odd) > 1e-4f));
 }
 
 void flattop_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {-0.0004, -0.0368, 0.0107, 0.7809, 0.7809, 0.0107, -0.0368, -0.0004};
-    assert(!gt::any(gt::abs(gt::sp::flattop(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::flattop<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {-0.0004, -0.0269, -0.0547, 0.4441, 1.0000, 0.4441, -0.0547, -0.0269, -0.0004};
-    assert(!gt::any(gt::abs(gt::sp::flattop(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::flattop<float>(9) - correct_odd) > 1e-4f));
 }
 
 void gaussian_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.0439, 0.2030, 0.5633, 0.9382, 0.9382, 0.5633, 0.2030, 0.0439};
-    assert(!gt::any(gt::abs(gt::sp::gaussian(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::gaussian<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.0439, 0.1724, 0.4578, 0.8226, 1.0000, 0.8226, 0.4578, 0.1724, 0.0439};
-    assert(!gt::any(gt::abs(gt::sp::gaussian(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::gaussian<float>(9) - correct_odd) > 1e-4f));
 }
 
 void hamming_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.0800, 0.2532, 0.6424, 0.9544, 0.9544, 0.6424, 0.2532, 0.0800};
-    assert(!gt::any(gt::abs(gt::sp::hamming(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::hamming<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.0800, 0.2147, 0.5400, 0.8653, 1.0000, 0.8653, 0.5400, 0.2147, 0.0800};
-    assert(!gt::any(gt::abs(gt::sp::hamming(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::hamming<float>(9) - correct_odd) > 1e-4f));
 }
 
 void hann_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0, 0.1883, 0.6113, 0.9505, 0.9505, 0.6113, 0.1883, 0};
-    assert(!gt::any(gt::abs(gt::sp::hann(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::hann<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0, 0.1464, 0.5000, 0.8536, 1.0000, 0.8536, 0.5000, 0.1464, 0};
-    assert(!gt::any(gt::abs(gt::sp::hann(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::hann<float>(9) - correct_odd) > 1e-4f));
 }
 
 void hanning_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.1170, 0.4132, 0.7500, 0.9698, 0.9698, 0.7500, 0.4132, 0.1170};
-    assert(!gt::any(gt::abs(gt::sp::hanning(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::hanning<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.0955, 0.3455, 0.6545, 0.9045, 1.0000, 0.9045, 0.6545, 0.3455, 0.0955};
-    assert(!gt::any(gt::abs(gt::sp::hanning(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::hanning<float>(9) - correct_odd) > 1e-4f));
 }
 
 void kaiser_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.9403, 0.9693, 0.9889, 0.9988, 0.9988, 0.9889, 0.9693, 0.9403};
-    assert(!gt::any(gt::abs(gt::sp::kaiser(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::kaiser<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.9403, 0.9662, 0.9849, 0.9962, 1.0000, 0.9962, 0.9849, 0.9662, 0.9403};
-    assert(!gt::any(gt::abs(gt::sp::kaiser(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::kaiser<float>(9) - correct_odd) > 1e-4f));
 }
 
 void nuttall_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.0004, 0.0378, 0.3427, 0.8919, 0.8919, 0.3427, 0.0378, 0.0004};
-    assert(!gt::any(gt::abs(gt::sp::nuttall(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::nuttall<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.0004, 0.0252, 0.2270, 0.7020, 1.0000, 0.7020, 0.2270, 0.0252, 0.0004};
-    assert(!gt::any(gt::abs(gt::sp::nuttall(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::nuttall<float>(9) - correct_odd) > 1e-4f));
 }
 
 void parzen_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.0039, 0.1055, 0.4727, 0.9180, 0.9180, 0.4727, 0.1055, 0.0039};
-    assert(!gt::any(gt::abs(gt::sp::parzen(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::parzen<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.0027, 0.0741, 0.3416, 0.7695, 1.0000, 0.7695, 0.3416, 0.0741, 0.0027};
-    assert(!gt::any(gt::abs(gt::sp::parzen(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::parzen<float>(9) - correct_odd) > 1e-4f));
 }
 
 void rect_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {1, 1, 1, 1, 1, 1, 1, 1};
-    assert(!gt::any(gt::abs(gt::sp::rect(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::rect<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {1, 1, 1, 1, 1, 1, 1, 1, 1};
-    assert(!gt::any(gt::abs(gt::sp::rect(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::rect<float>(9) - correct_odd) > 1e-4f));
 }
 
 void taylor_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.4353, 0.8024, 1.2423, 1.5201, 1.5201, 1.2423, 0.8024, 0.4353};
-    assert(!gt::any(gt::abs(gt::sp::taylor(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::taylor<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.4236, 0.7275, 1.1291, 1.4407, 1.5581, 1.4407, 1.1291, 0.7275, 0.4236};
-    assert(!gt::any(gt::abs(gt::sp::taylor(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::taylor<float>(9) - correct_odd) > 1e-4f));
 }
 
 void triang_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0.125, 0.375, 0.625, 0.875, 0.875, 0.625, 0.375, 0.125};
-    assert(!gt::any(gt::abs(gt::sp::triang(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::triang<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0.2, 0.4, 0.6, 0.8, 1.0, 0.8, 0.6, 0.4, 0.2};
-    assert(!gt::any(gt::abs(gt::sp::triang(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::triang<float>(9) - correct_odd) > 1e-4f));
 }
 
 void tukey_test()
 {
     gt::Tensor<float> correct_even({8});
     correct_even = {0, 0.6113, 1.0000, 1.0000, 1.0000, 1.0000, 0.6113, 0};
-    assert(!gt::any(gt::abs(gt::sp::tukey(8) - correct_even) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::tukey<float>(8) - correct_even) > 1e-4f));
 
     gt::Tensor<float> correct_odd({9});
     correct_odd = {0, 0.5000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 0.5000, 0};
-    assert(!gt::any(gt::abs(gt::sp::tukey(9) - correct_odd) > 1e-4f));
+    assert(!gt::any(gt::abs(gt::sp::tukey<float>(9) - correct_odd) > 1e-4f));
 }
 
 void random_test()

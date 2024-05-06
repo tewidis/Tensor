@@ -294,57 +294,63 @@ inline constexpr Tensor<T> conv3(const Tensor<T>& lhs, const Tensor<T>& rhs, CON
     return output;
 }
 
-inline Tensor<float> gencoswin(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> gencoswin(size_t N)
 {
-    float half = std::ceil(N / 2.0f);
-    Tensor<float> output = gt::cat(0,
+    T half = std::ceil(N / 2.0f);
+    Tensor<T> output = gt::cat(0,
         gt::linspace(0.0f, half - 1.0f, half),
         gt::linspace(std::floor(N / 2.0f) - 1.0f, 0.0f, N - half)) / (N - 1);
 
     return output;
 }
 
-inline Tensor<float> bartlett(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> bartlett(size_t N)
 {
-    Tensor<float> output = 2.0f * gencoswin(N);
+    Tensor<T> output = 2.0f * gencoswin<T>(N);
 
     return output;
 }
 
-inline Tensor<float> barthann(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> barthann(size_t N)
 {
-    Tensor<float> output = gt::linspace(0.0f, 1.0f, N) - 0.5f;
+    Tensor<T> output = gt::linspace(0.0f, 1.0f, N) - 0.5f;
     output = 0.62 - 0.48 * gt::abs(output) + 0.38 * gt::cos(2 * PI * output);
 
     return output;
 }
 
-inline Tensor<float> blackman(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> blackman(size_t N)
 {
-    Tensor<float> output = gencoswin(N);
+    Tensor<T> output = gencoswin<T>(N);
     output = 0.42 - 0.5 * gt::cos(2 * PI * output) + 0.08 * gt::cos(4 * PI * output);
 
     return output;
 }
 
-inline Tensor<float> blackmanharris(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> blackmanharris(size_t N)
 {
     assert(N >= 4 && "Error in blackmanharris: N must be greater than or equal to 4");
 
-    Tensor<float> coeff({4});
+    Tensor<T> coeff({4});
     coeff = {0.35875, -0.48829, 0.14128, -0.01168};
-    Tensor<float> increment({1, 4});
+    Tensor<T> increment({1, 4});
     increment = {0.0f, 1.0f, 2.0f, 3.0f};
 
-    Tensor<float> output = 2 * PI * gt::linspace(0.0f, N - 1.0f, N) / (N - 1);
+    Tensor<T> output = 2 * PI * gt::linspace(0.0f, N - 1.0f, N) / (N - 1);
     output = gt::linalg::matmul(gt::cos(gt::broadcast(output, increment, gt::TIMES)), coeff);
 
     return output;
 }
 
-inline Tensor<float> bohman(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> bohman(size_t N)
 {
-    Tensor<float> output = gt::abs(gt::linspace(-1.0f, 1.0f, N));
+    Tensor<T> output = gt::abs(gt::linspace(-1.0f, 1.0f, N));
     output = (1.0f - output) * gt::cos(PI * output) + (1 / PI) * gt::sin(PI * output);
     output(0) = 0.0f;
     output(N - 1) = 0.0f;
@@ -352,9 +358,10 @@ inline Tensor<float> bohman(size_t N)
     return output;
 }
 
-inline Tensor<float> cheb(size_t N, const Tensor<float>& input)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> cheb(size_t N, const Tensor<T>& input)
 {
-    Tensor<float> output(input.shape());
+    Tensor<T> output(input.shape());
 
     for (size_t i = 0; i < output.size(); i++) {
         if (std::abs(input(i)) <= 1) {
@@ -368,9 +375,10 @@ inline Tensor<float> cheb(size_t N, const Tensor<float>& input)
     return output;
 }
 
-inline Tensor<float> chebyshev(size_t N, float r = 100.0f)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> chebyshev(size_t N, T r = 100.0f)
 {
-    Tensor<float> output({N});
+    Tensor<T> output({N});
 
     /* N == 1 is a special case */
     if (N == 1) {
@@ -378,20 +386,20 @@ inline Tensor<float> chebyshev(size_t N, float r = 100.0f)
         return output;
     }
 
-    float gamma = std::pow(10, -r / 20);
-    float beta = std::cosh(1.0f / (N - 1) * std::acosh(1.0f / gamma));
-    Tensor<float> k = gt::linspace(0.0f, N - 1.0f, N);
-    Tensor<float> x = beta * gt::cos(PI * k / N);
-    Tensor<float> p = cheb(N - 1, x);
+    T gamma = std::pow(10, -r / 20);
+    T beta = std::cosh(1.0f / (N - 1) * std::acosh(1.0f / gamma));
+    Tensor<T> k = gt::linspace(0.0f, N - 1.0f, N);
+    Tensor<T> x = beta * gt::cos(PI * k / N);
+    Tensor<T> p = cheb(N - 1, x);
 
-    std::complex<float> j{0, 1};
+    std::complex<T> j{0, 1};
     if (iseven(N)) {
-        Tensor<std::complex<float>> sample({N});
+        Tensor<std::complex<T>> sample({N});
         for (size_t i = 0; i < sample.size(); i++) {
             sample(i) = p(i) * std::exp(j * PI /
-                static_cast<float>(N) * static_cast<float>(i));
+                static_cast<T>(N) * static_cast<T>(i));
         }
-        Tensor<float> w = gt::real(gt::sp::fft(sample, sample.size()));
+        Tensor<T> w = gt::real(gt::sp::fft(sample, sample.size()));
         w = w / w(1);
 
         size_t limit = N / 2;
@@ -403,7 +411,7 @@ inline Tensor<float> chebyshev(size_t N, float r = 100.0f)
             }
         }
     } else {
-        Tensor<float> w = gt::real(gt::sp::fft(p, p.size()));
+        Tensor<T> w = gt::real(gt::sp::fft(p, p.size()));
         w = w / w(0);
 
         size_t limit = (N + 1) / 2 - 1;
@@ -420,15 +428,16 @@ inline Tensor<float> chebyshev(size_t N, float r = 100.0f)
     return output;
 }
 
-inline Tensor<float> flattop(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> flattop(size_t N)
 {
-    const float a0 = 0.21557895;
-    const float a1 = 0.41663158;
-    const float a2 = 0.277263158;
-    const float a3 = 0.083578947;
-    const float a4 = 0.006947368;
+    const T a0 = 0.21557895;
+    const T a1 = 0.41663158;
+    const T a2 = 0.277263158;
+    const T a3 = 0.083578947;
+    const T a4 = 0.006947368;
 
-    Tensor<float> output = gencoswin(N);
+    Tensor<T> output = gencoswin<T>(N);
     output = a0 - a1 * gt::cos(2 * PI * output)
         + a2 * gt::cos(4 * PI * output)
         - a3 * gt::cos(6 * PI * output)
@@ -437,33 +446,37 @@ inline Tensor<float> flattop(size_t N)
     return output;
 }
 
-inline Tensor<float> gaussian(size_t N, float alpha = 2.5f)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> gaussian(size_t N, T alpha = 2.5f)
 {
-    float L = N - 1.0f;
-    Tensor<float> output = gt::linspace(0.0f, L, N) - (L / 2.0f);
+    T L = N - 1.0f;
+    Tensor<T> output = gt::linspace(0.0f, L, N) - (L / 2.0f);
     output = gt::exp(-0.5f * gt::pow(alpha * output / (L / 2), 2.0f));
 
     return output;
 }
 
-inline Tensor<float> hamming(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> hamming(size_t N)
 {
-    Tensor<float> output = 0.54f - 0.46f * gt::cos(2 * PI * gencoswin(N));
+    Tensor<T> output = 0.54f - 0.46f * gt::cos(2 * PI * gencoswin<T>(N));
 
     return output;
 }
 
-inline Tensor<float> hann(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> hann(size_t N)
 {
-    Tensor<float> output = 0.5f - 0.5f * gt::cos(2 * PI * gencoswin(N));
+    Tensor<T> output = 0.5f - 0.5f * gt::cos(2 * PI * gencoswin<T>(N));
 
     return output;
 }
 
-inline Tensor<float> hanning(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> hanning(size_t N)
 {
-    float half = std::ceil(N / 2.0f);
-    Tensor<float> output = gt::cat(0,
+    T half = std::ceil(N / 2.0f);
+    Tensor<T> output = gt::cat(0,
         gt::linspace(1.0f, half, half),
         gt::linspace(std::floor(N / 2.0f), 1.0f, N - half)) / (N + 1);
     output = 0.5f * (1 - gt::cos(2 * PI * output));
@@ -472,7 +485,7 @@ inline Tensor<float> hanning(size_t N)
 }
 
 template<typename T> requires std::is_arithmetic_v<T>
-inline Tensor<T> besseli(T nu, const Tensor<T>& beta)
+constexpr inline Tensor<T> besseli(T nu, const Tensor<T>& beta)
 {
     Tensor<T> output(beta.shape());
     std::transform(beta.begin(), beta.end(), output.begin(),
@@ -480,16 +493,17 @@ inline Tensor<T> besseli(T nu, const Tensor<T>& beta)
     return output;
 }
 
-inline Tensor<float> kaiser(size_t N, float beta = 0.5f)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> kaiser(size_t N, T beta = 0.5f)
 {
-    float bes = std::abs(std::cyl_bessel_i(0.0f, beta));
-    float odd = gt::rem(N, 2);
-    float xind = std::pow(N - 1.0f, 2.0f);
-    float n = gt::fix((N + 1.0f) / 2.0f);
-    Tensor<float> xi = 4 * gt::pow(gt::linspace(0.0f, n - 1.0f, n) + 0.5f * (1 - odd), 2.0f);
-    Tensor<float> w = besseli(0.0f, beta * gt::sqrt(1.0f - xi / xind)) / bes;
+    T bes = std::abs(std::cyl_bessel_i(0.0f, beta));
+    T odd = gt::rem(N, 2);
+    T xind = std::pow(N - 1.0f, 2.0f);
+    T n = gt::fix((N + 1.0f) / 2.0f);
+    Tensor<T> xi = 4 * gt::pow(gt::linspace(0.0f, n - 1.0f, n) + 0.5f * (1 - odd), 2.0f);
+    Tensor<T> w = besseli(0.0f, beta * gt::sqrt(1.0f - xi / xind)) / bes;
 
-    Tensor<float> output({N});
+    Tensor<T> output({N});
     if (iseven(N)) {
         output = gt::abs(gt::cat(0, gt::flip(w), w));
     } else {
@@ -506,69 +520,74 @@ inline Tensor<float> kaiser(size_t N, float beta = 0.5f)
     return output;
 }
 
-inline Tensor<float> nuttall(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> nuttall(size_t N)
 {
     assert(N >= 4 && "Error in nuttall: N must be greater than or equal to 4");
 
-    Tensor<float> coeff({4});
+    Tensor<T> coeff({4});
     coeff = {0.3635819, -0.4891775, 0.1365995, -0.0106411};
-    Tensor<float> increment({1, 4});
+    Tensor<T> increment({1, 4});
     increment = {0.0f, 1.0f, 2.0f, 3.0f};
 
-    Tensor<float> output = 2 * PI * gt::linspace(0.0f, N - 1.0f, N) / (N - 1);
+    Tensor<T> output = 2 * PI * gt::linspace(0.0f, N - 1.0f, N) / (N - 1);
     output = gt::linalg::matmul(gt::cos(gt::broadcast(output, increment, gt::TIMES)), coeff);
 
     return output;
 }
 
-inline Tensor<float> parzen(int64_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> parzen(int64_t N)
 {
-    Tensor<float> k = gt::linspace(-(N - 1) / 2.0f, (N - 1) / 2.0f, N);
-    Tensor<float> k1 = k(k < -(N - 1) / 4.0f);
-    Tensor<float> k2 = k(gt::abs(k) <= (N - 1) / 4.0f);
-    Tensor<float> w1 = 2 * gt::pow((1 - gt::abs(k1) / (N / 2.0f)), 3.0f);
-    Tensor<float> w2 = 1 - 6 * gt::pow((gt::abs(k2) / (N / 2.0f)), 2.0f)
+    Tensor<T> k = gt::linspace(-(N - 1) / 2.0f, (N - 1) / 2.0f, N);
+    Tensor<T> k1 = k(k < -(N - 1) / 4.0f);
+    Tensor<T> k2 = k(gt::abs(k) <= (N - 1) / 4.0f);
+    Tensor<T> w1 = 2 * gt::pow((1 - gt::abs(k1) / (N / 2.0f)), 3.0f);
+    Tensor<T> w2 = 1 - 6 * gt::pow((gt::abs(k2) / (N / 2.0f)), 2.0f)
         + 6 * gt::pow(gt::abs(k2) / (N / 2.0f), 3.0f);
-    Tensor<float> output = gt::cat(0, w1, w2, gt::flip(w1));
+    Tensor<T> output = gt::cat(0, w1, w2, gt::flip(w1));
 
     return output;
 }
 
-inline Tensor<float> rect(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> rect(size_t N)
 {
-    return gt::ones<float>({N});
+    return gt::ones<T>({N});
 }
 
-inline Tensor<float> taylor(size_t N, size_t nbar = 4, float sll = -30.0f)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> taylor(size_t N, size_t nbar = 4, T sll = -30.0f)
 {
     assert(sll < 0 && "Error in taylor: sll must be less than 0");
 
-    float A = std::acosh(std::pow(10, -sll / 20.0f)) / PI;
-    float sp2 = std::pow(nbar, 2) / (std::pow(A, 2) + std::pow(nbar - 0.5f, 2));
-    Tensor<float> k = gt::linspace(0.0f, N - 1.0f, N);
-    Tensor<float> xi = (k - 0.5f * N + 0.5f) / N;
-    Tensor<float> n = gt::linspace(1.0f, nbar - 1.0f, nbar - 1);
+    T A = std::acosh(std::pow(10, -sll / 20.0f)) / PI;
+    T sp2 = std::pow(nbar, 2) / (std::pow(A, 2) + std::pow(nbar - 0.5f, 2));
+    Tensor<T> k = gt::linspace(0.0f, N - 1.0f, N);
+    Tensor<T> xi = (k - 0.5f * N + 0.5f) / N;
+    Tensor<T> n = gt::linspace(1.0f, nbar - 1.0f, nbar - 1);
 
-    Tensor<float> summation = gt::zeros<float>({N});
+    Tensor<T> summation = gt::zeros<T>({N});
     for (size_t m = 1; m <= nbar - 1; m++) {
-        Tensor<float> p = n(n != m);
+        Tensor<T> p = n(n != m);
 
-        float num = gt::prod(1.0f - (std::pow(m, 2) / sp2) / (std::pow(A, 2) + gt::pow(n - 0.5f, 2)));
-        float den = gt::prod(1.0f - std::pow(m, 2) / gt::pow(p, 2));
-        float Fm = (std::pow(-1.0f, m + 1) * num) / (2.0f * den);
+        T num = gt::prod(1.0f - (std::pow(m, 2) / sp2) / (std::pow(A, 2) + gt::pow(n - 0.5f, 2)));
+        T den = gt::prod(1.0f - std::pow(m, 2) / gt::pow(p, 2));
+        T Fm = (std::pow(-1.0f, m + 1) * num) / (2.0f * den);
 
         summation = Fm * gt::cos(2 * PI * m * xi) + summation;
     }
 
-    Tensor<float> output = gt::ones<float>({N});
+    Tensor<T> output = gt::ones<T>({N});
     output = output + 2 * summation;
     return output;
 }
 
-inline Tensor<float> triang(size_t N)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> triang(size_t N)
 {
-    float half = std::ceil(N / 2.0f);
-    Tensor<float> output({N});
+    T half = std::ceil(N / 2.0f);
+    Tensor<T> output({N});
     if (iseven(N)) {
         output = (2 * gt::cat(0,
             gt::linspace(1.0f, half, half),
@@ -582,18 +601,19 @@ inline Tensor<float> triang(size_t N)
     return output;
 }
 
-inline Tensor<float> tukey(size_t N, float ratio = 0.5f)
+template<typename T> requires std::is_floating_point_v<T>
+constexpr inline Tensor<T> tukey(size_t N, T ratio = 0.5f)
 {
-    Tensor<float> output({N});
+    Tensor<T> output({N});
     if (ratio <= 0) {
-        output = gt::ones<float>({N});
+        output = gt::ones<T>({N});
     } else if (ratio >= 1) {
-        output = gt::sp::hann(N);
+        output = gt::sp::hann<T>(N);
     } else {
-        Tensor<float> t = gt::linspace(0.0f, 1.0f, N);
-        float per = ratio / 2.0f;
-        float tl = std::floor(per * (N - 1)) + 1.0f;
-        float th = N - tl;
+        Tensor<T> t = gt::linspace(0.0f, 1.0f, N);
+        T per = ratio / 2.0f;
+        T tl = std::floor(per * (N - 1)) + 1.0f;
+        T th = N - tl;
 
         for (size_t i = 0; i < output.size(); i++) {
             if (i < tl) {
