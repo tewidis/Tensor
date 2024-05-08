@@ -42,9 +42,12 @@ inline constexpr Tensor<T> logspace(T min, T max, size_t N)
 }
 
 template<typename T>
-inline constexpr std::tuple<Tensor<T>,Tensor<T>> meshgrid(const Tensor<T>& t1, const Tensor<T>& t2)
+inline constexpr std::tuple<Tensor<T>,Tensor<T>> meshgrid(const Tensor<T>& lhs, const Tensor<T>& rhs)
 {
-    throw std::runtime_error{"meshgrid is not yet implemented."};
+    return std::make_pair(
+        repmat(reshape(flatten(lhs), {1, lhs.size()}), {rhs.size(), 1}),
+        repmat(reshape(flatten(rhs), {rhs.size(), 1}), {1, lhs.size()})
+    );
 }
 
 /* return the closest index in input to value using a binary search 

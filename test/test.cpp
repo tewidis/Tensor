@@ -1255,6 +1255,35 @@ void random_test()
     gt::Tensor<float> student_t = gt::rand::student_t(10.0f, {2, 3, 4});
 }
 
+void meshgrid_test()
+{
+    gt::Tensor<float> lhs({3, 4});
+    std::iota(lhs.begin(), lhs.end(), 0);
+    gt::Tensor<float> rhs({2, 3});
+    std::iota(rhs.begin(), rhs.end(), 0);
+
+    gt::Tensor<float> correct0({6, 12});
+    correct0 = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+                2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3,
+                4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5,
+                6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7,
+                8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9,
+                10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11};
+
+    gt::Tensor<float> correct1({6, 12});
+    correct1 = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5,
+                0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5,
+                0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5,
+                0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5,
+                0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5,
+                0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5};
+
+    std::tuple<gt::Tensor<float>,gt::Tensor<float>> output = meshgrid(lhs, rhs);
+
+    assert(!gt::any(gt::abs(std::get<0>(output) - correct0) > 1e-4f));
+    assert(!gt::any(gt::abs(std::get<1>(output) - correct1) > 1e-4f));
+}
+
 int main()
 {
     access_test();
@@ -1326,4 +1355,5 @@ int main()
     triang_test();
     tukey_test();
     random_test();
+    meshgrid_test();
 }
