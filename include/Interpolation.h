@@ -45,9 +45,27 @@ template<typename T>
 inline constexpr std::tuple<Tensor<T>,Tensor<T>> meshgrid(const Tensor<T>& lhs, const Tensor<T>& rhs)
 {
     return std::make_pair(
-        repmat(reshape(flatten(lhs), {1, lhs.size()}), {rhs.size(), 1}),
-        repmat(reshape(flatten(rhs), {rhs.size(), 1}), {1, lhs.size()})
+        repmat(reshape(lhs, {1, lhs.size()}), {rhs.size(), 1}),
+        repmat(reshape(rhs, {rhs.size(), 1}), {1, lhs.size()})
     );
+}
+
+template<typename T>
+inline constexpr std::tuple<Tensor<T>,Tensor<T>,Tensor<T>>
+    meshgrid(const Tensor<T>& t0, const Tensor<T>& t1, const Tensor<T>& t2)
+{
+    return std::make_tuple(
+        repmat(reshape(t0, {1, t0.size(), 1}), {t1.size(), 1, t2.size()}),
+        repmat(reshape(t1, {t1.size(), 1, 1}), {1, t0.size(), t2.size()}),
+        repmat(reshape(t2, {1, 1, t2.size()}), {t1.size(), t0.size(), 1})
+    );
+}
+
+template<typename T, typename... Ts>
+inline constexpr std::vector<Tensor<T>> ndgrid(const Tensor<T>& arg, const Tensor<Ts>&... args)
+{
+    std::vector<Tensor<T>> output = {static_cast<Tensor<T>>(args)...};
+    return output;
 }
 
 /* return the closest index in input to value using a binary search 
