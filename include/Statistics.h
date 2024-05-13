@@ -313,6 +313,37 @@ inline constexpr Tensor<T> max(const Tensor<T>& input, size_t dim)
 }
 
 template<typename T>
+inline constexpr Tensor<T> maxk(const Tensor<T>& input, size_t k, size_t dim)
+{
+    std::vector<size_t> ishape = input.shape();
+    if (dim < ishape.size()) {
+        ishape[dim] = 1;
+    }
+
+    std::vector<size_t> oshape = input.shape();
+    if (dim < oshape.size()) {
+        oshape[dim] = k;
+    }
+
+    Tensor<T> temp({input.shape(dim)});
+    Tensor<T> output(oshape);
+    for (size_t i = 0; i < output.size(); i++) {
+        size_t offset = calculate_offset(input.stride(), ishape, dim, i);
+        for (size_t j = 0; j < input.shape(dim); j++) {
+            temp[j] = input[offset + j * input.stride(dim)];
+        }
+
+        offset = calculate_offset(output.stride(), ishape, dim, i);
+        for (size_t j = 0; j < k; j++) {
+            std::nth_element(temp.begin(), temp.end() - j - 1, temp.end());
+            output[offset + j * output.stride(dim)] = temp[input.shape(dim) - j - 1];
+        }
+    }
+
+    return output;
+}
+
+template<typename T>
 inline constexpr Tensor<T> maxval(const Tensor<T>& input, T value)
 {
     Tensor<T> output(input.shape());

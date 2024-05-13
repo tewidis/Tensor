@@ -376,6 +376,24 @@ void mink_test()
     assert(gt::all(gt::mink(input, 2, 2) == correct2));
 }
 
+void maxk_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14, 17, 16, 19, 18, 21, 20, 23, 22};
+    assert(gt::all(gt::maxk(input, 2, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 2, 4});
+    correct1 = {4, 5, 2, 3, 10, 11, 8, 9, 16, 17, 14, 15, 22, 23, 20, 21};
+    assert(gt::all(gt::maxk(input, 2, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 2});
+    correct2 = {18, 19, 20, 21, 22, 23, 12, 13, 14, 15, 16, 17};
+    assert(gt::all(gt::maxk(input, 2, 2) == correct2));
+}
+
 void cummin_test()
 {
     gt::Tensor<float> input({2, 3, 4});
@@ -1366,6 +1384,7 @@ int main()
     trapz_test();
     cumtrapz_test();
     max_test();
+    maxk_test();
     cummax_test();
     movmax_test();
     min_test();
