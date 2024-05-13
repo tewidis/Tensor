@@ -217,6 +217,33 @@ inline constexpr Tensor<T> movmean(const Tensor<T>& input, size_t B, size_t dim)
     return output;
 }
 
+template<typename T>
+inline constexpr Tensor<T> movmedian(const Tensor<T>& input, size_t B, size_t dim)
+{
+    std::vector<size_t> shape = input.shape();
+    if (dim < shape.size()) {
+        shape[dim] = 1;
+    }
+
+    Tensor<T> temp({B});
+    Tensor<T> output(input.shape());
+    for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        for (size_t j = 0; j < output.shape(dim); j++) {
+            output[offset + j * output.stride(dim)] = 0;
+            size_t temp_idx = 0;
+            for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
+                size_t index = offset + k * input.stride(dim);
+                temp[temp_idx] = input[index];
+                temp_idx++;
+            }
+            output[offset + j * output.stride(dim)] = median(temp.begin(), temp.begin() + temp_idx);
+        }
+    }
+
+    return output;
+}
+
 /* Basic Statistics */
 template<typename T>
 inline constexpr T angle(const std::complex<T>& input)
@@ -346,6 +373,39 @@ inline constexpr Tensor<T> min(const Tensor<T>& input, size_t dim)
     return output;
 }
 
+#if 0
+template<typename T>
+inline constexpr Tensor<T> mink(const Tensor<T>& input, size_t k, size_t dim)
+{
+    std::vector<size_t> ishape = input.shape();
+    if (dim < ishape.size()) {
+        ishape[dim] = k;
+    }
+
+    std::vector<size_t> oshape = input.shape();
+    if (dim < oshape.size()) {
+        oshape[dim] = k;
+    }
+
+    Tensor<T> temp({input.shape(dim)});
+    Tensor<T> output(oshape);
+    for (size_t i = 0; i < output.size(); i++) {
+        size_t offset = calculate_offset(input.stride(), ishape, dim, i);
+        for (size_t j = 0; j < input.shape(dim); j++) {
+            temp[j] = input[offset + j * input.stride(dim)];
+        }
+
+        offset = calculate_offset(output.stride(), ishape, dim, i);
+        for (size_t j = 0; j < k; j++) {
+            std::nth_element(input.begin(), input.begin() + k, input.end());
+            output[offset + k * output.stride(dim)] = *(temp.begin() + k);
+        }
+    }
+
+    return output;
+}
+#endif
+
 template<typename T>
 inline constexpr Tensor<T> minval(const Tensor<T>& input, T value)
 {
@@ -376,18 +436,28 @@ inline constexpr Tensor<T> mean(const Tensor<T>& input, size_t dim)
     return output;
 }
 
+template<typename Iterator>
+inline constexpr typename std::iterator_traits<Iterator>::value_type
+    median(Iterator begin, Iterator end)
+{
+    size_t size = end - begin;
+    if (size % 2 == 0) {
+        auto med1 = begin + size / 2;
+        auto med2 = begin + size / 2 - 1;
+        std::nth_element(begin, med1, end);
+        std::nth_element(begin, med2, end);
+        return (*med1 + *med2) / 2.0f;
+    } else {
+        auto med = begin + size / 2;
+        std::nth_element(begin, med, end);
+        return *med;
+    }
+}
+
 template<typename T>
 inline constexpr T median(Tensor<T>& input)
 {
-    if (input.size() % 2 == 0) {
-        auto med = input.begin() + input.size() / 2;
-        std::nth_element(input.begin(), med, input.end());
-        return (input[input.size() / 2 - 1] + input[input.size() / 2]) / 2.0f;
-    } else {
-        auto med = input.begin() + input.size() / 2;
-        std::nth_element(input.begin(), med, input.end());
-        return input[input.size() / 2];
-    }
+    return median(input.begin(), input.end());
 }
 
 template<typename T>

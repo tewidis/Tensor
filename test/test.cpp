@@ -358,6 +358,26 @@ void min_test()
     assert(gt::all(gt::min(input, 2) == correct2));
 }
 
+#if 0
+void mink_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    std::iota(correct0.begin(), correct0.end(), 0);
+    assert(gt::all(gt::mink(input, 2, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 2, 4});
+    correct1 = {0, 1, 2, 3, 6, 7, 8, 9, 12, 13, 14, 15, 18, 19, 20, 21};
+    assert(gt::all(gt::mink(input, 2, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 2});
+    correct2 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    assert(gt::all(gt::mink(input, 2, 2) == correct2));
+}
+#endif
+
 void cummin_test()
 {
     gt::Tensor<float> input({2, 3, 4});
@@ -446,6 +466,24 @@ void median_test()
     gt::Tensor<float> correct2({2, 3, 1});
     correct2 = {9, 10, 11, 12, 13, 14};
     assert(gt::all(gt::median(input, 2) == correct2));
+}
+
+void movmedian_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 0.5, 2, 2.5, 4, 4.5, 6, 6.5, 8, 8.5, 10, 10.5, 12, 12.5, 14, 14.5, 16, 16.5, 18, 18.5, 20, 20.5, 22, 22.5};
+    assert(gt::all(gt::movmedian(input, 2, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 1, 1, 2, 3, 4, 6, 7, 7, 8, 9, 10, 12, 13, 13, 14, 15, 16, 18, 19, 19, 20, 21, 22};
+    assert(gt::all(gt::movmedian(input, 2, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 1, 2, 3, 4, 5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+    assert(gt::all(gt::movmedian(input, 2, 2) == correct2));
 }
 
 void var_test()
@@ -1333,11 +1371,14 @@ int main()
     cummax_test();
     movmax_test();
     min_test();
+    //mink_test();
     cummin_test();
     movmin_test();
     mean_test();
     movmean_test();
     median_test();
+    movmedian_test();
+    movmedian_test();
     var_test();
     stddev_test();
     reshape_test();
