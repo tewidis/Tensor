@@ -54,12 +54,12 @@ namespace gt {
             difference_type operator - (const iterator& other) const { return m_ptr - other.m_ptr; }
             iterator& operator += (difference_type value) const { m_ptr += value; return *this; }
             iterator& operator -= (difference_type value) const { m_ptr -= value; return *this; }
-            friend bool operator == (const iterator& a, const iterator& b) { return a.m_ptr == b.m_ptr; }
-            friend bool operator != (const iterator& a, const iterator& b) { return a.m_ptr != b.m_ptr; }
-            friend bool operator > (const iterator& a, const iterator& b) { return a.m_ptr > b.m_ptr; }
-            friend bool operator < (const iterator& a, const iterator& b) { return a.m_ptr < b.m_ptr; }
-            friend bool operator >= (const iterator& a, const iterator& b) { return a.m_ptr >= b.m_ptr; }
-            friend bool operator <= (const iterator& a, const iterator& b) { return a.m_ptr <= b.m_ptr; }
+            bool operator == (const iterator& other) { return this->m_ptr == other.m_ptr; }
+            bool operator != (const iterator& other) { return this->m_ptr != other.m_ptr; }
+            bool operator > (const iterator& other) { return this->m_ptr > other.m_ptr; }
+            bool operator < (const iterator& other) { return this->m_ptr < other.m_ptr; }
+            bool operator >= (const iterator& other) { return this->m_ptr >= other.m_ptr; }
+            bool operator <= (const iterator& other) { return this->m_ptr <= other.m_ptr; }
 
             private:
             pointer m_ptr;
@@ -87,12 +87,12 @@ namespace gt {
             difference_type operator - (const const_iterator& other) const { return m_ptr - other.m_ptr; }
             const_iterator& operator += (difference_type value) const { m_ptr += value; return *this; }
             const_iterator& operator -= (difference_type value) const { m_ptr -= value; return *this; }
-            friend bool operator == (const const_iterator& a, const const_iterator& b) { return a.m_ptr == b.m_ptr; }
-            friend bool operator != (const const_iterator& a, const const_iterator& b) { return a.m_ptr != b.m_ptr; }
-            friend bool operator > (const const_iterator& a, const const_iterator& b) { return a.m_ptr > b.m_ptr; }
-            friend bool operator < (const const_iterator& a, const const_iterator& b) { return a.m_ptr < b.m_ptr; }
-            friend bool operator >= (const const_iterator& a, const const_iterator& b) { return a.m_ptr >= b.m_ptr; }
-            friend bool operator <= (const const_iterator& a, const const_iterator& b) { return a.m_ptr <= b.m_ptr; }
+            bool operator == (const const_iterator& other) { return this->m_ptr == other.m_ptr; }
+            bool operator != (const const_iterator& other) { return this->m_ptr != other.m_ptr; }
+            bool operator > (const const_iterator& other) { return this->m_ptr > other.m_ptr; }
+            bool operator < (const const_iterator& other) { return this->m_ptr < other.m_ptr; }
+            bool operator >= (const const_iterator& other) { return this->m_ptr >= other.m_ptr; }
+            bool operator <= (const const_iterator& other) { return this->m_ptr <= other.m_ptr; }
 
             private:
             pointer m_ptr;

@@ -358,7 +358,6 @@ void min_test()
     assert(gt::all(gt::min(input, 2) == correct2));
 }
 
-#if 0
 void mink_test()
 {
     gt::Tensor<float> input({2, 3, 4});
@@ -376,7 +375,6 @@ void mink_test()
     correct2 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     assert(gt::all(gt::mink(input, 2, 2) == correct2));
 }
-#endif
 
 void cummin_test()
 {
@@ -1371,7 +1369,7 @@ int main()
     cummax_test();
     movmax_test();
     min_test();
-    //mink_test();
+    mink_test();
     cummin_test();
     movmin_test();
     mean_test();

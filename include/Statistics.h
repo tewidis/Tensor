@@ -373,13 +373,12 @@ inline constexpr Tensor<T> min(const Tensor<T>& input, size_t dim)
     return output;
 }
 
-#if 0
 template<typename T>
 inline constexpr Tensor<T> mink(const Tensor<T>& input, size_t k, size_t dim)
 {
     std::vector<size_t> ishape = input.shape();
     if (dim < ishape.size()) {
-        ishape[dim] = k;
+        ishape[dim] = 1;
     }
 
     std::vector<size_t> oshape = input.shape();
@@ -397,14 +396,13 @@ inline constexpr Tensor<T> mink(const Tensor<T>& input, size_t k, size_t dim)
 
         offset = calculate_offset(output.stride(), ishape, dim, i);
         for (size_t j = 0; j < k; j++) {
-            std::nth_element(input.begin(), input.begin() + k, input.end());
-            output[offset + k * output.stride(dim)] = *(temp.begin() + k);
+            std::nth_element(temp.begin(), temp.begin() + j, temp.end());
+            output[offset + j * output.stride(dim)] = temp[j];
         }
     }
 
     return output;
 }
-#endif
 
 template<typename T>
 inline constexpr Tensor<T> minval(const Tensor<T>& input, T value)
