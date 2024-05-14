@@ -20,8 +20,10 @@
 #include <cmath>
 #include <complex>
 #include <set>
+#include <unordered_map>
 
 #include "Arithmetic.h"
+#include "Enums.h"
 #include "Tensor.h"
 
 namespace gt {
@@ -513,17 +515,65 @@ inline constexpr Tensor<T> median(const Tensor<T>& input, size_t dim)
 template<typename T>
 inline constexpr Tensor<T> var(const Tensor<T>& input, size_t dim)
 {
-    std::vector<size_t> reps(ndims(input));
-    std::fill(reps.begin(), reps.end(), 1);
-    reps[dim] = input.shape(dim);
     T denom = std::max(std::size_t{1}, input.shape(dim) - 1);
-    return sum(pow(abs(input - repmat(mean(input, dim), reps)), 2), dim) / denom;
+    return sum(pow(abs(broadcast(input, mean(input, dim), gt::MINUS)), 2), dim) / denom;
 }
 
 template<typename T>
 inline constexpr Tensor<T> stddev(const Tensor<T>& input, size_t dim)
 {
     return sqrt(var(input, dim));
+}
+
+/* helper function for mode. similar to using std::max_element, but obeys the
+ * convention that the smaller key is returned for values that are identical */
+template<typename T>
+inline constexpr T find_mode(const std::unordered_map<T,size_t>& map)
+{
+    T min_value = std::numeric_limits<T>::max();
+    size_t max_size = 0;
+    for (auto B = map.begin(), E = map.end(); B != E; ++B) {
+        if (B->first < min_value && B->second >= max_size) {
+            min_value = B->first;
+            max_size = B->second;
+        }
+    }
+
+    return min_value;
+}
+
+template<typename T>
+inline constexpr T mode(const Tensor<T>& input)
+{
+    std::unordered_map<T,size_t> map;
+    for (auto B = input.begin(), E = input.end(); B != E; ++B) {
+        map[*B]++;
+    }
+
+    return find_mode(map);
+}
+
+template<typename T>
+inline constexpr Tensor<T> mode(const Tensor<T>& input, size_t dim)
+{
+    std::vector<size_t> shape = input.shape();
+    if (dim < shape.size()) {
+        shape[dim] = 1;
+    }
+
+    Tensor<T> output(shape);
+    std::unordered_map<T,size_t> map;
+    for (size_t i = 0; i < output.size(); i++) {
+        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        for (size_t j = 0; j < input.shape(dim); j++) {
+            map[input[offset + j * input.stride(dim)]]++;
+        }
+        output[i] = find_mode(map);
+        map.clear();
+    }
+
+    return output;
+
 }
 
 } // namespace gt

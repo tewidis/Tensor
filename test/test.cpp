@@ -502,6 +502,24 @@ void movmedian_test()
     assert(gt::all(gt::movmedian(input, 2, 2) == correct2));
 }
 
+void mode_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({1, 3, 4});
+    correct0 = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22};
+    assert(gt::all(gt::mode(input, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 1, 4});
+    correct1 = {0, 1, 6, 7, 12, 13, 18, 19};
+    assert(gt::all(gt::mode(input, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 1});
+    correct2 = {0, 1, 2, 3, 4, 5};
+    assert(gt::all(gt::mode(input, 2) == correct2));
+}
+
 void var_test()
 {
     gt::Tensor<float> input({2, 3, 4});
@@ -1395,7 +1413,7 @@ int main()
     movmean_test();
     median_test();
     movmedian_test();
-    movmedian_test();
+    mode_test();
     var_test();
     stddev_test();
     reshape_test();
