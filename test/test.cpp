@@ -538,6 +538,27 @@ void var_test()
     assert(gt::all(gt::var(input, 2) == correct2));
 }
 
+void movvar_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5,
+                0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0.5};
+    assert(gt::all(gt::movvar(input, 2, 0) == correct0));
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 0, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2,
+                0, 0, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2};
+    assert(gt::all(gt::movvar(input, 2, 1) == correct1));
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 18, 18,
+                18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18};
+    assert(gt::all(gt::movvar(input, 2, 2) == correct2));
+}
+
 void stddev_test()
 {
     gt::Tensor<float> input({2, 3, 4});
@@ -557,6 +578,27 @@ void stddev_test()
     gt::Tensor<float> correct2({2, 3, 1});
     correct2 = {7.7460, 7.7460, 7.7460,  7.7460,  7.7460,  7.7460};
     assert(!gt::any(gt::abs(gt::stddev(input, 2) - correct2) > 1e-4f));
+}
+
+void movstd_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+    std::iota(input.begin(), input.end(), 0);
+
+    gt::Tensor<float> correct0({2, 3, 4});
+    correct0 = {0, 0.7071, 0, 0.7071, 0, 0.7071, 0, 0.7071, 0, 0.7071, 0, 0.7071,
+                0, 0.7071, 0, 0.7071, 0, 0.7071, 0, 0.7071, 0, 0.7071, 0, 0.7071};
+    assert(!gt::any(gt::abs(gt::movstd(input, 2, 0) - correct0) > 1e-4f));
+
+    gt::Tensor<float> correct1({2, 3, 4});
+    correct1 = {0, 0, 1.4142, 1.4142, 1.4142, 1.4142, 0, 0, 1.4142, 1.4142, 1.4142, 1.4142,
+                0, 0, 1.4142, 1.4142, 1.4142, 1.4142, 0, 0, 1.4142, 1.4142, 1.4142, 1.4142};
+    assert(!gt::any(gt::abs(gt::movstd(input, 2, 1) - correct1) > 1e-4f));
+
+    gt::Tensor<float> correct2({2, 3, 4});
+    correct2 = {0, 0, 0, 0, 0, 0, 4.2426, 4.2426, 4.2426, 4.2426, 4.2426, 4.2426,
+                4.2426, 4.2426, 4.2426, 4.2426, 4.2426, 4.2426, 4.2426, 4.2426, 4.2426, 4.2426, 4.2426, 4.2426};
+    assert(!gt::any(gt::abs(gt::movstd(input, 2, 2) - correct2) > 1e-4f));
 }
 
 void reshape_test()
@@ -1415,7 +1457,9 @@ int main()
     movmedian_test();
     mode_test();
     var_test();
+    movvar_test();
     stddev_test();
+    movstd_test();
     reshape_test();
     squeeze_test();
     flatten_test();

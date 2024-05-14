@@ -103,10 +103,7 @@ inline constexpr Tensor<T> movsum(const Tensor<T>& input, size_t B, size_t dim)
         for (size_t j = 0; j < output.shape(dim); j++) {
             output[offset + j * output.stride(dim)] = 0;
             for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
-                size_t index = offset + k * input.stride(dim);
-                if (index < input.size()) {
-                    output[offset + j * output.stride(dim)] += input[index];
-                }
+                output[offset + j * output.stride(dim)] += input[offset + k * input.stride(dim)];
             }
         }
     }
@@ -128,10 +125,7 @@ inline constexpr Tensor<T> movprod(const Tensor<T>& input, size_t B, size_t dim)
         for (size_t j = 0; j < output.shape(dim); j++) {
             output[offset + j * output.stride(dim)] = 1;
             for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
-                size_t index = offset + k * input.stride(dim);
-                if (index < input.size()) {
-                    output[offset + j * output.stride(dim)] *= input[index];
-                }
+                output[offset + j * output.stride(dim)] *= input[offset + k * input.stride(dim)];
             }
         }
     }
@@ -153,10 +147,7 @@ inline constexpr Tensor<T> movmax(const Tensor<T>& input, size_t B, size_t dim)
         for (size_t j = 0; j < output.shape(dim); j++) {
             T local_max = input[offset + j * input.stride(dim)];
             for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
-                size_t index = offset + k * input.stride(dim);
-                if (index < input.size()) {
-                    local_max = std::max(local_max, input[index]);
-                }
+                local_max = std::max(local_max, input[offset + k * input.stride(dim)]);
             }
             output[offset + j * output.stride(dim)] = local_max;
         }
@@ -179,10 +170,7 @@ inline constexpr Tensor<T> movmin(const Tensor<T>& input, size_t B, size_t dim)
         for (size_t j = 0; j < output.shape(dim); j++) {
             T local_min = input[offset + j * input.stride(dim)];
             for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
-                size_t index = offset + k * input.stride(dim);
-                if (index < input.size()) {
-                    local_min = std::min(local_min, input[index]);
-                }
+                local_min = std::min(local_min, input[offset + k * input.stride(dim)]);
             }
             output[offset + j * output.stride(dim)] = local_min;
         }
@@ -206,11 +194,8 @@ inline constexpr Tensor<T> movmean(const Tensor<T>& input, size_t B, size_t dim)
             output[offset + j * output.stride(dim)] = 0;
             T denom = 0;
             for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
-                size_t index = offset + k * input.stride(dim);
-                if (index < input.size()) {
-                    output[offset + j * output.stride(dim)] += input[index];
-                    denom++;
-                }
+                output[offset + j * output.stride(dim)] += input[offset + k * input.stride(dim)];
+                denom++;
             }
             output[offset + j * output.stride(dim)] /= denom;
         }
@@ -232,11 +217,9 @@ inline constexpr Tensor<T> movmedian(const Tensor<T>& input, size_t B, size_t di
     for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
         size_t offset = calculate_offset(input.stride(), shape, dim, i);
         for (size_t j = 0; j < output.shape(dim); j++) {
-            output[offset + j * output.stride(dim)] = 0;
             size_t temp_idx = 0;
             for (size_t k = (j > B / 2) ? (j - B / 2) : 0; k < j + B / 2; k++) {
-                size_t index = offset + k * input.stride(dim);
-                temp[temp_idx] = input[index];
+                temp[temp_idx] = input[offset + k * input.stride(dim)];
                 temp_idx++;
             }
             output[offset + j * output.stride(dim)] = median(temp.begin(), temp.begin() + temp_idx);
@@ -449,6 +432,12 @@ inline constexpr Tensor<T> minval(const Tensor<T>& input, T value)
 }
 
 template<typename T>
+inline constexpr T mean(const Tensor<T>& input)
+{
+    return sum(input) / input.size();
+}
+
+template<typename T>
 inline constexpr Tensor<T> mean(const Tensor<T>& input, size_t dim)
 {
     std::vector<size_t> shape = input.shape();
@@ -513,6 +502,13 @@ inline constexpr Tensor<T> median(const Tensor<T>& input, size_t dim)
 }
 
 template<typename T>
+inline constexpr T var(const Tensor<T>& input)
+{
+    T denom = std::max(std::size_t{1}, input.shape(0) - 1);
+    return sum(pow(abs(input - mean(input)), 2)) / denom;
+}
+
+template<typename T>
 inline constexpr Tensor<T> var(const Tensor<T>& input, size_t dim)
 {
     T denom = std::max(std::size_t{1}, input.shape(dim) - 1);
@@ -520,9 +516,40 @@ inline constexpr Tensor<T> var(const Tensor<T>& input, size_t dim)
 }
 
 template<typename T>
+inline constexpr Tensor<T> movvar(const Tensor<T>& input, size_t B, size_t dim)
+{
+    std::vector<size_t> shape = input.shape();
+    if (dim < shape.size()) {
+        shape[dim] = 1;
+    }
+
+    Tensor<T> output(input.shape());
+    for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
+        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        for (size_t j = 0; j < output.shape(dim); j++) {
+            size_t lower_bound = (j > B / 2) ? (j - B / 2) : 0;
+            size_t upper_bound = j + B / 2;
+            Tensor<T> temp({upper_bound - lower_bound});
+            for (size_t k = lower_bound; k < upper_bound; k++) {
+                temp[k-lower_bound] = input[offset + k * input.stride(dim)];
+            }
+            output[offset + j * output.stride(dim)] = var(temp);
+        }
+    }
+
+    return output;
+}
+
+template<typename T>
 inline constexpr Tensor<T> stddev(const Tensor<T>& input, size_t dim)
 {
     return sqrt(var(input, dim));
+}
+
+template<typename T>
+inline constexpr Tensor<T> movstd(const Tensor<T>& input, size_t B, size_t dim)
+{
+    return sqrt(movvar(input, B, dim));
 }
 
 /* helper function for mode. similar to using std::max_element, but obeys the
