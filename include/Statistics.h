@@ -603,4 +603,16 @@ inline constexpr Tensor<T> mode(const Tensor<T>& input, size_t dim)
 
 }
 
+template<typename T>
+inline constexpr std::pair<T,T> bounds(const Tensor<T>& input)
+{
+    return std::make_pair(min(input), max(input));
+}
+
+template<typename T>
+inline constexpr std::pair<Tensor<T>,Tensor<T>> bounds(const Tensor<T>& input, size_t dim)
+{
+    return std::make_pair(min(input, dim), max(input, dim));
+}
+
 } // namespace gt

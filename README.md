@@ -151,8 +151,7 @@ tensor = gt::min(tensor, 1);
     * Cumulative Statistics
         - cummax, cummin
     * Moving Statistics
-        - movmad, movmax, movmean, movmedian, movmin, movprod, movstd, movsum,
-        movvar
+        - movmax, movmean, movmedian, movmin, movprod, movstd, movsum, movvar
     * Percentiles and Quantiles
         - prctile, quantile, iqr
     * Forecasting Metrics
