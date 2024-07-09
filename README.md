@@ -92,6 +92,10 @@ tensor = gt::min(tensor, 1);
 
 ## Structure
 
+Development of Tensor is ongoing and progress will continue as I have time
+available. The complete set of functions listed below is not yet complete, but
+this document serves as a reference for future work.
+
 1. Arithmetic
     * Addition
         - +, sum, cumsum, movsum
