@@ -94,6 +94,7 @@ inline Tensor<std::complex<float>> fft(const Tensor<std::complex<float>>& input,
 
     return output;
 }
+
 inline Tensor<float> ifft(const Tensor<std::complex<float>>& input,
     size_t N, size_t dim = 0)
 {

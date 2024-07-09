@@ -18,6 +18,7 @@
 
 #include <iomanip>
 #include <complex>
+#include <memory>
 
 #include "Dimensional.h"
 
@@ -101,23 +102,19 @@ namespace gt {
         /* Constructor */
         Tensor(const std::vector<size_t>& dims)
             : Dimensional(dims)
-            , m_data(new T[this->m_size])
+            , m_data(std::shared_ptr<T>(new T[this->m_size]))
         {
             std::fill(this->begin(), this->end(), static_cast<T>(0));
         }
 
         /* Destructor */
-        ~Tensor()
-        {
-            delete[] this->m_data;
-        }
+        ~Tensor() {}
 
         /* Copy assignment operator */
         Tensor& operator = (const Tensor& other)
         {
             if (this != &other) {
-                delete[] this->m_data;
-                this->m_data = new T[other.size()];
+                this->m_data = other.m_data;
                 this->m_shape = other.shape();
                 this->m_size = other.size();
                 this->m_stride = other.stride();
@@ -130,14 +127,12 @@ namespace gt {
         Tensor& operator = (Tensor<T>&& other) noexcept
         {
             if (this != &other) {
-                delete[] this->m_data;
                 this->m_data = other.m_data;
                 this->m_shape = other.m_shape;
                 this->m_size = other.m_size;
                 this->m_stride = other.m_stride;
 
                 other.m_size = 0;
-                other.m_data = nullptr;
             }
             return *this;
         }
@@ -152,17 +147,14 @@ namespace gt {
         /* Copy constructor */
         Tensor(const Tensor<T>& other)
             : Dimensional(other.shape())
-            , m_data(new T[this->m_size])
-        {
-            std::copy(other.begin(), other.end(), this->begin());
-        }
+            , m_data(other.m_data)
+        {}
 
         /* Move constructor */
         Tensor(Tensor<T>&& other) noexcept
             : Dimensional(other.shape())
             , m_data(other.m_data)
         {
-            other.m_data = nullptr;
             other.m_size = 0;
             other.m_shape = {};
             other.m_stride = {};
@@ -171,13 +163,13 @@ namespace gt {
         template<typename... Ts>
         const_reference operator () (Ts... dims) const {
             std::vector<size_t> subs = {static_cast<size_t>(dims)...};
-            return this->m_data[sub2ind(*this, subs)];
+            return this->m_data.get()[sub2ind(*this, subs)];
         }
 
         template<typename... Ts>
         reference operator () (Ts... dims) {
             std::vector<size_t> subs = {static_cast<size_t>(dims)...};
-            return this->m_data[sub2ind(*this, subs)];
+            return this->m_data.get()[sub2ind(*this, subs)];
         }
 
         Tensor<T> operator () (const Tensor<bool>& indices)
@@ -189,7 +181,7 @@ namespace gt {
             size_t index = 0;
             for (size_t i = 0; i < indices.size(); i++) {
                 if (indices[i]) {
-                    output[index] = this->m_data[i];
+                    output[index] = this->m_data.get()[i];
                     index += 1;
                 }
             }
@@ -198,22 +190,23 @@ namespace gt {
         }
 
         reference operator [] (size_t index) {
-            return this->m_data[index];
+            return this->m_data.get()[index];
         }
 
         const_reference operator [] (size_t index) const {
-            return this->m_data[index];
+            return this->m_data.get()[index];
         }
 
         friend std::ostream& operator << (std::ostream& output, const Tensor<T>& input) {
-            size_t rest = input.size() / input.shape(0) / input.shape(1);
+            size_t nloops = input.size() / input.shape(0) / input.shape(1);
 
             output << std::fixed << std::setprecision(8);
-            for (size_t i = 0; i < rest; i++) {
+            for (size_t i = 0; i < nloops; i++) {
                 output << "ans(:,:," << i << ")" << std::endl;
-                for (size_t j = 0; j < input.shape(0); j++) {
-                    for (size_t k = 0; k < input.shape(1); k++) {
-                        size_t index = i * input.stride(2) + k * input.stride(1) + j;
+
+                for (size_t j = 0; j < input.shape(1); j++) {
+                    for (size_t k = 0; k < input.shape(0); k++) {
+                        size_t index = i * input.stride(2) + j * input.stride(1) + k * input.stride(0);
                         output << "\t" << std::setw(8) << input[index] << " ";
                     }
                     output << std::endl;
@@ -228,32 +221,32 @@ namespace gt {
         typedef std::reverse_iterator<iterator> reverse_iterator;
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-        iterator begin() { return iterator(&m_data[0]); }
-        iterator end() { return iterator(&m_data[this->size()]); }
-        const_iterator begin() const { return const_iterator(&m_data[0]); }
-        const_iterator end() const { return const_iterator(&m_data[this->size()]); }
+        iterator begin() { return iterator(&m_data.get()[0]); }
+        iterator end() { return iterator(&m_data.get()[this->size()]); }
+        const_iterator begin() const { return const_iterator(&m_data.get()[0]); }
+        const_iterator end() const { return const_iterator(&m_data.get()[this->size()]); }
 
-        reverse_iterator rbegin() { return iterator(&m_data[this->size()]); }
-        reverse_iterator rend() { return iterator(&m_data[0]); }
-        const_reverse_iterator rbegin() const { return const_iterator(&m_data[this->size()]); }
-        const_reverse_iterator rend() const { return const_iterator(&m_data[0]); }
+        reverse_iterator rbegin() { return reverse_iterator(&m_data.get()[this->size()]); }
+        reverse_iterator rend() { return reverse_iterator(&m_data.get()[0]); }
+        const_reverse_iterator rbegin() const { return const_reverse_iterator(&m_data.get()[this->size()]); }
+        const_reverse_iterator rend() const { return const_reverse_iterator(&m_data.get()[0]); }
 
-        const_iterator cbegin() const { return const_iterator(&m_data[0]); }
-        const_iterator cend() const { return const_iterator(&m_data[this->size()]); }
+        const_iterator cbegin() const { return const_iterator(&m_data.get()[0]); }
+        const_iterator cend() const { return const_iterator(&m_data.get()[this->size()]); }
 
-        const_reverse_iterator crbegin() const { return const_iterator(&m_data[this->size()]); }
-        const_reverse_iterator crend() const { return const_iterator(&m_data[0]); }
+        const_reverse_iterator crbegin() const { return const_reverse_iterator(&m_data.get()[this->size()]); }
+        const_reverse_iterator crend() const { return const_reverse_iterator(&m_data.get()[0]); }
 
         /* data accessors */
-        pointer data() { return this->m_data; }
-        const_pointer data() const { return this->m_data; }
-        reference front() { return this->m_data[0]; }
-        const_reference front() const { return this->m_data[0]; }
-        reference back() { return this->m_data[this->size()-1]; }
-        const_reference back() const { return this->m_data[this->size()-1]; }
+        pointer data() { return this->m_data.get(); }
+        const_pointer data() const { return this->m_data.get(); }
+        reference front() { return this->m_data.get()[0]; }
+        const_reference front() const { return this->m_data.get()[0]; }
+        reference back() { return this->m_data.get()[this->size()-1]; }
+        const_reference back() const { return this->m_data.get()[this->size()-1]; }
 
         private:
-        T* m_data;
+        std::shared_ptr<T> m_data;
     };
 
     template<typename T>
