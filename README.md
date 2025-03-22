@@ -203,7 +203,7 @@ this document serves as a reference for future work.
 
 ## TODO
 
-1. Deduce return types for operator overloads based on types of operands
+1. Update "typename T" to "TensorType T" in many functions
 
 ## Licensing
 

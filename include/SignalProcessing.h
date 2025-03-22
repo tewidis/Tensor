@@ -320,7 +320,7 @@ template<typename T> requires std::is_floating_point_v<T>
 inline constexpr Tensor<T> barthann(size_t N)
 {
     Tensor<T> output = gt::linspace(0.0f, 1.0f, N) - 0.5f;
-    output = 0.62 - 0.48 * gt::abs(output) + 0.38 * gt::cos(2 * PI * output);
+    output = 0.62f - 0.48f * gt::abs(output) + 0.38f * gt::cos(2 * PI * output);
 
     return output;
 }
@@ -329,7 +329,7 @@ template<typename T> requires std::is_floating_point_v<T>
 inline constexpr Tensor<T> blackman(size_t N)
 {
     Tensor<T> output = gencoswin<T>(N);
-    output = 0.42 - 0.5 * gt::cos(2 * PI * output) + 0.08 * gt::cos(4 * PI * output);
+    output = 0.42f - 0.5f * gt::cos(2 * PI * output) + 0.08f * gt::cos(4 * PI * output);
 
     return output;
 }
