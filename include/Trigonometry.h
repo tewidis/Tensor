@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include "cblas.h"
 
 #include "Tensor.h"

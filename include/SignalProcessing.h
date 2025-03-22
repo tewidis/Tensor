@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include "cblas.h"
 #include "fftw3.h"
 
