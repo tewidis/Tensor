@@ -68,10 +68,10 @@ functions are also available in MATLAB and are clearer.
 
 ``` C++
 // MATLAB Transpose
-tensor = t1.\';
+tensor = t1.';
 
 // MATLAB Conjugate Transpose
-tensor = t1\';
+tensor = t1';
 
 // Tensor Transpose
 tensor = gt::transpose(t1);
