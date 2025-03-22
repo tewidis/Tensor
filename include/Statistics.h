@@ -43,6 +43,17 @@ inline size_t calculate_offset(const std::vector<size_t>& input_stride,
     return offset;
 }
 
+inline size_t calculate_offset(const std::vector<size_t>& step, const
+    std::vector<size_t>& stride, const std::vector<size_t>& shape, size_t index)
+{
+    size_t offset = 0;
+    for (size_t i = 0; i < shape.size(); i++) {
+        offset += step[i] * ((index / stride[i]) % shape[i]);
+    }
+
+    return offset;
+}
+
 /* Cumulative Statistics */
 template<typename T>
 inline constexpr Tensor<T> cummax(const Tensor<T>& input, size_t dim)

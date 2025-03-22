@@ -46,10 +46,17 @@ tensor = gt::permute(tensor, {2, 0, 1});
 
 2. Data is arranged in column-major format. This is similar to MATLAB and
 Fortran, but differs from C and Numpy which use row-major format.
-3. Use \* instead of .\* for element-wise multiplication.
+3. Use \* instead of .\* for element-wise multiplication. Use matmul instead of
+\* for matrix multiplication, similar to Fortran.
 
 ``` C++
+// MATLAB Element-wise Multiplication
+tensor = t1 .* t2;
+
 // MATLAB Matrix Multiplication
+tensor = t1 * t2;
+
+// Tensor Matrix Multiplication
 tensor = t1 * t2;
 
 // Tensor Matrix Multiplication
@@ -193,6 +200,10 @@ this document serves as a reference for future work.
         - barthann, bartlett, blackman, blackmanharris, bohman, chebyshev,
         flattop, gaussian, hamming, hann, hanning, kaiser, nuttall, parzen,
         rect, taylor, triang, tukey
+
+## TODO
+
+1. Deduce return types for operator overloads based on types of operands
 
 ## Licensing
 

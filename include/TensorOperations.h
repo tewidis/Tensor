@@ -118,17 +118,6 @@ inline constexpr Tensor<T> repmat(const Tensor<T>& input, const std::vector<size
     return output;
 }
 
-inline size_t calculate_permute_index(const std::vector<size_t>& shape,
-    const std::vector<size_t>& stride, const std::vector<size_t>& step, size_t index)
-{
-    size_t output = 0;
-    for (size_t i = 0; i < shape.size(); i++) {
-        output += step[i] * ((index / stride[i]) % shape[i]);
-    }
-
-    return output;
-}
-
 template<typename T>
 inline constexpr Tensor<T> permute(const Tensor<T>& input, const std::vector<size_t>& order)
 {
@@ -144,8 +133,8 @@ inline constexpr Tensor<T> permute(const Tensor<T>& input, const std::vector<siz
 
     Tensor<T> output(permuted_shape);
     for (size_t i = 0; i < output.size(); i++) {
-        output[i] = input[calculate_permute_index(permuted_shape,
-            output.stride(), permuted_stride, i)];
+        output[i] = input[calculate_offset(permuted_stride, output.stride(),
+            permuted_shape, i)];
     }
 
     return output;
@@ -315,12 +304,8 @@ inline constexpr Tensor<T> broadcast(const Tensor<T>& lhs, const Tensor<T>& rhs,
 
     Tensor<T> output(shape);
     for (size_t i = 0; i < output.size(); i++) {
-        size_t lidx = 0;
-        size_t ridx = 0;
-        for (size_t j = 0; j < ndims(output); j++) {
-            lidx += lhs.stride(j) * ((i / output.stride(j)) % lhs.shape(j));
-            ridx += rhs.stride(j) * ((i / output.stride(j)) % rhs.shape(j));
-        }
+        size_t lidx = calculate_offset(lhs.stride(), output.stride(), lhs.shape(), i);
+        size_t ridx = calculate_offset(rhs.stride(), output.stride(), rhs.shape(), i);
 
         switch (op) {
             case PLUS:
@@ -380,7 +365,7 @@ template<typename T>
 inline constexpr std::vector<size_t> ind2sub(const Tensor<T>& input, size_t index) {
     std::vector<size_t> subs(ndims(input));
     for (size_t i = 0; i < subs.size(); i++) {
-        subs[i] = input.stride(i) * ((index / input.stride(i)) % input.shape(i));
+        subs[i] = (index / input.stride(i)) % input.shape(i);
     }
 
     return subs;

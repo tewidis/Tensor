@@ -15,10 +15,11 @@ OBJFILES	:= $(patsubst $(TEST)/%.cpp, $(BUILD)/%.o, $(SRCFILES))
 DEPFILES	:= $(patsubst $(TEST)/%.cpp, $(BUILD)/%.d, $(SRCFILES))
 BUILD_TYPE 	:= Debug
 
+CXXFLAGS 	:= -ffast-math -Wall -Werror -Wpedantic -std=c++20 -g
 ifeq ($(BUILD_TYPE), Debug)
-	CXXFLAGS	:= -O0 -g -ffast-math -Wall -Werror -Wpedantic -std=c++20 -DDEBUG
+	CXXFLAGS	+= -O0 -DDEBUG
 else
-	CXXFLAGS	:= -O3 -g -ffast-math -Wall -Werror -Wpedantic -std=c++20 -DNDEBUG
+	CXXFLAGS	+= -O3 -DNDEBUG
 endif
 
 # Executable

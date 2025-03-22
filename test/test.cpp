@@ -772,6 +772,38 @@ void flip_test()
     assert(gt::all(gt::flip(input, 2) == correct2));
 }
 
+void ind2sub_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+
+    std::vector<std::vector<size_t>> correct = {
+        {0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}, {0, 2, 0}, {1, 2, 0},
+        {0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}, {0, 2, 1}, {1, 2, 1},
+        {0, 0, 2}, {1, 0, 2}, {0, 1, 2}, {1, 1, 2}, {0, 2, 2}, {1, 2, 2},
+        {0, 0, 3}, {1, 0, 3}, {0, 1, 3}, {1, 1, 3}, {0, 2, 3}, {1, 2, 3}
+    };
+
+    for (size_t i = 0; i < input.size(); i++) {
+        assert(gt::ind2sub(input, i) == correct[i]);
+    }
+}
+
+void sub2ind_test()
+{
+    gt::Tensor<float> input({2, 3, 4});
+
+    std::vector<std::vector<size_t>> subs = {
+        {0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}, {0, 2, 0}, {1, 2, 0},
+        {0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}, {0, 2, 1}, {1, 2, 1},
+        {0, 0, 2}, {1, 0, 2}, {0, 1, 2}, {1, 1, 2}, {0, 2, 2}, {1, 2, 2},
+        {0, 0, 3}, {1, 0, 3}, {0, 1, 3}, {1, 1, 3}, {0, 2, 3}, {1, 2, 3}
+    };
+
+    for (size_t i = 0; i < input.size(); i++) {
+        assert(gt::sub2ind(input, subs[i]) == i);
+    }
+}
+
 void cart2sph_test()
 {
     gt::Tensor<float> input({8, 3});
@@ -1468,6 +1500,8 @@ int main()
     repmat_test();
     circshift_test();
     flip_test();
+    ind2sub_test();
+    sub2ind_test();
     cart2sph_test();
     sph2cart_test();
     cart2pol_test();
@@ -1505,4 +1539,9 @@ int main()
     tukey_test();
     random_test();
     meshgrid_test();
+
+    //gt::Tensor<float> t1({2,3,4});
+    //std::iota(t1.begin(), t1.end(), 0);
+    //gt::Tensor<float> t2 = gt::view(t1, 0, gt::Range{1,2}, gt::Range{0,2,2});
+    //std::cout << t2 << std::endl;
 }
