@@ -259,7 +259,7 @@ inline constexpr Tensor<T> sum(const Tensor<T>& input, size_t dim)
 
     Tensor<T> output(shape);
     for (size_t i = 0; i < output.size(); i++) {
-        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        size_t offset = calculate_offset(input.stride(), output.stride(), shape, i);
         for (size_t j = 0; j < input.shape(dim); j++) {
             output[i] += input[offset + j * input.stride(dim)];
         }
@@ -275,14 +275,15 @@ inline constexpr Tensor<T> cumsum(const Tensor<T>& input, size_t dim)
     if (dim < shape.size()) {
         shape[dim] = 1;
     }
+    std::vector<size_t> stride = calculate_stride(shape);
 
     Tensor<T> output(input.shape());
     for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        size_t offset = calculate_offset(input.stride(), stride, shape, i);
         T running_total = 0;
         for (size_t j = 0; j < output.shape(dim); j++) {
             running_total += input[offset + j * input.stride(dim)];
-            output[offset + j * input.stride(dim)] = running_total;
+            output[offset + j * output.stride(dim)] = running_total;
         }
     }
 
@@ -299,7 +300,7 @@ inline constexpr Tensor<T> diff(const Tensor<T>& input, size_t dim)
 
     Tensor<T> output(shape);
     for (size_t i = 0; i < output.size(); i++) {
-        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        size_t offset = calculate_offset(input.stride(), output.stride(), shape, i);
         output[i] = input[offset + input.stride(dim)] - input[offset];
     }
 
@@ -325,7 +326,7 @@ inline constexpr Tensor<T> prod(const Tensor<T>& input, size_t dim)
 
     Tensor<T> output(shape);
     for (size_t i = 0; i < output.size(); i++) {
-        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        size_t offset = calculate_offset(input.stride(), output.stride(), shape, i);
         output[i] = 1;
         for (size_t j = 0; j < input.shape(dim); j++) {
             output[i] *= input[offset + j * input.stride(dim)];
@@ -342,10 +343,11 @@ inline constexpr Tensor<T> cumprod(const Tensor<T>& input, size_t dim)
     if (dim < shape.size()) {
         shape[dim] = 1;
     }
+    std::vector<size_t> stride = calculate_stride(shape);
 
     Tensor<T> output(input.shape());
     for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        size_t offset = calculate_offset(input.stride(), stride, shape, i);
         T running_total = 1;
         for (size_t j = 0; j < output.shape(dim); j++) {
             running_total *= input[offset + j * input.stride(dim)];
@@ -366,7 +368,7 @@ inline constexpr Tensor<T> trapz(const Tensor<T>& input, size_t dim)
 
     Tensor<T> output(shape);
     for (size_t i = 0; i < output.size(); i++) {
-        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        size_t offset = calculate_offset(input.stride(), output.stride(), shape, i);
         for (size_t j = 1; j < input.shape(dim); j++) {
             output[i] += (input[offset + j * input.stride(dim)] +
                 input[offset + (j - 1) * input.stride(dim)]) / 2.0f;
@@ -383,10 +385,11 @@ inline constexpr Tensor<T> cumtrapz(const Tensor<T>& input, size_t dim)
     if (dim < shape.size()) {
         shape[dim] = 1;
     }
+    std::vector<size_t> stride = calculate_stride(shape);
 
     Tensor<T> output(input.shape());
     for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        size_t offset = calculate_offset(input.stride(), stride, shape, i);
         output[offset] = 0;
         for (size_t j = 1; j < output.shape(dim); j++) {
             output[offset + j * input.stride(dim)] = 

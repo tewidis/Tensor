@@ -36,23 +36,25 @@ inline Tensor<std::complex<float>> fft(const Tensor<float>& input,
     std::vector<size_t> shape = input.shape();
     shape[dim] = N;
     Tensor<std::complex<float>> output(shape);
+    shape[dim] = 1;
+    std::vector<size_t> stride = calculate_stride(shape);
     fftwf_plan plan = fftwf_plan_dft_r2c_1d(N, in, out, FFTW_ESTIMATE);
     assert(plan && "Error in fft: plan creation failed");
 
     for (size_t i = 0; i < input.size() / input.shape(dim); i++) {
-        size_t offset_i = calculate_offset(input.stride(), input.shape(), dim, i);
-        size_t offset_o = calculate_offset(output.stride(), output.shape(), dim, i);
+        size_t offset = calculate_offset(input.stride(), stride, shape, i);
         for (size_t j = 0; j < N; j++) {
-            in[j] = input[offset_i + j * input.stride(dim)];
+            in[j] = input[offset + j * input.stride(dim)];
         }
 
         fftwf_execute(plan);
 
+        offset = calculate_offset(output.stride(), stride, shape, i);
         for (size_t j = 0; j < output.shape(dim); j++) {
             if (j < N / 2 + 1) {
-                output[offset_o + j * output.stride(dim)] = {out[j][0], out[j][1]};
+                output[offset + j * output.stride(dim)] = {out[j][0], out[j][1]};
             } else {
-                output[offset_o + j * output.stride(dim)] = {out[N-j][0], -out[N-j][1]};
+                output[offset + j * output.stride(dim)] = {out[N-j][0], -out[N-j][1]};
             }
         }
     }
@@ -72,21 +74,23 @@ inline Tensor<std::complex<float>> fft(const Tensor<std::complex<float>>& input,
     std::vector<size_t> shape = input.shape();
     shape[dim] = N;
     Tensor<std::complex<float>> output(shape);
+    shape[dim] = 1;
+    std::vector<size_t> stride = calculate_stride(shape);
     fftwf_plan plan = fftwf_plan_dft_1d(N, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
     assert(plan && "Error in fft: plan creation failed");
 
     for (size_t i = 0; i < input.size() / input.shape(dim); i++) {
-        size_t offset_i = calculate_offset(input.stride(), input.shape(), dim, i);
-        size_t offset_o = calculate_offset(output.stride(), output.shape(), dim, i);
+        size_t offset = calculate_offset(input.stride(), stride, shape, i);
         for (size_t j = 0; j < N; j++) {
-            in[j][0] = std::real(input[offset_i + j * input.stride(dim)]);
-            in[j][1] = std::imag(input[offset_i + j * input.stride(dim)]);
+            in[j][0] = std::real(input[offset + j * input.stride(dim)]);
+            in[j][1] = std::imag(input[offset + j * input.stride(dim)]);
         }
 
         fftwf_execute(plan);
 
+        offset = calculate_offset(output.stride(), stride, shape, i);
         for (size_t j = 0; j < output.shape(dim); j++) {
-            output[offset_o + j * output.stride(dim)] = {out[j][0], out[j][1]};
+            output[offset + j * output.stride(dim)] = {out[j][0], out[j][1]};
         }
     }
 
@@ -105,24 +109,26 @@ inline Tensor<float> ifft(const Tensor<std::complex<float>>& input,
     std::vector<size_t> shape = input.shape();
     shape[dim] = N;
     Tensor<float> output(shape);
+    shape[dim] = 1;
+    std::vector<size_t> stride = calculate_stride(shape);
     fftwf_plan plan = fftwf_plan_dft_c2r_1d(N, in, out, FFTW_ESTIMATE);
     assert(plan && "Error in ifft: plan creation failed");
 
     for (size_t i = 0; i < input.size() / input.shape(dim); i++) {
-        size_t offset_i = calculate_offset(input.stride(), input.shape(), dim, i);
-        size_t offset_o = calculate_offset(output.stride(), output.shape(), dim, i);
+        size_t offset = calculate_offset(input.stride(), stride, shape, i);
         for (size_t j = 0; j < N / 2 + 1; j++) {
-            in[j][0] = std::real(input[offset_i + j * input.stride(dim)]);
-            in[j][1] = std::imag(input[offset_i + j * input.stride(dim)]);
+            in[j][0] = std::real(input[offset + j * input.stride(dim)]);
+            in[j][1] = std::imag(input[offset + j * input.stride(dim)]);
         }
 
         fftwf_execute(plan);
 
+        offset = calculate_offset(output.stride(), stride, shape, i);
         for (size_t j = 0; j < output.shape(dim); j++) {
             if (j < N / 2 + 1) {
-                output[offset_o + j * output.stride(dim)] = out[j] / N;
+                output[offset + j * output.stride(dim)] = out[j] / N;
             } else {
-                output[offset_o + j * output.stride(dim)] = out[j] / N;
+                output[offset + j * output.stride(dim)] = out[j] / N;
             }
         }
     }

@@ -108,11 +108,8 @@ inline constexpr Tensor<T> repmat(const Tensor<T>& input, const std::vector<size
 
     Tensor<T> output(shape);
     for (size_t i = 0; i < output.size(); i++) {
-        size_t index = 0;
-        for (size_t j = 0; j < shape.size(); j++) {
-            index += input.stride(j) * ((i / output.stride(j)) % input.shape(j));
-        }
-        output[i] = input[index];
+        size_t offset = calculate_offset(input.stride(), output.stride(), input.shape(), i);
+        output[i] = input[offset];
     }
 
     return output;
@@ -124,17 +121,16 @@ inline constexpr Tensor<T> permute(const Tensor<T>& input, const std::vector<siz
     assert((ndims(input) == order.size()) &&
         "Error in permute: Size of order does not dimensionality of Tensor");
 
-    std::vector<size_t> permuted_shape(order.size());
-    std::vector<size_t> permuted_stride(order.size());
+    std::vector<size_t> shape(order.size());
+    std::vector<size_t> stride(order.size());
     for (size_t i = 0; i < order.size(); i++) {
-        permuted_shape[i] = input.shape(order[i]);
-        permuted_stride[i] = input.stride(order[i]);
+        shape[i] = input.shape(order[i]);
+        stride[i] = input.stride(order[i]);
     }
 
-    Tensor<T> output(permuted_shape);
+    Tensor<T> output(shape);
     for (size_t i = 0; i < output.size(); i++) {
-        output[i] = input[calculate_offset(permuted_stride, output.stride(),
-            permuted_shape, i)];
+        output[i] = input[calculate_offset(stride, output.stride(), shape, i)];
     }
 
     return output;
@@ -161,13 +157,14 @@ inline constexpr Tensor<T> circshift(const Tensor<T>& input, int64_t nshift, siz
     if (dim < shape.size()) {
         shape[dim] = 1;
     }
+    std::vector<size_t> stride = calculate_stride(shape);
 
     nshift = input.shape(dim) - rem(nshift, input.shape(dim));
 
     Tensor<T> output(input.shape());
     size_t modulo = input.shape(dim) * input.stride(dim);
     for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        size_t offset = calculate_offset(input.stride(), stride, shape, i);
         for (size_t j = 0; j < output.shape(dim); j++) {
             output[offset + j * output.stride(dim)] =
                 input[offset + (j + nshift) * output.stride(dim) % modulo];
@@ -199,10 +196,11 @@ inline constexpr Tensor<T> flip(const Tensor<T>& input, size_t dim = 0)
     if (dim < shape.size()) {
         shape[dim] = 1;
     }
+    std::vector<size_t> stride = calculate_stride(shape);
 
     Tensor<T> output(input.shape());
     for (size_t i = 0; i < output.size() / output.shape(dim); i++) {
-        size_t offset = calculate_offset(input.stride(), shape, dim, i);
+        size_t offset = calculate_offset(input.stride(), stride, shape, i);
         for (size_t j = 0; j < output.shape(dim); j++) {
             output[offset + j * output.stride(dim)] =
                 input[offset + (input.shape(dim) - j - 1) * input.stride(dim)];
